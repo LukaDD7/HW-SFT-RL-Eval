@@ -19,6 +19,9 @@
 - [project15_offline_model_identity_audit_20260915.md](project15_offline_model_identity_audit_20260915.md)
   Invalid Project15 offline run caused by loading Vision-OPD gs65 under a
   PTD-PO label, plus the checkpoint-identity guard.
+- [eval_results_20260915.md](eval_results_20260915.md)
+  Corrected PTD-PO Project15 offline results and the Qwen3-VL-2B
+  Base/VA-OPD step175/step300 six-benchmark comparison.
 
 ## Collaboration
 

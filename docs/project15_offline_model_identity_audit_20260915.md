@@ -54,3 +54,23 @@ checkpoint was served.
 
 Use a new run and cache directory for the corrected PTD-PO Project15 offline
 results. Do not resume or merge the invalid run.
+
+## Corrected rerun outcome
+
+The corrected rerun completed on 2026-09-15 with return code 0 and loaded the
+intended PTD-PO checkpoint:
+
+```text
+qwen3vl_ptdpo_r4_step390
+```
+
+| Benchmark | Base | Invalid prior “PTD-PO” | Corrected PTD-PO |
+|---|---:|---:|---:|
+| MindCube | 0.29749 | 0.29957 | 0.30259 |
+| ScienceQA | 0.94646 | 0.69460 | 0.93852 |
+| MMSI-Bench | 0.30700 | 0.29800 | 0.31300 |
+| BLINK | 0.65124 | 0.13940 | 0.65018 |
+
+This confirms the ScienceQA and BLINK anomalies were caused by the wrong model
+being served. The full corrected result table, VA-OPD comparison, and truncation
+audit are recorded in [eval_results_20260915.md](eval_results_20260915.md).
