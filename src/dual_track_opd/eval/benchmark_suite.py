@@ -527,15 +527,19 @@ def run_suite(args: argparse.Namespace) -> int:
             print(f"\n[run] {spec.contract_name}", flush=True)
             completed = subprocess.run(command, check=False, env=run_env)
             record["returncode"] = completed.returncode
-            output_dir = run_dir / "lmms" / spec.benchmark_id
-            has_results = any(path.is_file() for path in output_dir.rglob("*.json"))
+            if spec.runner == "replay_openai":
+                result_path = run_dir / "replay" / f"{spec.benchmark_id}.jsonl"
+                has_results = result_path.is_file() and result_path.stat().st_size > 0
+            else:
+                output_dir = run_dir / "lmms" / spec.benchmark_id
+                has_results = any(path.is_file() for path in output_dir.rglob("*.json"))
             succeeded = completed.returncode == 0 and has_results
             record["status"] = "completed" if succeeded else "failed"
             if not succeeded:
                 record["failure_reason"] = (
-                    "lmms_eval_returned_nonzero"
+                    f"{spec.runner}_returned_nonzero"
                     if completed.returncode != 0
-                    else "lmms_eval_returned_no_result_files"
+                    else f"{spec.runner}_returned_no_result_files"
                 )
                 overall_rc = completed.returncode if completed.returncode != 0 else 1
                 if not args.keep_going:
