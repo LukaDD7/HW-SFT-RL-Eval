@@ -1,0 +1,75 @@
+{
+  "protocol": {
+    "mode": "exact",
+    "denominator": "all rows",
+    "row_count": 2600
+  },
+  "arms": {
+    "base": {
+      "correct": 669,
+      "extractable": 2496,
+      "errors": 0,
+      "exact_accuracy_full_denominator": 0.2573076923076923,
+      "extraction_rate": 0.96,
+      "per_task": {
+        "FuncRead": { "n": 200, "correct": 40, "extractable": 177 },
+        "Maps": { "n": 200, "correct": 87, "extractable": 200 },
+        "RefCoco": { "n": 200, "correct": 1, "extractable": 200 },
+        "GeomCost": { "n": 200, "correct": 97, "extractable": 200 },
+        "Collisions": { "n": 200, "correct": 87, "extractable": 200 },
+        "Isomorphism": { "n": 200, "correct": 129, "extractable": 200 },
+        "Schedule": { "n": 200, "correct": 40, "extractable": 200 },
+        "GeomShape": { "n": 200, "correct": 28, "extractable": 200 },
+        "CodeEdit": { "n": 200, "correct": 48, "extractable": 200 },
+        "IQ": { "n": 200, "correct": 55, "extractable": 200 },
+        "EmojiAlgebra": { "n": 200, "correct": 6, "extractable": 194 },
+        "Charts": { "n": 200, "correct": 8, "extractable": 125 },
+        "Clocks": { "n": 200, "correct": 43, "extractable": 200 }
+      }
+    },
+    "va_opd_step175": {
+      "correct": 693,
+      "extractable": 2505,
+      "errors": 0,
+      "exact_accuracy_full_denominator": 0.26653846153846156,
+      "extraction_rate": 0.9634615384615385,
+      "per_task": {
+        "FuncRead": { "n": 200, "correct": 45, "extractable": 200 },
+        "Maps": { "n": 200, "correct": 95, "extractable": 200 },
+        "RefCoco": { "n": 200, "correct": 2, "extractable": 198 },
+        "GeomCost": { "n": 200, "correct": 109, "extractable": 200 },
+        "Collisions": { "n": 200, "correct": 85, "extractable": 200 },
+        "Isomorphism": { "n": 200, "correct": 126, "extractable": 200 },
+        "Schedule": { "n": 200, "correct": 34, "extractable": 200 },
+        "GeomShape": { "n": 200, "correct": 19, "extractable": 200 },
+        "CodeEdit": { "n": 200, "correct": 48, "extractable": 200 },
+        "IQ": { "n": 200, "correct": 50, "extractable": 200 },
+        "EmojiAlgebra": { "n": 200, "correct": 11, "extractable": 182 },
+        "Charts": { "n": 200, "correct": 18, "extractable": 125 },
+        "Clocks": { "n": 200, "correct": 51, "extractable": 200 }
+      }
+    },
+    "va_opd_step300": {
+      "correct": 747,
+      "extractable": 2513,
+      "errors": 0,
+      "exact_accuracy_full_denominator": 0.2873076923076923,
+      "extraction_rate": 0.9665384615384616,
+      "per_task": {
+        "FuncRead": { "n": 200, "correct": 46, "extractable": 200 },
+        "Maps": { "n": 200, "correct": 95, "extractable": 200 },
+        "RefCoco": { "n": 200, "correct": 4, "extractable": 200 },
+        "GeomCost": { "n": 200, "correct": 105, "extractable": 200 },
+        "Collisions": { "n": 200, "correct": 91, "extractable": 200 },
+        "Isomorphism": { "n": 200, "correct": 133, "extractable": 200 },
+        "Schedule": { "n": 200, "correct": 39, "extractable": 200 },
+        "GeomShape": { "n": 200, "correct": 26, "extractable": 200 },
+        "CodeEdit": { "n": 200, "correct": 44, "extractable": 200 },
+        "IQ": { "n": 200, "correct": 53, "extractable": 200 },
+        "EmojiAlgebra": { "n": 200, "correct": 40, "extractable": 188 },
+        "Charts": { "n": 200, "correct": 28, "extractable": 125 },
+        "Clocks": { "n": 200, "correct": 43, "extractable": 200 }
+      }
+    }
+  }
+}

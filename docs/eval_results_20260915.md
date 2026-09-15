@@ -8,6 +8,9 @@ This report records two result sets:
 All raw outputs, response caches, model weights, and benchmark datasets remain
 outside Git.
 
+Complete per-benchmark metric JSON files and the strict ReMI exact per-task
+breakdown are stored under `results/20260915/`.
+
 ## Common protocol
 
 - lmms-eval: `88b23e2bfa16a1edbc16e9e238ed82130b3a4f56`

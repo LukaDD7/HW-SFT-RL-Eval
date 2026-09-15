@@ -1,0 +1,217 @@
+{
+  "results": {
+    "viewspatial": {
+      "alias": "viewspatial",
+      "overall_accuracy,none": 0.3693977591036415,
+      "overall_accuracy_stderr,none": "N/A",
+      "overall_accuracy_stderr_clt,none": 0.006386586564693142,
+      "overall_accuracy_stderr_clustered,none": "N/A"
+    }
+  },
+  "group_subtasks": {
+    "viewspatial": []
+  },
+  "configs": {
+    "viewspatial": {
+      "task": "viewspatial",
+      "dataset_path": "oscarqjh/ViewSpatial_lmmseval",
+      "dataset_name": "default",
+      "test_split": "test",
+      "full_docs": false,
+      "process_results_use_image": false,
+      "doc_to_visual": "<function viewspatial_doc_to_visual at 0x7f4eebe5e160>",
+      "doc_to_text": "<function viewspatial_doc_to_text at 0x7f4eebe5e3e0>",
+      "doc_to_target": "answer",
+      "process_results": "<function viewspatial_process_results at 0x7f4eebe5e8e0>",
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "overall_accuracy",
+          "aggregation": "<function viewspatial_aggregate_results at 0x7f4eebe5eca0>",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "generate_until",
+      "generation_kwargs": {
+        "until": [
+          "\n\n"
+        ],
+        "do_sample": false,
+        "temperature": 0,
+        "max_new_tokens": 256
+      },
+      "repeats": 1,
+      "should_decontaminate": false,
+      "score_key": "score"
+    }
+  },
+  "versions": {
+    "viewspatial": "Yaml"
+  },
+  "n-shot": {
+    "viewspatial": 0
+  },
+  "higher_is_better": {
+    "viewspatial": {
+      "overall_accuracy": true
+    }
+  },
+  "n-samples": {
+    "viewspatial": {
+      "original": 5712,
+      "effective": 5712
+    }
+  },
+  "config": {
+    "model": "openai",
+    "model_args": "model=Qwen3-VL-2B-VA-OPD-step175,base_url=http://127.0.0.1:8020/v1,api_key=EMPTY,timeout=600,num_concurrent=8,httpx_trust_env=false",
+    "batch_size": "1",
+    "batch_sizes": [],
+    "device": null,
+    "use_cache": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge/cache",
+    "limit": null,
+    "offset": 0,
+    "bootstrap_iters": 100000,
+    "gen_kwargs": {
+      "temperature": 0,
+      "max_new_tokens": 256
+    },
+    "random_seed": 42,
+    "numpy_seed": 42,
+    "torch_seed": 42,
+    "fewshot_seed": 42,
+    "resolved_cli_args": {
+      "config": "",
+      "model": "openai",
+      "tasks": "viewspatial",
+      "model_args": "model=Qwen3-VL-2B-VA-OPD-step175,base_url=http://127.0.0.1:8020/v1,api_key=EMPTY,timeout=600,num_concurrent=8,httpx_trust_env=false",
+      "launcher_args": null,
+      "num_fewshot": null,
+      "batch_size": "1",
+      "max_batch_size": null,
+      "device": null,
+      "output_path": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge/lmms/viewspatial",
+      "limit": null,
+      "offset": 0,
+      "use_cache": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge/cache",
+      "cache_requests": null,
+      "check_integrity": false,
+      "write_out": false,
+      "log_samples": true,
+      "wandb_log_samples": false,
+      "log_samples_suffix": "vision_opd_viewspatial",
+      "system_instruction": null,
+      "apply_chat_template": false,
+      "fewshot_as_multiturn": false,
+      "show_config": true,
+      "include_path": null,
+      "gen_kwargs": "temperature=0,max_new_tokens=256",
+      "reasoning_tags": "[[\"<think>\", \"</think>\"], [\"<analysis>\", \"</analysis>\"]]",
+      "verbosity": "INFO",
+      "wandb_args": "",
+      "timezone": "Asia/Singapore",
+      "hf_hub_log_args": ",output_path=/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge/lmms/viewspatial",
+      "predict_only": false,
+      "seed": [
+        42,
+        42,
+        42,
+        42
+      ],
+      "trust_remote_code": true,
+      "process_with_media": false,
+      "agentic_trace_mode": "basic",
+      "force_simple": false,
+      "tui": false,
+      "repeats": 1,
+      "baseline": null,
+      "max_tokens": null,
+      "power_analysis": false,
+      "effect_size": 0.03,
+      "alpha": 0.05,
+      "power": 0.8,
+      "correlation": 0.5,
+      "std_a": null,
+      "std_b": null
+    }
+  },
+  "git_hash": "a09f889",
+  "git_branch": "codex/va-opd",
+  "lmms_eval_version": "codex/va-opd@a09f889",
+  "date": "20260915_092648",
+  "throughput": {
+    "total_gen_tokens": 24824,
+    "total_elapsed_time": 8450.698316335678,
+    "avg_speed": 2.937508720671498
+  },
+  "usage": {
+    "total": {
+      "input_tokens": 18639502,
+      "output_tokens": 24824,
+      "reasoning_tokens": 0,
+      "total_tokens": 18664326,
+      "n_api_calls": 5712
+    },
+    "by_task": {
+      "_unknown": {
+        "input_tokens": 18639502,
+        "output_tokens": 24824,
+        "reasoning_tokens": 0,
+        "total_tokens": 18664326,
+        "n_api_calls": 5712
+      }
+    },
+    "by_source": {
+      "model": {
+        "input_tokens": 18639502,
+        "output_tokens": 24824,
+        "reasoning_tokens": 0,
+        "total_tokens": 18664326,
+        "n_api_calls": 5712
+      }
+    },
+    "budget_exceeded": false,
+    "budget_total_tokens": null
+  },
+  "efficiency": {
+    "by_task": {
+      "viewspatial": {
+        "docs": 5712.0,
+        "docs_with_token_counts": 5712.0,
+        "total_input_tokens": 18639502.0,
+        "total_output_tokens": 24824.0,
+        "total_tokens": 18664326.0,
+        "total_correct_score": 0.0,
+        "avg_output_tokens_per_sample": 4.34593837535014,
+        "tokens_per_correct_answer": null
+      }
+    },
+    "overall": {
+      "docs": 5712.0,
+      "docs_with_token_counts": 5712.0,
+      "total_input_tokens": 18639502.0,
+      "total_output_tokens": 24824.0,
+      "total_tokens": 18664326.0,
+      "total_correct_score": 0.0,
+      "avg_output_tokens_per_sample": 4.34593837535014,
+      "tokens_per_correct_answer": null
+    }
+  },
+  "task_hashes": {
+    "viewspatial": "d4a3216017d2bb61fb626792ea7dd043b590b4f58e5e0c3162b6e5ddd845e20f"
+  },
+  "model_source": "openai",
+  "model_name": "Qwen3-VL-2B-VA-OPD-step175",
+  "model_name_sanitized": "Qwen3-VL-2B-VA-OPD-step175",
+  "system_instruction": null,
+  "system_instruction_sha": null,
+  "fewshot_as_multiturn": false,
+  "chat_template": null,
+  "chat_template_sha": null,
+  "start_time": 8973498.898445984,
+  "end_time": 8982592.961405126,
+  "total_evaluation_time_seconds": "9094.06295914203"
+}

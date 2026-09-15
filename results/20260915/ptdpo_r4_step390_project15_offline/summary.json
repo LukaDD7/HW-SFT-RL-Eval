@@ -1,0 +1,51 @@
+{
+  "run_dir": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge",
+  "checkpoint_path": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/fc-opd-storage/outputs/fc_opd/sft_rl/hf/qwen3vl_ptdpo_r4_step390",
+  "dataset_manifest_hash": "6c797a6a91a6bd0d4d02bc376be2e3f5c4377c87d93926df4e4c875bfadf8dbc",
+  "rows": [
+    {
+      "benchmark_id": "mindcube",
+      "contract_name": "MindCube-Bench",
+      "category": "vqa",
+      "metric_tier": "community_standard",
+      "scoring": "deterministic_mcq_with_subcategories",
+      "primary_metric": "overall_accuracy",
+      "value": 0.3025905266143519,
+      "source": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/mindcube/Qwen3-VL-8B-PTDPO-R4/20260915_175522_results.json"
+    },
+    {
+      "benchmark_id": "scienceqa",
+      "contract_name": "ScienceQA",
+      "category": "vqa",
+      "metric_tier": "community_standard",
+      "scoring": "deterministic_mcq",
+      "primary_metric": "exact_match",
+      "value": 0.9385225582548339,
+      "source": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/scienceqa/Qwen3-VL-8B-PTDPO-R4/20260915_213854_results.json"
+    },
+    {
+      "benchmark_id": "mmsi_bench",
+      "contract_name": "MMSI-Bench",
+      "category": "comprehensive",
+      "metric_tier": "community_standard",
+      "scoring": "deterministic_mcq_with_subcategories",
+      "primary_metric": "average",
+      "value": 0.313,
+      "source": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/mmsi_bench/Qwen3-VL-8B-PTDPO-R4/20260915_214002_results.json"
+    },
+    {
+      "benchmark_id": "blink",
+      "contract_name": "BLINK",
+      "category": "comprehensive",
+      "metric_tier": "community_standard",
+      "scoring": "deterministic_mcq",
+      "primary_metric": "blink_acc",
+      "value": 0.6501841136244082,
+      "source": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/blink/Qwen3-VL-8B-PTDPO-R4/20260915_220216_results.json"
+    }
+  ],
+  "category_macro_excluding_internal_diagnostics": {
+    "comprehensive": 0.4815920568122041,
+    "vqa": 0.6205565424345929
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "results": {
+    "mmsi_bench_offline": {
+      "alias": "mmsi_bench_offline",
+      "Motion (Cam.),none": 0.28378378378378377,
+      "Motion (Cam.)_stderr,none": "N/A",
+      "Motion (Cam.)_stderr_clt,none": 0.052766031498213364,
+      "Motion (Cam.)_stderr_clustered,none": "N/A",
+      "average,none": 0.313,
+      "average_stderr,none": "N/A",
+      "average_stderr_clt,none": 0.014671272822977775,
+      "average_stderr_clustered,none": "N/A",
+      "Positional Relationship (Cam.–Obj.),none": 0.313953488372093,
+      "Positional Relationship (Cam.–Obj.)_stderr,none": "N/A",
+      "Positional Relationship (Cam.–Obj.)_stderr_clt,none": 0.0503384656466588,
+      "Positional Relationship (Cam.–Obj.)_stderr_clustered,none": "N/A",
+      "Attribute (Meas.),none": 0.40625,
+      "Attribute (Meas.)_stderr,none": "N/A",
+      "Attribute (Meas.)_stderr_clt,none": 0.061876853828249374,
+      "Attribute (Meas.)_stderr_clustered,none": "N/A",
+      "Positional Relationship (Reg.–Reg.),none": 0.35802469135802467,
+      "Positional Relationship (Reg.–Reg.)_stderr,none": "N/A",
+      "Positional Relationship (Reg.–Reg.)_stderr_clt,none": 0.053600724311339276,
+      "Positional Relationship (Reg.–Reg.)_stderr_clustered,none": "N/A",
+      "MSR,none": 0.31313131313131315,
+      "MSR_stderr,none": "N/A",
+      "MSR_stderr_clt,none": 0.033042050878136546,
+      "MSR_stderr_clustered,none": "N/A",
+      "Motion (Obj.),none": 0.3157894736842105,
+      "Motion (Obj.)_stderr,none": "N/A",
+      "Motion (Obj.)_stderr_clt,none": 0.05367388961676615,
+      "Motion (Obj.)_stderr_clustered,none": "N/A",
+      "Positional Relationship (Cam.–Cam.),none": 0.2903225806451613,
+      "Positional Relationship (Cam.–Cam.)_stderr,none": "N/A",
+      "Positional Relationship (Cam.–Cam.)_stderr_clt,none": 0.047323514218241214,
+      "Positional Relationship (Cam.–Cam.)_stderr_clustered,none": "N/A",
+      "Positional Relationship (Cam.–Reg.),none": 0.3855421686746988,
+      "Positional Relationship (Cam.–Reg.)_stderr,none": "N/A",
+      "Positional Relationship (Cam.–Reg.)_stderr_clt,none": 0.05374957797319389,
+      "Positional Relationship (Cam.–Reg.)_stderr_clustered,none": "N/A",
+      "Attribute (Appr.),none": 0.16666666666666666,
+      "Attribute (Appr.)_stderr,none": "N/A",
+      "Attribute (Appr.)_stderr_clt,none": 0.04622501635210243,
+      "Attribute (Appr.)_stderr_clustered,none": "N/A",
+      "Positional Relationship (Obj.–Reg.),none": 0.2823529411764706,
+      "Positional Relationship (Obj.–Reg.)_stderr,none": "N/A",
+      "Positional Relationship (Obj.–Reg.)_stderr_clt,none": 0.04911475360068053,
+      "Positional Relationship (Obj.–Reg.)_stderr_clustered,none": "N/A",
+      "Positional Relationship (Obj.–Obj.),none": 0.3191489361702128,
+      "Positional Relationship (Obj.–Obj.)_stderr,none": "N/A",
+      "Positional Relationship (Obj.–Obj.)_stderr_clt,none": 0.04833717738272891,
+      "Positional Relationship (Obj.–Obj.)_stderr_clustered,none": "N/A"
+    }
+  },
+  "group_subtasks": {
+    "mmsi_bench_offline": []
+  },
+  "configs": {
+    "mmsi_bench_offline": {
+      "task": "mmsi_bench_offline",
+      "dataset_path": "parquet",
+      "dataset_kwargs": {
+        "data_files": {
+          "test": "assets/datasets/MMSI-Bench/MMSI_Bench.parquet"
+        }
+      },
+      "test_split": "test",
+      "full_docs": false,
+      "process_results_use_image": false,
+      "doc_to_visual": "<function msr_doc_to_visual at 0x7f839bcb6980>",
+      "doc_to_text": "<function msr_doc_to_text at 0x7f839bcb68e0>",
+      "doc_to_target": "answer",
+      "process_results": "<function msr_process_results at 0x7f839bcb6ac0>",
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "Positional Relationship (Obj.–Obj.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Positional Relationship (Cam.–Obj.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Positional Relationship (Cam.–Cam.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Positional Relationship (Obj.–Reg.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Positional Relationship (Cam.–Reg.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Positional Relationship (Reg.–Reg.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Attribute (Meas.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Attribute (Appr.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Motion (Obj.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "Motion (Cam.)",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "MSR",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        },
+        {
+          "metric": "average",
+          "aggregation": "<function msr_aggregate_results at 0x7f839bcb6b60>",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "generate_until",
+      "generation_kwargs": {
+        "max_new_tokens": 2048,
+        "temperature": 0,
+        "do_sample": false,
+        "until": [
+          "\n\n"
+        ]
+      },
+      "repeats": 1,
+      "should_decontaminate": false,
+      "score_key": "score",
+      "lmms_eval_specific_kwargs": {
+        "default": {
+          "pre_prompt": "",
+          "post_prompt": "\nAnswer with the option's letter from the given choices directly. Enclose the option's letter within ``."
+        },
+        "pre_prompt": "",
+        "post_prompt": "\nAnswer with the option's letter from the given choices directly. Enclose the option's letter within ``."
+      }
+    }
+  },
+  "versions": {
+    "mmsi_bench_offline": "Yaml"
+  },
+  "n-shot": {
+    "mmsi_bench_offline": 0
+  },
+  "higher_is_better": {
+    "mmsi_bench_offline": {
+      "Positional Relationship (Obj.–Obj.)": true,
+      "Positional Relationship (Cam.–Obj.)": true,
+      "Positional Relationship (Cam.–Cam.)": true,
+      "Positional Relationship (Obj.–Reg.)": true,
+      "Positional Relationship (Cam.–Reg.)": true,
+      "Positional Relationship (Reg.–Reg.)": true,
+      "Attribute (Meas.)": true,
+      "Attribute (Appr.)": true,
+      "Motion (Obj.)": true,
+      "Motion (Cam.)": true,
+      "MSR": true,
+      "average": true
+    }
+  },
+  "n-samples": {
+    "mmsi_bench_offline": {
+      "original": 1000,
+      "effective": 1000
+    }
+  },
+  "config": {
+    "model": "openai",
+    "model_args": "model=Qwen3-VL-8B-PTDPO-R4,base_url=http://127.0.0.1:8010/v1,api_key=EMPTY,timeout=600,num_concurrent=8,httpx_trust_env=false",
+    "batch_size": "1",
+    "batch_sizes": [],
+    "device": null,
+    "use_cache": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/cache",
+    "limit": null,
+    "offset": 0,
+    "bootstrap_iters": 100000,
+    "gen_kwargs": {
+      "temperature": 0,
+      "max_new_tokens": 2048
+    },
+    "random_seed": 42,
+    "numpy_seed": 42,
+    "torch_seed": 42,
+    "fewshot_seed": 42,
+    "resolved_cli_args": {
+      "config": "",
+      "model": "openai",
+      "tasks": "mmsi_bench_offline",
+      "model_args": "model=Qwen3-VL-8B-PTDPO-R4,base_url=http://127.0.0.1:8010/v1,api_key=EMPTY,timeout=600,num_concurrent=8,httpx_trust_env=false",
+      "launcher_args": null,
+      "num_fewshot": null,
+      "batch_size": "1",
+      "max_batch_size": null,
+      "device": null,
+      "output_path": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/mmsi_bench",
+      "limit": null,
+      "offset": 0,
+      "use_cache": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/cache",
+      "cache_requests": null,
+      "check_integrity": false,
+      "write_out": false,
+      "log_samples": true,
+      "wandb_log_samples": false,
+      "log_samples_suffix": "vision_opd_mmsi_bench",
+      "system_instruction": null,
+      "apply_chat_template": false,
+      "fewshot_as_multiturn": false,
+      "show_config": true,
+      "include_path": "eval_tasks/opd_v1_offline",
+      "gen_kwargs": "temperature=0,max_new_tokens=2048",
+      "reasoning_tags": "[[\"<think>\", \"</think>\"], [\"<analysis>\", \"</analysis>\"]]",
+      "verbosity": "INFO",
+      "wandb_args": "",
+      "timezone": "Asia/Singapore",
+      "hf_hub_log_args": ",output_path=/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/mmsi_bench",
+      "predict_only": false,
+      "seed": [
+        42,
+        42,
+        42,
+        42
+      ],
+      "trust_remote_code": true,
+      "process_with_media": false,
+      "agentic_trace_mode": "basic",
+      "force_simple": false,
+      "tui": false,
+      "repeats": 1,
+      "baseline": null,
+      "max_tokens": null,
+      "power_analysis": false,
+      "effect_size": 0.03,
+      "alpha": 0.05,
+      "power": 0.8,
+      "correlation": 0.5,
+      "std_a": null,
+      "std_b": null
+    }
+  },
+  "git_hash": "2f6e6c8",
+  "git_branch": "fix/eval-checkpoint-identity-guard",
+  "lmms_eval_version": "fix/eval-checkpoint-identity-guard@2f6e6c8",
+  "date": "20260915_214002",
+  "throughput": {
+    "total_gen_tokens": 61981,
+    "total_elapsed_time": 922.9201545715332,
+    "avg_speed": 67.15748886075065
+  },
+  "usage": {
+    "total": {
+      "input_tokens": 3043402,
+      "output_tokens": 61981,
+      "reasoning_tokens": 0,
+      "total_tokens": 3105383,
+      "n_api_calls": 1000
+    },
+    "by_task": {
+      "_unknown": {
+        "input_tokens": 3043402,
+        "output_tokens": 61981,
+        "reasoning_tokens": 0,
+        "total_tokens": 3105383,
+        "n_api_calls": 1000
+      }
+    },
+    "by_source": {
+      "model": {
+        "input_tokens": 3043402,
+        "output_tokens": 61981,
+        "reasoning_tokens": 0,
+        "total_tokens": 3105383,
+        "n_api_calls": 1000
+      }
+    },
+    "budget_exceeded": false,
+    "budget_total_tokens": null
+  },
+  "efficiency": {
+    "by_task": {
+      "mmsi_bench_offline": {
+        "docs": 1000.0,
+        "docs_with_token_counts": 1000.0,
+        "total_input_tokens": 3043402.0,
+        "total_output_tokens": 61981.0,
+        "total_tokens": 3105383.0,
+        "total_correct_score": 0.0,
+        "avg_output_tokens_per_sample": 61.981,
+        "tokens_per_correct_answer": null
+      }
+    },
+    "overall": {
+      "docs": 1000.0,
+      "docs_with_token_counts": 1000.0,
+      "total_input_tokens": 3043402.0,
+      "total_output_tokens": 61981.0,
+      "total_tokens": 3105383.0,
+      "total_correct_score": 0.0,
+      "avg_output_tokens_per_sample": 61.981,
+      "tokens_per_correct_answer": null
+    }
+  },
+  "task_hashes": {
+    "mmsi_bench_offline": "1fb923da4284a8fbf451b3553ce5404d321b69c0b94aa3ad35e7c3afce52f217"
+  },
+  "model_source": "openai",
+  "model_name": "Qwen3-VL-8B-PTDPO-R4",
+  "model_name_sanitized": "Qwen3-VL-8B-PTDPO-R4",
+  "system_instruction": null,
+  "system_instruction_sha": null,
+  "fewshot_as_multiturn": false,
+  "chat_template": null,
+  "chat_template_sha": null,
+  "start_time": 9017492.495376045,
+  "end_time": 9018813.155177223,
+  "total_evaluation_time_seconds": "1320.6598011776805"
+}

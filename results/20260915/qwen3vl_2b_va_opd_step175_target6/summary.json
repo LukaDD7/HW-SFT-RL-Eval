@@ -1,0 +1,62 @@
+{
+  "run_dir": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge",
+  "checkpoint_path": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/fc-opd-storage/outputs/fc_opd/sft_rl/hf/qwen3vl_va_opd_step175",
+  "dataset_manifest_hash": "fe1c531dd59fc690268fcd6dc03b3b389fe3dd912dbfe660cda4c645c4081d4b",
+  "rows": [
+    {
+      "benchmark_id": "gqa",
+      "contract_name": "GQA",
+      "category": "vqa",
+      "metric_tier": "community_standard",
+      "scoring": "normalized_exact",
+      "primary_metric": "exact_match",
+      "value": 0.5934965813324853,
+      "source": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge/lmms/gqa/Qwen3-VL-2B-VA-OPD-step175/20260915_082506_results.json"
+    },
+    {
+      "benchmark_id": "dynamath",
+      "contract_name": "DynaMath",
+      "category": "math_science_reasoning",
+      "metric_tier": "community_standard",
+      "scoring": "rule_based_math",
+      "primary_metric": "dynamath_average",
+      "value": 0.4962075848303392,
+      "source": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge/lmms/dynamath/Qwen3-VL-2B-VA-OPD-step175/20260915_085254_results.json"
+    },
+    {
+      "benchmark_id": "viewspatial",
+      "contract_name": "ViewSpatial-Bench",
+      "category": "vqa",
+      "metric_tier": "community_standard",
+      "scoring": "deterministic_mcq",
+      "primary_metric": "overall_accuracy",
+      "value": 0.3693977591036415,
+      "source": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge/lmms/viewspatial/Qwen3-VL-2B-VA-OPD-step175/20260915_092648_results.json"
+    },
+    {
+      "benchmark_id": "mmmu_pro",
+      "contract_name": "MMMU-Pro",
+      "category": "comprehensive",
+      "metric_tier": "community_standard",
+      "scoring": "deterministic_mcq",
+      "primary_metric": "mmmu_acc",
+      "value": 0.26647,
+      "source": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/qwen3vl_2b_va_opd_step175_target6_nojudge/lmms/mmmu_pro/Qwen3-VL-2B-VA-OPD-step175/20260915_120137_results.json"
+    },
+    {
+      "benchmark_id": "remi",
+      "contract_name": "ReMI",
+      "category": "math_science_reasoning",
+      "metric_tier": "internal_diagnostic",
+      "scoring": "official_exact_or_relaxed_accuracy_sidecar",
+      "primary_metric": null,
+      "value": null,
+      "source": "official_evaluator_pending"
+    }
+  ],
+  "category_macro_excluding_internal_diagnostics": {
+    "comprehensive": 0.26647,
+    "math_science_reasoning": 0.4962075848303392,
+    "vqa": 0.4814471702180634
+  }
+}

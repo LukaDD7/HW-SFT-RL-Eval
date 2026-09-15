@@ -22,6 +22,7 @@
 - [eval_results_20260915.md](eval_results_20260915.md)
   Corrected PTD-PO Project15 offline results and the Qwen3-VL-2B
   Base/VA-OPD step175/step300 six-benchmark comparison.
+  Complete metric JSON artifacts are in `results/20260915/`.
 
 ## Collaboration
 

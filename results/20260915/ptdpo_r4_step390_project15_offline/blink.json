@@ -1,0 +1,228 @@
+{
+  "results": {
+    "blink_offline": {
+      "alias": "blink_offline",
+      "blink_acc,none": 0.6501841136244082,
+      "blink_acc_stderr,none": "N/A",
+      "blink_acc_stderr_clt,none": "N/A",
+      "blink_acc_stderr_clustered,none": "N/A"
+    }
+  },
+  "group_subtasks": {
+    "blink_offline": []
+  },
+  "configs": {
+    "blink_offline": {
+      "task": "blink_offline",
+      "dataset_path": "parquet",
+      "dataset_kwargs": {
+        "data_files": {
+          "test": "assets/datasets/BLINK/*/val-*.parquet"
+        }
+      },
+      "test_split": "test",
+      "full_docs": false,
+      "process_results_use_image": false,
+      "doc_to_visual": "<function blink_doc_to_visual at 0x7fd0860c2a20>",
+      "doc_to_text": "<function blink_doc_to_text at 0x7fd0860c2ac0>",
+      "doc_to_target": "answer",
+      "process_results": "<function blink_process_results at 0x7fd0860c1580>",
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "blink_acc",
+          "aggregation": "<function blink_aggregate_results at 0x7fd0860c2b60>",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "generate_until",
+      "generation_kwargs": {
+        "max_new_tokens": 1024,
+        "until": [
+          "\n\n"
+        ],
+        "temperature": 0
+      },
+      "repeats": 1,
+      "should_decontaminate": false,
+      "score_key": "score",
+      "lmms_eval_specific_kwargs": {
+        "default": {
+          "pre_prompt": "Note: You only need to respond with {} without providing any additional information.\n",
+          "post_prompt": ""
+        },
+        "pre_prompt": "Note: You only need to respond with {} without providing any additional information.\n",
+        "post_prompt": ""
+      }
+    }
+  },
+  "versions": {
+    "blink_offline": "Yaml"
+  },
+  "n-shot": {
+    "blink_offline": 0
+  },
+  "higher_is_better": {
+    "blink_offline": {
+      "blink_acc": true
+    }
+  },
+  "n-samples": {
+    "blink_offline": {
+      "original": 1901,
+      "effective": 1901
+    }
+  },
+  "config": {
+    "model": "openai",
+    "model_args": "model=Qwen3-VL-8B-PTDPO-R4,base_url=http://127.0.0.1:8010/v1,api_key=EMPTY,timeout=600,num_concurrent=8,httpx_trust_env=false",
+    "batch_size": "1",
+    "batch_sizes": [],
+    "device": null,
+    "use_cache": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/cache",
+    "limit": null,
+    "offset": 0,
+    "bootstrap_iters": 100000,
+    "gen_kwargs": {
+      "temperature": 0,
+      "max_new_tokens": 1024
+    },
+    "random_seed": 42,
+    "numpy_seed": 42,
+    "torch_seed": 42,
+    "fewshot_seed": 42,
+    "resolved_cli_args": {
+      "config": "",
+      "model": "openai",
+      "tasks": "blink_offline",
+      "model_args": "model=Qwen3-VL-8B-PTDPO-R4,base_url=http://127.0.0.1:8010/v1,api_key=EMPTY,timeout=600,num_concurrent=8,httpx_trust_env=false",
+      "launcher_args": null,
+      "num_fewshot": null,
+      "batch_size": "1",
+      "max_batch_size": null,
+      "device": null,
+      "output_path": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/blink",
+      "limit": null,
+      "offset": 0,
+      "use_cache": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/cache",
+      "cache_requests": null,
+      "check_integrity": false,
+      "write_out": false,
+      "log_samples": true,
+      "wandb_log_samples": false,
+      "log_samples_suffix": "vision_opd_blink",
+      "system_instruction": null,
+      "apply_chat_template": false,
+      "fewshot_as_multiturn": false,
+      "show_config": true,
+      "include_path": "eval_tasks/opd_v1_offline",
+      "gen_kwargs": "temperature=0,max_new_tokens=1024",
+      "reasoning_tags": "[[\"<think>\", \"</think>\"], [\"<analysis>\", \"</analysis>\"]]",
+      "verbosity": "INFO",
+      "wandb_args": "",
+      "timezone": "Asia/Singapore",
+      "hf_hub_log_args": ",output_path=/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/blink",
+      "predict_only": false,
+      "seed": [
+        42,
+        42,
+        42,
+        42
+      ],
+      "trust_remote_code": true,
+      "process_with_media": false,
+      "agentic_trace_mode": "basic",
+      "force_simple": false,
+      "tui": false,
+      "repeats": 1,
+      "baseline": null,
+      "max_tokens": null,
+      "power_analysis": false,
+      "effect_size": 0.03,
+      "alpha": 0.05,
+      "power": 0.8,
+      "correlation": 0.5,
+      "std_a": null,
+      "std_b": null
+    }
+  },
+  "git_hash": "2f6e6c8",
+  "git_branch": "fix/eval-checkpoint-identity-guard",
+  "lmms_eval_version": "fix/eval-checkpoint-identity-guard@2f6e6c8",
+  "date": "20260915_220216",
+  "throughput": {
+    "total_gen_tokens": 3802,
+    "total_elapsed_time": 580.0484716892242,
+    "avg_speed": 6.554624631503242
+  },
+  "usage": {
+    "total": {
+      "input_tokens": 3124029,
+      "output_tokens": 3802,
+      "reasoning_tokens": 0,
+      "total_tokens": 3127831,
+      "n_api_calls": 1901
+    },
+    "by_task": {
+      "_unknown": {
+        "input_tokens": 3124029,
+        "output_tokens": 3802,
+        "reasoning_tokens": 0,
+        "total_tokens": 3127831,
+        "n_api_calls": 1901
+      }
+    },
+    "by_source": {
+      "model": {
+        "input_tokens": 3124029,
+        "output_tokens": 3802,
+        "reasoning_tokens": 0,
+        "total_tokens": 3127831,
+        "n_api_calls": 1901
+      }
+    },
+    "budget_exceeded": false,
+    "budget_total_tokens": null
+  },
+  "efficiency": {
+    "by_task": {
+      "blink_offline": {
+        "docs": 1901.0,
+        "docs_with_token_counts": 1901.0,
+        "total_input_tokens": 3124029.0,
+        "total_output_tokens": 3802.0,
+        "total_tokens": 3127831.0,
+        "total_correct_score": 0.0,
+        "avg_output_tokens_per_sample": 2.0,
+        "tokens_per_correct_answer": null
+      }
+    },
+    "overall": {
+      "docs": 1901.0,
+      "docs_with_token_counts": 1901.0,
+      "total_input_tokens": 3124029.0,
+      "total_output_tokens": 3802.0,
+      "total_tokens": 3127831.0,
+      "total_correct_score": 0.0,
+      "avg_output_tokens_per_sample": 2.0,
+      "tokens_per_correct_answer": null
+    }
+  },
+  "task_hashes": {
+    "blink_offline": "a3e56b425985302e765b5c2d1d338340b192e0549cefcd37fe9413786413d099"
+  },
+  "model_source": "openai",
+  "model_name": "Qwen3-VL-8B-PTDPO-R4",
+  "model_name_sanitized": "Qwen3-VL-8B-PTDPO-R4",
+  "system_instruction": null,
+  "system_instruction_sha": null,
+  "fewshot_as_multiturn": false,
+  "chat_template": null,
+  "chat_template_sha": null,
+  "start_time": 9018826.433228103,
+  "end_time": 9019778.609496305,
+  "total_evaluation_time_seconds": "952.1762682013214"
+}

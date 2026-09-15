@@ -1,0 +1,241 @@
+{
+  "results": {
+    "scienceqa_img_offline": {
+      "alias": "scienceqa_img_offline",
+      "exact_match,none": 0.9385225582548339,
+      "exact_match_stderr,none": 0.005349768478043564,
+      "exact_match_stderr_clt,none": 0.005349768478043564,
+      "exact_match_stderr_clustered,none": "N/A"
+    }
+  },
+  "group_subtasks": {
+    "scienceqa_img_offline": []
+  },
+  "configs": {
+    "scienceqa_img_offline": {
+      "task": "scienceqa_img_offline",
+      "dataset_path": "parquet",
+      "dataset_kwargs": {
+        "data_files": {
+          "test": "assets/datasets/ScienceQA-IMG/data/test-*.parquet"
+        }
+      },
+      "test_split": "test",
+      "full_docs": false,
+      "process_results_use_image": false,
+      "doc_to_visual": "<function sqa_doc_to_visual at 0x7f825370e700>",
+      "doc_to_text": "<function sqa_doc_to_text at 0x7f825370e660>",
+      "doc_to_target": "<function sqa_doc_to_target at 0x7f825370e7a0>",
+      "process_results": "<function sqa_process_results at 0x7f825370e840>",
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "exact_match",
+          "aggregation": "mean",
+          "higher_is_better": true,
+          "ignore_case": true,
+          "ignore_punctuation": true
+        }
+      ],
+      "output_type": "generate_until",
+      "generation_kwargs": {
+        "max_new_tokens": 256,
+        "temperature": 0,
+        "do_sample": false,
+        "until": [
+          "\n\n"
+        ]
+      },
+      "repeats": 1,
+      "should_decontaminate": false,
+      "score_key": "score",
+      "lmms_eval_specific_kwargs": {
+        "default": {
+          "format": "default",
+          "pre_prompt": "",
+          "post_prompt": "\nAnswer with the option's letter from the given choices directly."
+        },
+        "qwen_vl": {
+          "format": "qwen_vl"
+        },
+        "idefics2": {
+          "format": "default",
+          "pre_prompt": "",
+          "post_prompt": "\nAnswer:"
+        },
+        "format": "default",
+        "pre_prompt": "",
+        "post_prompt": "\nAnswer with the option's letter from the given choices directly."
+      }
+    }
+  },
+  "versions": {
+    "scienceqa_img_offline": "Yaml"
+  },
+  "n-shot": {
+    "scienceqa_img_offline": 0
+  },
+  "higher_is_better": {
+    "scienceqa_img_offline": {
+      "exact_match": true
+    }
+  },
+  "n-samples": {
+    "scienceqa_img_offline": {
+      "original": 2017,
+      "effective": 2017
+    }
+  },
+  "config": {
+    "model": "openai",
+    "model_args": "model=Qwen3-VL-8B-PTDPO-R4,base_url=http://127.0.0.1:8010/v1,api_key=EMPTY,timeout=600,num_concurrent=8,httpx_trust_env=false",
+    "batch_size": "1",
+    "batch_sizes": [],
+    "device": null,
+    "use_cache": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/cache",
+    "limit": null,
+    "offset": 0,
+    "bootstrap_iters": 100000,
+    "gen_kwargs": {
+      "temperature": 0,
+      "max_new_tokens": 256
+    },
+    "random_seed": 42,
+    "numpy_seed": 42,
+    "torch_seed": 42,
+    "fewshot_seed": 42,
+    "resolved_cli_args": {
+      "config": "",
+      "model": "openai",
+      "tasks": "scienceqa_img_offline",
+      "model_args": "model=Qwen3-VL-8B-PTDPO-R4,base_url=http://127.0.0.1:8010/v1,api_key=EMPTY,timeout=600,num_concurrent=8,httpx_trust_env=false",
+      "launcher_args": null,
+      "num_fewshot": null,
+      "batch_size": "1",
+      "max_batch_size": null,
+      "device": null,
+      "output_path": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/scienceqa",
+      "limit": null,
+      "offset": 0,
+      "use_cache": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/cache",
+      "cache_requests": null,
+      "check_integrity": false,
+      "write_out": false,
+      "log_samples": true,
+      "wandb_log_samples": false,
+      "log_samples_suffix": "vision_opd_scienceqa",
+      "system_instruction": null,
+      "apply_chat_template": false,
+      "fewshot_as_multiturn": false,
+      "show_config": true,
+      "include_path": "eval_tasks/opd_v1_offline",
+      "gen_kwargs": "temperature=0,max_new_tokens=256",
+      "reasoning_tags": "[[\"<think>\", \"</think>\"], [\"<analysis>\", \"</analysis>\"]]",
+      "verbosity": "INFO",
+      "wandb_args": "",
+      "timezone": "Asia/Singapore",
+      "hf_hub_log_args": ",output_path=/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/vision_opd_project_baseline/project15_ptdpo_r4_step390_offline_core_corrected_r2_gpu2_nojudge/lmms/scienceqa",
+      "predict_only": false,
+      "seed": [
+        42,
+        42,
+        42,
+        42
+      ],
+      "trust_remote_code": true,
+      "process_with_media": false,
+      "agentic_trace_mode": "basic",
+      "force_simple": false,
+      "tui": false,
+      "repeats": 1,
+      "baseline": null,
+      "max_tokens": null,
+      "power_analysis": false,
+      "effect_size": 0.03,
+      "alpha": 0.05,
+      "power": 0.8,
+      "correlation": 0.5,
+      "std_a": null,
+      "std_b": null
+    }
+  },
+  "git_hash": "2f6e6c8",
+  "git_branch": "fix/eval-checkpoint-identity-guard",
+  "lmms_eval_version": "fix/eval-checkpoint-identity-guard@2f6e6c8",
+  "date": "20260915_213854",
+  "throughput": {
+    "total_gen_tokens": 8089,
+    "total_elapsed_time": 284.6987135410309,
+    "avg_speed": 28.41249227785573
+  },
+  "usage": {
+    "total": {
+      "input_tokens": 520994,
+      "output_tokens": 8089,
+      "reasoning_tokens": 0,
+      "total_tokens": 529083,
+      "n_api_calls": 2017
+    },
+    "by_task": {
+      "_unknown": {
+        "input_tokens": 520994,
+        "output_tokens": 8089,
+        "reasoning_tokens": 0,
+        "total_tokens": 529083,
+        "n_api_calls": 2017
+      }
+    },
+    "by_source": {
+      "model": {
+        "input_tokens": 520994,
+        "output_tokens": 8089,
+        "reasoning_tokens": 0,
+        "total_tokens": 529083,
+        "n_api_calls": 2017
+      }
+    },
+    "budget_exceeded": false,
+    "budget_total_tokens": null
+  },
+  "efficiency": {
+    "by_task": {
+      "scienceqa_img_offline": {
+        "docs": 2017.0,
+        "docs_with_token_counts": 2017.0,
+        "total_input_tokens": 520994.0,
+        "total_output_tokens": 8089.0,
+        "total_tokens": 529083.0,
+        "total_correct_score": 1893.0,
+        "avg_output_tokens_per_sample": 4.010411502231036,
+        "tokens_per_correct_answer": 4.273111463285789
+      }
+    },
+    "overall": {
+      "docs": 2017.0,
+      "docs_with_token_counts": 2017.0,
+      "total_input_tokens": 520994.0,
+      "total_output_tokens": 8089.0,
+      "total_tokens": 529083.0,
+      "total_correct_score": 1893.0,
+      "avg_output_tokens_per_sample": 4.010411502231036,
+      "tokens_per_correct_answer": 4.273111463285789
+    }
+  },
+  "task_hashes": {
+    "scienceqa_img_offline": "2fc0facf8a570f0ff134eba07fb0c317004962ff6a40d69edbd82aac70ff1f81"
+  },
+  "model_source": "openai",
+  "model_name": "Qwen3-VL-8B-PTDPO-R4",
+  "model_name_sanitized": "Qwen3-VL-8B-PTDPO-R4",
+  "system_instruction": null,
+  "system_instruction_sha": null,
+  "fewshot_as_multiturn": false,
+  "chat_template": null,
+  "chat_template_sha": null,
+  "start_time": 9017424.907443829,
+  "end_time": 9017479.193331713,
+  "total_evaluation_time_seconds": "54.2858878839761"
+}
