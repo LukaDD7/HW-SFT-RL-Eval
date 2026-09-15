@@ -1,9 +1,12 @@
 from pathlib import Path
 
+import pytest
+
 from dual_track_opd.eval.benchmark_suite import (
     build_command,
     load_suite,
     select_benchmarks,
+    validate_checkpoint_identity,
 )
 
 
@@ -124,3 +127,31 @@ def test_lmms_command_supports_format_pilot_overrides(monkeypatch) -> None:
     model_args = command[command.index("--model_args") + 1]
     assert "system_prompt=Answer with only the final choice letter." in model_args
     assert "is_qwen3_vl=true" in model_args
+
+
+def test_checkpoint_identity_guard_accepts_matching_ptdpo_path() -> None:
+    checkpoint = validate_checkpoint_identity(
+        "/models/qwen3vl_ptdpo_r4_step390",
+        run_name="project15_ptdpo_r4_step390_offline_core_nojudge",
+        served_model_name="Qwen3-VL-8B-PTDPO-R4",
+    )
+    assert checkpoint.endswith("qwen3vl_ptdpo_r4_step390")
+
+
+def test_checkpoint_identity_guard_rejects_mislabeled_ptdpo_run() -> None:
+    with pytest.raises(ValueError, match="checkpoint identity mismatch"):
+        validate_checkpoint_identity(
+            "/models/Vision-OPD-Qwen3.5-4B/global_step_65",
+            run_name="project15_ptdpo_r4_step390_offline_core_nojudge",
+            served_model_name="Qwen3-VL-8B-PTDPO-R4",
+        )
+
+
+def test_checkpoint_identity_guard_rejects_resume_checkpoint_change() -> None:
+    with pytest.raises(ValueError, match="resume checkpoint mismatch"):
+        validate_checkpoint_identity(
+            "/models/qwen3vl_ptdpo_r4_step390",
+            run_name="project15_ptdpo_r4_step390_offline_core_nojudge",
+            served_model_name="Qwen3-VL-8B-PTDPO-R4",
+            previous_checkpoint="/models/Vision-OPD-Qwen3.5-4B/global_step_65",
+        )

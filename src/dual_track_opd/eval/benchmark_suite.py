@@ -36,6 +36,19 @@ def _handle_interrupt(signum: int, _frame: Any) -> None:
 
 _ENV_DEFAULT_RE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)[:-]-(.*?)\}")
 
+# Run/served names sometimes carry a stable checkpoint identity.  Those labels
+# must not be attached to a different local checkpoint.  The rules below are
+# deliberately tied to project-specific public run names, not to a particular
+# node or NFS mount.
+_CHECKPOINT_IDENTITY_RULES: tuple[tuple[str, str], ...] = (
+    # The run-name marker is more specific than "PTDPO" because it also pins
+    # revision r4 and step 390.
+    ("ptdpo_r4_step390", "qwen3vl_ptdpo_r4_step390"),
+    ("tailsft_mmf122k_1ep", "qwen3vl_sft_tailsft_mmf122k_1ep"),
+    ("base_qwen3vl8b", "Qwen3-VL-8B-Instruct"),
+    ("vision_opd_gs65", "Vision-OPD-Qwen3.5-4B/global_step_65"),
+)
+
 
 def _expand_env(value: Any) -> Any:
     if isinstance(value, str):
@@ -48,6 +61,56 @@ def _expand_env(value: Any) -> Any:
     if isinstance(value, dict):
         return {key: _expand_env(item) for key, item in value.items()}
     return value
+
+
+def validate_checkpoint_identity(
+    checkpoint: str | Path,
+    *,
+    run_name: str,
+    served_model_name: str,
+    previous_checkpoint: str | Path | None = None,
+) -> str:
+    """Return a canonical checkpoint path after checking project labels.
+
+    An OpenAI-compatible endpoint exposes only its alias, not the underlying
+    model directory.  The runner therefore checks the local checkpoint that the
+    caller asks it to record and, for known project run names, refuses to
+    attach a checkpoint identity to a different path.  Resume additionally
+    requires the exact same canonical checkpoint as the original manifest.
+    """
+    canonical = str(Path(checkpoint).expanduser().resolve())
+    normalized_checkpoint = canonical.lower().replace("\\", "/")
+    identity_sources = f"{run_name} {served_model_name}".lower()
+
+    for run_marker, checkpoint_marker in _CHECKPOINT_IDENTITY_RULES:
+        if run_marker in identity_sources and checkpoint_marker.lower() not in normalized_checkpoint:
+            raise ValueError(
+                "checkpoint identity mismatch: run/served name contains "
+                f"{run_marker!r}, but checkpoint {canonical!r} does not contain "
+                f"{checkpoint_marker!r}. Set EVAL_CKPT to the intended HF model "
+                "directory; never mix an old default checkpoint with a new run label."
+            )
+
+    if "ptdpo" in identity_sources and "ptdpo" not in normalized_checkpoint:
+        raise ValueError(
+            "checkpoint identity mismatch: PTD-PO run/served name requires a "
+            f"PTD-PO checkpoint, got {canonical!r}"
+        )
+    if "tailsft" in identity_sources and "tailsft" not in normalized_checkpoint:
+        raise ValueError(
+            "checkpoint identity mismatch: TailSFT run/served name requires a "
+            f"TailSFT checkpoint, got {canonical!r}"
+        )
+
+    if previous_checkpoint is not None:
+        previous_canonical = str(Path(previous_checkpoint).expanduser().resolve())
+        if canonical != previous_canonical:
+            raise ValueError(
+                "resume checkpoint mismatch: "
+                f"current={canonical!r}, prior={previous_canonical!r}. "
+                "Use the original checkpoint, or start a new run directory."
+            )
+    return canonical
 
 
 @dataclass(frozen=True)
@@ -395,6 +458,12 @@ def run_suite(args: argparse.Namespace) -> int:
         if not manifest_candidate.is_file():
             raise FileNotFoundError(f"manifest not found in resume directory: {manifest_candidate}")
         existing_manifest = json.loads(manifest_candidate.read_text(encoding="utf-8"))
+        checkpoint = validate_checkpoint_identity(
+            checkpoint,
+            run_name=str(existing_manifest.get("run_name", run_dir.name)),
+            served_model_name=str(suite.defaults["served_model_name"]),
+            previous_checkpoint=existing_manifest.get("checkpoint_path"),
+        )
         for run_rec in existing_manifest.get("runs", []):
             if run_rec.get("status") == "completed":
                 completed_ids.add(run_rec["benchmark_id"])
@@ -410,6 +479,11 @@ def run_suite(args: argparse.Namespace) -> int:
         run_name = args.run_name or f"{args.profile}_{timestamp}"
         output_root = Path(args.output_root or suite.defaults["output_root"]).expanduser()
         run_dir = output_root / run_name
+        checkpoint = validate_checkpoint_identity(
+            checkpoint,
+            run_name=run_name,
+            served_model_name=str(suite.defaults["served_model_name"]),
+        )
 
     rows = [
         (

@@ -16,7 +16,7 @@
 set -euo pipefail
 
 DTOPD_ROOT="${DTOPD_ROOT:-/inspire/hdd/global_user/mengweicheng-240108120092/lzy}"
-REPO_ROOT="${DTOPD_ROOT}/projects/Dual-Track-OPD"
+REPO_ROOT="${HW_EVAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 LOG_DIR="${DTOPD_ROOT}/fc-opd-storage/logs"
 STATE_DIR="${LOG_DIR}/project15_state"
 PROJECT15_CONFIG="${PROJECT15_CONFIG:-${REPO_ROOT}/configs/eval/project_vision_opd.yaml}"

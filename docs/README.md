@@ -16,6 +16,9 @@
   Low-cap v1 truncation diagnosis and v2 rationale.
 - [tailsft_truncation_audit_20260913.md](tailsft_truncation_audit_20260913.md)
   TailSFT benchmark-by-benchmark truncation audit.
+- [project15_offline_model_identity_audit_20260915.md](project15_offline_model_identity_audit_20260915.md)
+  Invalid Project15 offline run caused by loading Vision-OPD gs65 under a
+  PTD-PO label, plus the checkpoint-identity guard.
 
 ## Collaboration
 
