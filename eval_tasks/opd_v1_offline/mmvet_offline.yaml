@@ -1,0 +1,25 @@
+dataset_path: parquet
+dataset_kwargs:
+  data_files:
+    test: assets/datasets/MMVet/data/test-*.parquet
+task: mmvet_offline
+test_split: test
+output_type: generate_until
+doc_to_visual: !function lmms_eval.tasks.mmvet.utils.mmvet_doc_to_visual
+doc_to_text: !function lmms_eval.tasks.mmvet.utils.doc_to_text
+doc_to_target: "{{answer}}"
+generation_kwargs:
+  max_new_tokens: 1024
+  temperature: 0.2
+  top_p: 1.0
+  num_beams: 1
+  do_sample: false
+process_results: !function lmms_eval.tasks.mmvet.utils.mmvet_process_results
+metric_list:
+  - metric: gpt_eval_score
+    aggregation: !function lmms_eval.tasks.mmvet.utils.mmvet_aggregate_results
+    higher_is_better: true
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: "First please perform reasoning, and think step by step to provide best answer to the following question: \n\n"
+    post_prompt: ""

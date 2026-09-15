@@ -1,0 +1,8 @@
+# Minimal Python dependencies for the scheduler and CPU scoring utilities.
+# GPU serving and lmms-eval are pinned separately in KEY_VERSIONS.md.
+pyyaml>=6.0
+pytest>=8.0
+datasets>=5.0
+openai>=2.24
+pillow>=10.0
+pyarrow>=22.0

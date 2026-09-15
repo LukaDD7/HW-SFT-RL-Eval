@@ -1,0 +1,18 @@
+schema_version: 1
+models:
+  base:
+    hf_repo: null
+    role: Base model under test
+  tailsft:
+    hf_repo: null
+    role: TailSFT model under test
+  ptdpo:
+    hf_repo: null
+    role: PTD-PO model under test
+  judge:
+    hf_repo: null
+    role: Qwen3-VL-32B judge or extractor
+
+notes: >
+  Fill hf_repo when the Hugging Face model repositories are created. Keep this
+  manifest as the single source of truth for canonical model revisions.

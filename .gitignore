@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Local environments
+.venv/
+venv/
+.env
+.env.*
+
+# Evaluation outputs
+outputs/
+eval_runs/
+logs/
+cache/
+hf_cache/
+wandb/
+mlruns/
+
+# Data and models
+*.jsonl
+*.parquet
+*.arrow
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.gguf
+*.tar.gz
+*.zip
+
+# Local planning artifacts
+.agents/plans/*
+!.agents/plans/.gitkeep
+task_plan.md
+findings.md
+progress.md
+
+# OS/editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.log

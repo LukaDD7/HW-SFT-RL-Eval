@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hw-sft-rl-eval"
+version = "0.1.0"
+description = "Reproducible evaluation protocols and scorers for HW SFT/RL"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+runtime = [
+  "datasets>=5.0",
+  "openai>=2.24",
+  "pillow>=10.0",
+  "pyarrow>=22.0",
+]
+dev = [
+  "pytest>=8.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

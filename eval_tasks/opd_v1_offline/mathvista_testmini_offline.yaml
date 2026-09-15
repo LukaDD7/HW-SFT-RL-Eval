@@ -1,0 +1,9 @@
+group: mathvista_testmini_offline
+task:
+  - mathvista_testmini_cot_offline
+  - mathvista_testmini_solution_offline
+  - mathvista_testmini_format_offline
+metadata:
+  version: 0.0
+  gpt_eval_model_name: gpt-3.5-turbo
+  quick_extract: false

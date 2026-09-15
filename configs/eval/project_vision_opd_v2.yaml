@@ -1,0 +1,93 @@
+suite:
+  name: project_multimodal_understanding_vision_opd_v2
+  contract_id: TC20260430027
+  description: >
+    Re-evaluation protocol (v2) for the MMF SFT reproduction audit: fixes the
+    eval-side artifacts (decoding budget, stop rules, first-letter extraction)
+    that systematically penalized long-CoT checkpoints.  See
+    docs/eval_protocol_v2_20260904.md for the artifact evidence and rationale.
+
+backend:
+  name: lmms-eval
+  tag: v0.7.1
+  commit: 88b23e2bfa16a1edbc16e9e238ed82130b3a4f56
+
+defaults:
+  checkpoint: ${VISION_OPD_CHECKPOINT:-}
+  served_model_name: ${VISION_OPD_SERVED_MODEL:-Vision-OPD-4B}
+  api_base: ${VISION_OPD_API_BASE:-http://127.0.0.1:8000/v1}
+  api_key: ${VISION_OPD_API_KEY:-EMPTY}
+  output_root: ${DTOPD_EVAL_ROOT:-./eval_runs/vision_opd_project_v2}
+  dataset_root: ${DTOPD_DATASET_ROOT:-./assets/datasets}
+  prior_raw_root: ${QWEN3VL8B_RAW_ROOT:-./assets/remi_replay/raw_responses}
+  seed: 42
+  batch_size: 1
+  tensor_parallel_size: 1
+  gpu_memory_utilization: 0.85
+  max_model_len: 65536
+  workers: 8
+  # eval_tasks/opd_v2 overrides are indexed after the bundled tasks, so every
+  # v2 task name is fresh (viewspatial_v2, gqa_v2, ...) to survive conflict
+  # resolution.
+  include_task_path: ${DTOPD_EVAL_TASK_PATH:-eval_tasks/opd_v2}
+
+profiles:
+  target_benchmarks:
+    - gqa
+    - dynamath
+    - viewspatial
+    - mmmu_pro
+  all:
+    - viewspatial
+    - gqa
+    - dynamath
+    - mmmu_pro
+
+benchmarks:
+  viewspatial:
+    contract_name: ViewSpatial-Bench (v2)
+    category: vqa
+    runner: lmms_eval
+    task: viewspatial_v2
+    metric_tier: community_standard
+    scoring: deterministic_mcq_tag_first
+    primary_metric: overall_accuracy
+    max_new_tokens: 4096
+    judge_required: false
+    note: 4096 budget; <answer>-tag-first extraction, last-line fallback; official prompt shape kept.
+
+  gqa:
+    contract_name: GQA (v2)
+    category: vqa
+    runner: lmms_eval
+    task: gqa_v2
+    metric_tier: community_standard
+    scoring: normalized_exact_tag_or_direct
+    primary_metric: exact_match
+    max_new_tokens: 4096
+    judge_required: false
+    note: 4096 budget (was 128); official single-word post_prompt kept; scoring accepts direct or tagged answers.
+
+  dynamath:
+    contract_name: DynaMath (v2)
+    category: math_science_reasoning
+    runner: lmms_eval
+    task: dynamath_reasoning_v2
+    metric_tier: community_standard
+    scoring: rule_based_math_last_tag
+    primary_metric: dynamath_average
+    max_new_tokens: 4096
+    judge_required: false
+    note: Official reasoning_utils scoring chain kept; stale <answer> blocks stripped so the last tag wins.
+
+  mmmu_pro:
+    contract_name: MMMU-Pro (v2)
+    category: comprehensive
+    runner: lmms_eval
+    task: mmmu_pro_standard_v2
+    metric_tier: community_standard
+    scoring: deterministic_mcq_tag_first
+    primary_metric: mmmu_acc
+    max_new_tokens: 4096
+    judge_required: false
+    note: 4096 budget (was 2048); <answer>-tag-first extraction; random.choice fallback removed.

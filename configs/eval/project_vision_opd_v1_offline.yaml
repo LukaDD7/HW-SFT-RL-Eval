@@ -1,0 +1,107 @@
+suite:
+  name: project_multimodal_understanding_vision_opd_v1_offline
+  contract_id: TC20260430027
+  description: Offline local-parquet recovery tasks for Project15 v1 benches that failed on networkless GPU instances.
+
+backend:
+  name: lmms-eval
+  tag: v0.7.1
+  commit: 88b23e2bfa16a1edbc16e9e238ed82130b3a4f56
+
+defaults:
+  checkpoint: ${VISION_OPD_CHECKPOINT:-}
+  served_model_name: ${VISION_OPD_SERVED_MODEL:-Qwen3-VL-8B-Instruct}
+  api_base: ${VISION_OPD_API_BASE:-http://127.0.0.1:8000/v1}
+  api_key: ${VISION_OPD_API_KEY:-EMPTY}
+  output_root: ${DTOPD_EVAL_ROOT:-./eval_runs/vision_opd_project_baseline}
+  dataset_root: ${DTOPD_DATASET_ROOT:-./assets/datasets}
+  include_task_path: ${DTOPD_EVAL_TASK_PATH:-eval_tasks/opd_v1_offline}
+  seed: 42
+  batch_size: 1
+  tensor_parallel_size: 1
+  gpu_memory_utilization: 0.85
+  max_model_len: 65536
+  workers: 8
+
+profiles:
+  missing_no_judge:
+    - mindcube
+    - vqav2
+    - scienceqa
+    - mmsi_bench
+    - blink
+  missing_judge:
+    - mathvista
+    - mmvet
+
+benchmarks:
+  mindcube:
+    contract_name: MindCube-Bench
+    category: vqa
+    runner: lmms_eval
+    task: mindcube_full_offline
+    metric_tier: community_standard
+    scoring: deterministic_mcq_with_subcategories
+    primary_metric: overall_accuracy
+    max_new_tokens: 256
+    judge_required: false
+  vqav2:
+    contract_name: VQAv2
+    category: vqa
+    runner: lmms_eval
+    task: vqav2_val_offline
+    metric_tier: community_standard
+    scoring: vqa_soft_agreement
+    primary_metric: exact_match
+    max_new_tokens: 128
+    judge_required: false
+  scienceqa:
+    contract_name: ScienceQA
+    category: vqa
+    runner: lmms_eval
+    task: scienceqa_img_offline
+    metric_tier: community_standard
+    scoring: deterministic_mcq
+    primary_metric: exact_match
+    max_new_tokens: 256
+    judge_required: false
+  mathvista:
+    contract_name: MathVista
+    category: math_science_reasoning
+    runner: lmms_eval
+    task: mathvista_testmini_offline
+    metric_tier: community_standard
+    scoring: llm_as_judge
+    primary_metric: llm_as_judge_eval
+    max_new_tokens: 4096
+    judge_required: true
+  mmsi_bench:
+    contract_name: MMSI-Bench
+    category: comprehensive
+    runner: lmms_eval
+    task: mmsi_bench_offline
+    metric_tier: community_standard
+    scoring: deterministic_mcq_with_subcategories
+    primary_metric: average
+    max_new_tokens: 2048
+    judge_required: false
+  blink:
+    contract_name: BLINK
+    category: comprehensive
+    runner: lmms_eval
+    task: blink_offline
+    metric_tier: community_standard
+    scoring: deterministic_mcq
+    primary_metric: blink_acc
+    max_new_tokens: 1024
+    judge_required: false
+  mmvet:
+    contract_name: MMVet
+    category: comprehensive
+    runner: lmms_eval
+    task: mmvet_offline
+    metric_tier: community_standard
+    scoring: llm_as_judge
+    primary_metric: gpt_eval_score
+    max_new_tokens: 2048
+    judge_required: true

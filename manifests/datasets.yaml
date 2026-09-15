@@ -1,0 +1,15 @@
+schema_version: 1
+assets:
+  benchmark_cache:
+    hf_repo: null
+    local_path_env: HF_HOME
+  remi_replay:
+    hf_repo: null
+    local_path_env: DTOPD_DATASET_ROOT
+  mv_math_metadata:
+    hf_repo: null
+    local_path_env: DTOPD_DATASET_ROOT
+
+notes: >
+  Fill hf_repo after creating the evaluation asset dataset repository. Raw
+  data remains external to Git.

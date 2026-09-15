@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -e ".[dev]"
+      - run: pytest -q
+
+  repository-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block large artifacts and caches
+        run: |
+          if find . -path ./.git -prune -o -type f \
+            \( -name '*.safetensors' -o -name '*.parquet' -o -name '*.arrow' \
+               -o -name '*.jsonl' -o -name '*.pt' -o -name '*.pth' \
+               -o -name '*.tar.gz' -o -name '*.zip' \) -print -quit | grep -q .; then
+            echo 'Large/data artifact detected; move it to Hugging Face.' >&2
+            exit 1
+          fi

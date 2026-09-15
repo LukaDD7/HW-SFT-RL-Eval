@@ -1,0 +1,26 @@
+task: "mmmu_pro_standard_v2"
+tag:
+  - opd_v2
+dataset_path: MMMU/MMMU_Pro
+dataset_name: "standard (10 options)"
+test_split: test
+output_type: generate_until
+doc_to_visual: !function mmmu_pro_v2.mmmu_pro_v2_doc_to_visual
+doc_to_text: !function mmmu_pro_v2.mmmu_pro_v2_doc_to_text
+doc_to_target: "{{answer}}"
+process_results: !function mmmu_pro_v2.mmmu_pro_v2_process_results
+
+generation_kwargs:
+  max_new_tokens: 4096
+  temperature: 0
+  do_sample: false
+
+metric_list:
+  - metric: mmmu_acc
+    aggregation: !function mmmu_pro_v2.mmmu_pro_v2_aggregate_results
+    higher_is_better: true
+
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: ""
+    post_prompt: "Answer with the option letter inside <answer></answer> tags."

@@ -1,0 +1,26 @@
+task: dynamath_reasoning_v2
+tag:
+  - opd_v2
+dataset_path: kcz358/DynaMath
+output_type: generate_until
+doc_to_target: "ground_truth"
+metric_list:
+  - metric: dynamath_average
+    aggregation: !function dynamath_reasoning_v2.dynamath_v2_aggregate_results_average
+    higher_is_better: true
+  - metric: dynamath_worst
+    aggregation: !function dynamath_reasoning_v2.dynamath_v2_aggregate_results_worst
+    higher_is_better: true
+
+# openai backend clamps max_new_tokens at 4096, so requesting 49152 (upstream
+# default) silently decodes at 4096 anyway.  Declare the real budget.
+generation_kwargs:
+  max_new_tokens: 4096
+  temperature: 0
+  do_sample: false
+
+test_split: test
+doc_to_messages: !function dynamath_reasoning_v2.dynamath_v2_doc_to_messages
+doc_to_text: !function dynamath_reasoning_v2.dynamath_v2_doc_to_text
+doc_to_visual: !function dynamath_reasoning_v2.dynamath_v2_doc_to_visual
+process_results: !function dynamath_reasoning_v2.dynamath_v2_process_results

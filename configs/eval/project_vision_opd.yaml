@@ -1,0 +1,233 @@
+suite:
+  name: project_multimodal_understanding_vision_opd
+  contract_id: TC20260430027
+  description: Vision-OPD baseline for the multimodal-understanding branch only.
+  contract_name_aliases:
+    MatchVista: MathVista
+
+backend:
+  name: lmms-eval
+  tag: v0.7.1
+  commit: 88b23e2bfa16a1edbc16e9e238ed82130b3a4f56
+
+defaults:
+  checkpoint: ${VISION_OPD_CHECKPOINT:-}
+  served_model_name: ${VISION_OPD_SERVED_MODEL:-Vision-OPD-4B}
+  api_base: ${VISION_OPD_API_BASE:-http://127.0.0.1:8000/v1}
+  api_key: ${VISION_OPD_API_KEY:-EMPTY}
+  output_root: ${DTOPD_EVAL_ROOT:-./eval_runs/vision_opd_project_baseline}
+  dataset_root: ${DTOPD_DATASET_ROOT:-./assets/datasets}
+  prior_raw_root: ${QWEN3VL8B_RAW_ROOT:-./assets/remi_replay/raw_responses}
+  seed: 42
+  batch_size: 1
+  tensor_parallel_size: 1
+  gpu_memory_utilization: 0.85
+  max_model_len: 65536
+  workers: 8
+
+profiles:
+  target_benchmarks:
+    - gqa
+    - mmbench
+    - remi
+    - dynamath
+    - viewspatial
+    - mmmu_pro
+  smoke:
+    - viewspatial
+    - dynamath
+    - blink
+  acceptance_core:
+    - viewspatial
+    - gqa
+    - dynamath
+    - mathvista
+    - blink
+    - mmmu_pro
+  all:
+    - viewspatial
+    - mindcube
+    - gqa
+    - vqav2
+    - scienceqa
+    - mv_math
+    - remi
+    - dynamath
+    - mathverse
+    - mathvista
+    - mmsi_bench
+    - blink
+    - mmbench
+    - mmmu_pro
+    - mmvet
+
+benchmarks:
+  viewspatial:
+    contract_name: ViewSpatial-Bench
+    category: vqa
+    runner: lmms_eval
+    task: viewspatial
+    metric_tier: community_standard
+    scoring: deterministic_mcq
+    primary_metric: overall_accuracy
+    max_new_tokens: 256
+    judge_required: false
+
+  mindcube:
+    contract_name: MindCube-Bench
+    category: vqa
+    runner: lmms_eval
+    task: mindcube_full
+    metric_tier: community_standard
+    scoring: deterministic_mcq_with_subcategories
+    primary_metric: overall_accuracy
+    max_new_tokens: 256
+    judge_required: false
+
+  gqa:
+    contract_name: GQA
+    category: vqa
+    runner: lmms_eval
+    task: gqa
+    metric_tier: community_standard
+    scoring: normalized_exact
+    primary_metric: exact_match
+    max_new_tokens: 128
+    judge_required: false
+    note: Use the official GQA evaluator for paper-level consistency/validity/plausibility diagnostics.
+
+  vqav2:
+    contract_name: VQAv2
+    category: vqa
+    runner: lmms_eval
+    task: vqav2_val
+    metric_tier: community_standard
+    scoring: vqa_soft_agreement
+    primary_metric: exact_match
+    max_new_tokens: 128
+    judge_required: false
+
+  scienceqa:
+    contract_name: ScienceQA
+    category: vqa
+    runner: lmms_eval
+    task: scienceqa_img
+    metric_tier: community_standard
+    scoring: deterministic_mcq
+    primary_metric: exact_match
+    max_new_tokens: 256
+    judge_required: false
+
+  mv_math:
+    contract_name: MV-MATH
+    category: math_science_reasoning
+    runner: replay_openai
+    source_file: qwen3vl8b_MV_MATH_len65536_maxtok1024_raw.jsonl
+    metric_tier: internal_diagnostic
+    scoring: official_llm_equivalence_sidecar
+    primary_metric: null
+    max_new_tokens: 4096
+    judge_required: false
+    note: Use python -m dual_track_opd.eval.score_mv_math in official mode with a local OpenAI-compatible judge; choice-only deterministic scores are diagnostics.
+
+  remi:
+    contract_name: ReMI
+    category: math_science_reasoning
+    runner: replay_openai
+    source_file: qwen3vl8b_ReMI_test_len65536_maxtok1024_raw.jsonl
+    metric_tier: internal_diagnostic
+    scoring: official_exact_or_relaxed_accuracy_sidecar
+    primary_metric: null
+    max_new_tokens: 2048
+    judge_required: false
+    note: lmms-eval v0.7.1 has no ReMI task. Use scripts/sft_rl/remi_reeval.py --mode exact, which follows the paper's exact/relaxed tolerance protocol with a full denominator.
+
+  dynamath:
+    contract_name: DynaMath
+    category: math_science_reasoning
+    runner: lmms_eval
+    task: dynamath_reasoning
+    metric_tier: community_standard
+    scoring: rule_based_math
+    primary_metric: dynamath_average
+    max_new_tokens: 4096
+    judge_required: false
+
+  mathverse:
+    contract_name: MathVerse
+    category: math_science_reasoning
+    runner: lmms_eval
+    task: mathverse_testmini
+    metric_tier: community_standard
+    scoring: llm_as_judge
+    primary_metric: gpt_eval_score
+    max_new_tokens: 4096
+    judge_required: true
+
+  mathvista:
+    contract_name: MathVista
+    category: math_science_reasoning
+    runner: lmms_eval
+    task: mathvista_testmini
+    metric_tier: community_standard
+    scoring: llm_as_judge
+    primary_metric: llm_as_judge_eval
+    max_new_tokens: 4096
+    judge_required: true
+    note: The contract spells this as MatchVista; MathVista is the intended public benchmark.
+
+  mmsi_bench:
+    contract_name: MMSI-Bench
+    category: comprehensive
+    runner: lmms_eval
+    task: mmsi_bench
+    metric_tier: community_standard
+    scoring: deterministic_mcq_with_subcategories
+    primary_metric: average
+    max_new_tokens: 2048
+    judge_required: false
+
+  blink:
+    contract_name: BLINK
+    category: comprehensive
+    runner: lmms_eval
+    task: blink
+    metric_tier: community_standard
+    scoring: deterministic_mcq
+    primary_metric: blink_acc
+    max_new_tokens: 1024
+    judge_required: false
+
+  mmbench:
+    contract_name: MMBench
+    category: comprehensive
+    runner: lmms_eval
+    task: mmbench_en_dev
+    metric_tier: community_standard
+    scoring: llm_choice_extractor
+    primary_metric: gpt_eval_score
+    max_new_tokens: 1024
+    judge_required: true
+    note: Record the extractor model and CircularEval settings before using the score in a paper table.
+
+  mmmu_pro:
+    contract_name: MMMU-Pro
+    category: comprehensive
+    runner: lmms_eval
+    task: mmmu_pro_standard
+    metric_tier: community_standard
+    scoring: deterministic_mcq
+    primary_metric: mmmu_acc
+    max_new_tokens: 2048
+    judge_required: false
+
+  mmvet:
+    contract_name: MMVet
+    category: comprehensive
+    runner: lmms_eval
+    task: mmvet
+    metric_tier: community_standard
+    scoring: llm_as_judge
+    primary_metric: gpt_eval_score
+    max_new_tokens: 2048
+    judge_required: true
