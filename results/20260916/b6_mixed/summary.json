@@ -1,0 +1,47 @@
+{
+  "protocol": "B6-mixed",
+  "pinned_at": "2026-09-16T00:00:00Z",
+  "definition": "v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench",
+  "arms": {
+    "base": {
+      "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/Qwen3-VL-8B-Instruct",
+      "rows": [
+        {"benchmark_id": "gqa", "value": 0.6163141993957704},
+        {"benchmark_id": "dynamath", "value": 0.6291417165668665},
+        {"benchmark_id": "viewspatial", "value": 0.40896358543417366},
+        {"benchmark_id": "mmmu_pro", "value": 0.4820809248554913},
+        {"benchmark_id": "remi", "value": 0.2792307692307692},
+        {"benchmark_id": "mmbench", "value": 0.8513745704467354}
+      ],
+      "macro": 0.5445176276549678
+    },
+    "tailsft": {
+      "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/fc-opd-storage/outputs/fc_opd/sft_rl/ckpt/qwen3vl_sft_tailsft_mmf122k_1ep/global_step_1774/huggingface",
+      "rows": [
+        {"benchmark_id": "gqa", "value": 0.32087772300842743},
+        {"benchmark_id": "dynamath", "value": 0.5762475049900201},
+        {"benchmark_id": "viewspatial", "value": 0.19467787114845939},
+        {"benchmark_id": "mmmu_pro", "value": 0.40404624277456647},
+        {"benchmark_id": "remi", "value": 0.2903846153846154},
+        {"benchmark_id": "mmbench", "value": 0.4793814432989691}
+      ],
+      "macro": 0.37760256676750964
+    },
+    "ptdpo_r4_step390": {
+      "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/fc-opd-storage/outputs/fc_opd/sft_rl/hf/qwen3vl_ptdpo_r4_step390",
+      "rows": [
+        {"benchmark_id": "gqa", "value": 0.615201144856098},
+        {"benchmark_id": "dynamath", "value": 0.6217564870259482},
+        {"benchmark_id": "viewspatial", "value": 0.40913865546218486},
+        {"benchmark_id": "mmmu_pro", "value": 0.47630057803468207},
+        {"benchmark_id": "remi", "value": 0.32384615384615384},
+        {"benchmark_id": "mmbench", "value": 0.8513745704467354}
+      ],
+      "macro": 0.549602931611967
+    }
+  },
+  "notes": {
+    "mmbench": "Base and PTD-PO step390 have the same aggregate score, but 460/4329 filtered predictions differ; this is not result reuse.",
+    "remi": "Strict exact full-denominator scoring; 2600 rows."
+  }
+}

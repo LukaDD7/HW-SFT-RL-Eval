@@ -1,29 +1,28 @@
 # Scripts
 
-## B-segment v2
+## Canonical pinned evaluation entrypoint
 
 ```bash
 EVAL_CKPT=/path/to/model \
 EVAL_RUN_NAME=my_run \
 HW_EVAL_ENV=/path/to/env \
-bash scripts/eval/run_target_benchmarks_v2.sh
+bash scripts/eval/run_pinned_eval.sh --protocol b6-mixed
 ```
 
-Runs GQA, DynaMath, ViewSpatial, and MMMU-Pro with 4096-token decoding and
-deterministic answer extraction.
-
-## Project15 / v1
+or:
 
 ```bash
 EVAL_CKPT=/path/to/model \
 EVAL_RUN_NAME=my_run \
 HW_EVAL_ENV=/path/to/env \
-SFT_RL_BENCHMARKS=viewspatial,gqa,dynamath,mmmu_pro,remi \
-SFT_RL_JUDGE_BENCHMARKS= \
-bash scripts/eval/run_target_benchmarks.sh
+bash scripts/eval/run_pinned_eval.sh --protocol project15
 ```
 
-For judged tasks, also set `SFT_RL_JUDGE_HF` and GPU/port variables.
+`b6-mixed` runs v2 GQA/DynaMath/ViewSpatial/MMMU-Pro and v1 ReMI/MMBench.
+`project15` runs the full 15-task Project15 v1/offline suite.
+
+The underlying `run_target_benchmarks*.sh` scripts are internal implementation
+details. Do not call them directly for new evaluations.
 
 ## ReMI strict rescoring
 

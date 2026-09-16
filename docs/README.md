@@ -2,6 +2,8 @@
 
 ## Canonical protocols
 
+- [pinned_eval_protocols_20260916.md](pinned_eval_protocols_20260916.md)
+  Single user-facing entrypoint and pinned B6-mixed / Project15 result sets.
 - [eval_protocol_v2_20260904.md](eval_protocol_v2_20260904.md)
   B-segment v2 four-task deterministic protocol.
 - [remi_mv_math_protocol_20260913.md](remi_mv_math_protocol_20260913.md)
