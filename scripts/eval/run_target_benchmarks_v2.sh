@@ -56,7 +56,7 @@ EVAL_PORT="${EVAL_PORT:-${SFT_RL_EVAL_PORT:-8000}}"
 MAX_LEN="${EVAL_MAX_LEN:-${SFT_RL_MAX_LEN:-65536}}"
 
 # v2 protocol knobs
-export DTOPD_EVAL_ROOT="${DTOPD_EVAL_ROOT:-${DTOPD_ROOT}/eval_runs/vision_opd_project_v2}}"
+export DTOPD_EVAL_ROOT="${DTOPD_EVAL_ROOT:-${DTOPD_ROOT}/eval_runs/vision_opd_project_v2}"
 export DTOPD_EVAL_TASK_PATH="${REPO_ROOT}/eval_tasks/opd_v2"
 V2_BENCHMARKS="${V2_BENCHMARKS:-gqa,dynamath,viewspatial,mmmu_pro}"
 
