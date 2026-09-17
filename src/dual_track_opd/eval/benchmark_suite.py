@@ -460,7 +460,7 @@ def run_suite(args: argparse.Namespace) -> int:
         existing_manifest = json.loads(manifest_candidate.read_text(encoding="utf-8"))
         checkpoint = validate_checkpoint_identity(
             checkpoint,
-            run_name=str(existing_manifest.get("run_name", run_dir.name)),
+            run_name=str(existing_manifest.get("run_name", resume_path.name)),
             served_model_name=str(suite.defaults["served_model_name"]),
             previous_checkpoint=existing_manifest.get("checkpoint_path"),
         )

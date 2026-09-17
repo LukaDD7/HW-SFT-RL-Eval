@@ -25,6 +25,7 @@ mlruns/
 
 # Data and models
 assets/datasets
+assets/remi_replay/
 *.jsonl
 *.parquet
 *.arrow
