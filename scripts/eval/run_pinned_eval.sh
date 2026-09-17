@@ -42,6 +42,16 @@ done
 
 [[ -n "$protocol" ]] || { usage; exit 2; }
 
+# Historical runs accidentally used literal closing braces in DTOPD_EVAL_ROOT.
+# Refuse that pattern so future runs cannot silently create another
+# `vision_opd_project_baseline}}...` directory.
+if [[ "${DTOPD_EVAL_ROOT:-}" == *'}'* ]]; then
+  echo "FATAL: DTOPD_EVAL_ROOT must not contain literal '}' characters" >&2
+  echo "       Use a clean path or symlink, e.g.:" >&2
+  echo "       ln -sfn <existing-output-root> /path/to/clean-output-root" >&2
+  exit 2
+fi
+
 case "$protocol" in
   b6-mixed)
     bash scripts/eval/run_target_benchmarks_v2.sh

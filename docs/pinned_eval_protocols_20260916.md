@@ -25,6 +25,20 @@ bash scripts/eval/run_pinned_eval.sh --protocol project15
 
 The protocol argument is mandatory. There is no default protocol.
 
+## Output roots and resume
+
+`DTOPD_EVAL_ROOT` must be a clean path with no literal `}` characters. If a
+historical output root contains accidental closing braces, create a clean
+symlink to it and export the symlink path:
+
+```bash
+ln -sfn /path/to/historical-output-root /path/to/clean-output-root
+export DTOPD_EVAL_ROOT=/path/to/clean-output-root
+```
+
+`run_pinned_eval.sh` rejects `DTOPD_EVAL_ROOT` values containing `}` so a
+copy-pasted brace cannot silently create another output directory.
+
 ## B6-mixed
 
 B6-mixed is the official six-benchmark comparison protocol:
