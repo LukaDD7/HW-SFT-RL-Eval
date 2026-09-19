@@ -34,6 +34,8 @@ def test_mv_math_replay_resolves_historical_problem_id(tmp_path: Path, monkeypat
         api_key="EMPTY",
         model="Vision-OPD-4B",
         max_tokens=32,
+        temperature=1.0,
+        seed=42,
         workers=2,
         timeout=1,
     )

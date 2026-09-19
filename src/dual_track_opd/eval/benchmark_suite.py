@@ -248,10 +248,22 @@ def build_command(
     api_base: str,
     limit: float | None,
     judge_policy: str,
+    repeat_index: int = 0,
 ) -> list[str] | None:
     if spec.judge_required and judge_policy == "defer":
         return None
     defaults = suite.defaults
+    repeat_count = int(defaults.get("repeat_count", 1))
+    sampling_temperature = float(defaults.get("sampling_temperature", 0.0))
+    if repeat_count < 1:
+        raise ValueError(f"defaults.repeat_count must be >= 1, got {repeat_count}")
+    if repeat_count > 1 and sampling_temperature <= 0:
+        raise ValueError(
+            "defaults.sampling_temperature must be > 0 when defaults.repeat_count > 1"
+        )
+    if repeat_index < 0 or repeat_index >= repeat_count:
+        raise ValueError(f"repeat_index must be in [0, {repeat_count}), got {repeat_index}")
+
     if spec.runner == "lmms_eval":
         inference_backend = (
             "async_openai"
@@ -279,16 +291,16 @@ def build_command(
             "--batch_size",
             str(defaults.get("batch_size", 1)),
             "--seed",
-            str(defaults.get("seed", 42)),
+            str(int(defaults.get("seed", 42)) + repeat_index),
             "--gen_kwargs",
-            f"temperature=0,max_new_tokens={max_new_tokens}",
+            f"temperature={sampling_temperature},max_new_tokens={max_new_tokens}",
             "--log_samples",
             "--log_samples_suffix",
             f"vision_opd_{spec.benchmark_id}",
             "--output_path",
-            str(run_dir / "lmms" / spec.benchmark_id),
+            str(_repeat_output_dir(run_dir, "lmms", spec.benchmark_id, repeat_index, repeat_count)),
             "--use_cache",
-            str(run_dir / "cache"),
+            str(_repeat_output_dir(run_dir, "cache", "", repeat_index, repeat_count)),
             "--trust_remote_code",
             "--show_config",
         ]
@@ -315,7 +327,7 @@ def build_command(
             "--input-jsonl",
             str(source),
             "--output-jsonl",
-            str(run_dir / "replay" / f"{spec.benchmark_id}.jsonl"),
+            str(_repeat_replay_path(run_dir, spec.benchmark_id, repeat_index, repeat_count)),
             "--dataset",
             spec.contract_name,
             "--dataset-root",
@@ -328,6 +340,10 @@ def build_command(
             str(defaults["served_model_name"]),
             "--max-tokens",
             str(spec.max_new_tokens),
+            "--temperature",
+            str(sampling_temperature),
+            "--seed",
+            str(int(defaults.get("seed", 42)) + repeat_index),
             "--workers",
             str(defaults.get("workers", 8)),
             "--resume",
@@ -336,6 +352,91 @@ def build_command(
             command.extend(["--limit", str(int(limit))])
         return command
     raise ValueError(f"unsupported runner {spec.runner!r} for {spec.benchmark_id}")
+
+
+def _repeat_output_dir(
+    run_dir: Path, parent: str, benchmark_id: str, repeat_index: int, repeat_count: int
+) -> Path:
+    path = run_dir / parent
+    if benchmark_id:
+        path /= benchmark_id
+    return path / f"repeat_{repeat_index}" if repeat_count > 1 else path
+
+
+def _repeat_replay_path(
+    run_dir: Path, benchmark_id: str, repeat_index: int, repeat_count: int
+) -> Path:
+    path = run_dir / "replay"
+    if repeat_count > 1:
+        return path / f"{benchmark_id}.repeat_{repeat_index}.jsonl"
+    return path / f"{benchmark_id}.jsonl"
+
+
+def _expected_result_path(
+    *, spec: BenchmarkSpec, run_dir: Path, repeat_index: int, repeat_count: int
+) -> Path:
+    if spec.runner == "replay_openai":
+        return _repeat_replay_path(run_dir, spec.benchmark_id, repeat_index, repeat_count)
+    return _repeat_output_dir(
+        run_dir, "lmms", spec.benchmark_id, repeat_index, repeat_count
+    )
+
+
+def _repeat_has_results(
+    *, spec: BenchmarkSpec, run_dir: Path, repeat_index: int, repeat_count: int
+) -> bool:
+    path = _expected_result_path(
+        spec=spec, run_dir=run_dir, repeat_index=repeat_index, repeat_count=repeat_count
+    )
+    if spec.runner == "replay_openai":
+        return path.is_file() and path.stat().st_size > 0
+    return path.is_dir() and any(candidate.is_file() for candidate in path.rglob("*.json"))
+
+
+def build_commands(
+    spec: BenchmarkSpec,
+    *,
+    suite: SuiteConfig,
+    run_dir: Path,
+    python: str,
+    inference_backend: str,
+    checkpoint: str,
+    api_base: str,
+    limit: float | None,
+    judge_policy: str,
+) -> list[list[str]]:
+    repeat_count = int(suite.defaults.get("repeat_count", 1))
+    first = build_command(
+        spec,
+        suite=suite,
+        run_dir=run_dir,
+        python=python,
+        inference_backend=inference_backend,
+        checkpoint=checkpoint,
+        api_base=api_base,
+        limit=limit,
+        judge_policy=judge_policy,
+        repeat_index=0,
+    )
+    if first is None:
+        return []
+    commands = [first]
+    for repeat_index in range(1, repeat_count):
+        command = build_command(
+            spec,
+            suite=suite,
+            run_dir=run_dir,
+            python=python,
+            inference_backend=inference_backend,
+            checkpoint=checkpoint,
+            api_base=api_base,
+            limit=limit,
+            judge_policy=judge_policy,
+            repeat_index=repeat_index,
+        )
+        assert command is not None
+        commands.append(command)
+    return commands
 
 
 def _git_state(repo: Path) -> dict[str, Any]:
@@ -402,7 +503,7 @@ def _check_openai_endpoint(api_base: str, api_key: str) -> None:
 
 
 def _print_plan(
-    rows: Sequence[tuple[BenchmarkSpec, list[str] | None]],
+    rows: Sequence[tuple[BenchmarkSpec, list[list[str]]]],
     judge_policy: str,
     skip_ids: set[str] | None = None,
 ) -> None:
@@ -411,7 +512,7 @@ def _print_plan(
     for spec, command in rows:
         if spec.benchmark_id in skip_ids:
             status = "skipped:resume"
-        elif command is None:
+        elif not command:
             if spec.judge_required and judge_policy == "defer":
                 status = "deferred:judge"
             else:
@@ -426,8 +527,8 @@ def _print_plan(
         )
     print("\nCommands:")
     for spec, command in rows:
-        if command:
-            print(f"\n# {spec.contract_name}\n{shlex.join(command)}")
+        for repeat_index, repeat_command in enumerate(command):
+            print(f"\n# {spec.contract_name} (repeat {repeat_index})\n{shlex.join(repeat_command)}")
 
 
 def _save_manifest(manifest_path: Path, manifest: dict[str, Any]) -> None:
@@ -441,6 +542,14 @@ def run_suite(args: argparse.Namespace) -> int:
     global _interrupted
 
     suite = load_suite(args.config)
+    repeat_count = int(suite.defaults.get("repeat_count", 1))
+    sampling_temperature = float(suite.defaults.get("sampling_temperature", 0.0))
+    if repeat_count < 1:
+        raise ValueError(f"defaults.repeat_count must be >= 1, got {repeat_count}")
+    if repeat_count > 1 and sampling_temperature <= 0:
+        raise ValueError(
+            "defaults.sampling_temperature must be > 0 when defaults.repeat_count > 1"
+        )
     explicit = [part for value in args.benchmarks for part in value.split(",") if part]
     specs = select_benchmarks(suite, args.profile, explicit or None)
     checkpoint = str(Path(args.checkpoint or suite.defaults["checkpoint"]).expanduser())
@@ -458,6 +567,12 @@ def run_suite(args: argparse.Namespace) -> int:
         if not manifest_candidate.is_file():
             raise FileNotFoundError(f"manifest not found in resume directory: {manifest_candidate}")
         existing_manifest = json.loads(manifest_candidate.read_text(encoding="utf-8"))
+        if int(existing_manifest.get("repeat_count", 1)) != repeat_count:
+            raise ValueError(
+                "resume protocol mismatch: expected "
+                f"repeat_count={repeat_count}, prior repeat_count="
+                f"{int(existing_manifest.get('repeat_count', 1))}. Use a new run directory."
+            )
         checkpoint = validate_checkpoint_identity(
             checkpoint,
             run_name=str(existing_manifest.get("run_name", resume_path.name)),
@@ -465,7 +580,10 @@ def run_suite(args: argparse.Namespace) -> int:
             previous_checkpoint=existing_manifest.get("checkpoint_path"),
         )
         for run_rec in existing_manifest.get("runs", []):
-            if run_rec.get("status") == "completed":
+            if (
+                run_rec.get("status") == "completed"
+                and int(run_rec.get("repeat_count", 1)) == repeat_count
+            ):
                 completed_ids.add(run_rec["benchmark_id"])
         if completed_ids:
             print(f"[resume] {len(completed_ids)} benchmark(s) already completed: {sorted(completed_ids)}")
@@ -488,7 +606,7 @@ def run_suite(args: argparse.Namespace) -> int:
     rows = [
         (
             spec,
-            build_command(
+            build_commands(
                 spec,
                 suite=suite,
                 run_dir=run_dir,
@@ -511,13 +629,13 @@ def run_suite(args: argparse.Namespace) -> int:
 
     # Only check the endpoint if there are actually benchmarks to run.
     pending = [
-        (spec, cmd) for spec, cmd in rows
-        if cmd is not None and spec.benchmark_id not in completed_ids
+        (spec, commands) for spec, commands in rows
+        if commands and spec.benchmark_id not in completed_ids
     ]
     if pending and args.inference_backend == "openai":
         _check_openai_endpoint(api_base, str(suite.defaults.get("api_key", "EMPTY")))
-    for spec, command in rows:
-        if command is not None and spec.runner == "replay_openai" and spec.benchmark_id not in completed_ids:
+    for spec, commands in rows:
+        if commands and spec.runner == "replay_openai" and spec.benchmark_id not in completed_ids:
             source = Path(str(suite.defaults["prior_raw_root"])) / str(spec.source_file)
             if not source.is_file():
                 raise FileNotFoundError(f"prior raw replay source not found: {source}")
@@ -544,6 +662,9 @@ def run_suite(args: argparse.Namespace) -> int:
             "inference_backend": args.inference_backend,
             "api_base": api_base,
             "judge_policy": args.judge_policy,
+            "repeat_count": repeat_count,
+            "sampling_temperature": sampling_temperature,
+            "protocol": f"avg@{repeat_count}" if repeat_count > 1 else "single-generation",
             "runs": [],
             "notes": "Raw outputs remain outside Git; judge-dependent metrics are explicitly classified.",
         }
@@ -567,7 +688,7 @@ def run_suite(args: argparse.Namespace) -> int:
 
     env = _judge_environment() if args.judge_policy == "score" else os.environ.copy()
     overall_rc = 0
-    for spec, command in rows:
+    for spec, commands in rows:
         if _interrupted:
             print(f"\n[interrupted] stopping before {spec.contract_name}", flush=True)
             break
@@ -584,42 +705,50 @@ def run_suite(args: argparse.Namespace) -> int:
             "metric_tier": spec.metric_tier,
             "scoring": spec.scoring,
             "primary_metric": spec.primary_metric,
-            "command": command,
+            "command": commands,
+            "repeat_count": repeat_count,
         }
-        if command is None:
+        if not commands:
             record["status"] = "deferred"
             record["reason"] = (
                 "judge required" if spec.judge_required else "OpenAI-compatible endpoint required"
             )
         else:
-            # ---- deterministic cache run-id  ---------------------------
-            # Use a stable cache key so that the same benchmark re-using
-            # the same --use_cache directory will hit previous responses.
-            run_env = env.copy()
-            run_env["LMMS_CACHE_RUN_ID"] = f"{manifest['run_name']}__{spec.benchmark_id}"
-
-            print(f"\n[run] {spec.contract_name}", flush=True)
-            completed = subprocess.run(command, check=False, env=run_env)
-            record["returncode"] = completed.returncode
-            if spec.runner == "replay_openai":
-                result_path = run_dir / "replay" / f"{spec.benchmark_id}.jsonl"
-                has_results = result_path.is_file() and result_path.stat().st_size > 0
-            else:
-                output_dir = run_dir / "lmms" / spec.benchmark_id
-                has_results = any(path.is_file() for path in output_dir.rglob("*.json"))
-            succeeded = completed.returncode == 0 and has_results
-            record["status"] = "completed" if succeeded else "failed"
-            if not succeeded:
-                record["failure_reason"] = (
-                    f"{spec.runner}_returned_nonzero"
-                    if completed.returncode != 0
-                    else f"{spec.runner}_returned_no_result_files"
+            all_succeeded = True
+            for repeat_index, command in enumerate(commands):
+                # Separate cache run IDs prevent an earlier repeat from being
+                # reused as a different sample. Sampling temperature is > 0,
+                # so lmms-eval also marks these generations non-cacheable.
+                run_env = env.copy()
+                run_env["LMMS_CACHE_RUN_ID"] = (
+                    f"{manifest['run_name']}__{spec.benchmark_id}__repeat_{repeat_index}"
                 )
-                overall_rc = completed.returncode if completed.returncode != 0 else 1
-                if not args.keep_going:
-                    manifest["runs"].append(record)
-                    _save_manifest(manifest_path, manifest)
+
+                print(f"\n[run] {spec.contract_name} (repeat {repeat_index})", flush=True)
+                completed = subprocess.run(command, check=False, env=run_env)
+                has_results = _repeat_has_results(
+                    spec=spec,
+                    run_dir=run_dir,
+                    repeat_index=repeat_index,
+                    repeat_count=repeat_count,
+                )
+                succeeded = completed.returncode == 0 and has_results
+                record[f"returncode_repeat_{repeat_index}"] = completed.returncode
+                if not succeeded:
+                    all_succeeded = False
+                    record["failed_repeat_index"] = repeat_index
+                    record["failure_reason"] = (
+                        f"{spec.runner}_returned_nonzero"
+                        if completed.returncode != 0
+                        else f"{spec.runner}_returned_no_result_files"
+                    )
+                    overall_rc = completed.returncode if completed.returncode != 0 else 1
                     break
+            record["status"] = "completed" if all_succeeded else "failed"
+            if not all_succeeded and not args.keep_going:
+                manifest["runs"].append(record)
+                _save_manifest(manifest_path, manifest)
+                break
         manifest["runs"].append(record)
         _save_manifest(manifest_path, manifest)
 

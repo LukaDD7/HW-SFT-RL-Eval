@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from dual_track_opd.eval.benchmark_suite import (
+    build_commands,
     build_command,
     load_suite,
     select_benchmarks,
@@ -100,9 +101,36 @@ def test_lmms_command_records_generation_and_raw_outputs() -> None:
     )
     assert command is not None
     assert "model=/checkpoint" in command[command.index("--model_args") + 1]
-    assert command[command.index("--gen_kwargs") + 1] == "temperature=0,max_new_tokens=256"
+    assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=256"
     assert command[command.index("--limit") + 1] == "4"
+    assert command[command.index("--seed") + 1] == "42"
+    output_path = Path(command[command.index("--output_path") + 1])
+    cache_path = Path(command[command.index("--use_cache") + 1])
+    assert output_path.parts[-2:] == ("viewspatial", "repeat_0")
+    assert cache_path.parts[-1] == "repeat_0"
     assert "--log_samples" in command
+
+
+def test_avg4_builds_four_independent_repeat_commands() -> None:
+    suite = load_suite(CONFIG)
+    spec = suite.benchmarks["viewspatial"]
+    commands = build_commands(
+        spec,
+        suite=suite,
+        run_dir=Path("/tmp/run"),
+        python="python",
+        inference_backend="openai",
+        checkpoint="/checkpoint",
+        api_base="http://127.0.0.1:8000/v1",
+        limit=4,
+        judge_policy="defer",
+    )
+    assert len(commands) == 4
+    seeds = [int(command[command.index("--seed") + 1]) for command in commands]
+    assert seeds == [42, 43, 44, 45]
+    outputs = [Path(command[command.index("--output_path") + 1]) for command in commands]
+    assert [path.parts[-1] for path in outputs] == [f"repeat_{i}" for i in range(4)]
+    assert [path.parts[-2] for path in outputs] == ["viewspatial"] * 4
 
 
 def test_lmms_command_supports_format_pilot_overrides(monkeypatch) -> None:
@@ -123,7 +151,7 @@ def test_lmms_command_supports_format_pilot_overrides(monkeypatch) -> None:
     )
     assert command is not None
     assert command[command.index("--model") + 1] == "async_openai"
-    assert command[command.index("--gen_kwargs") + 1] == "temperature=0,max_new_tokens=1024"
+    assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=1024"
     model_args = command[command.index("--model_args") + 1]
     assert "system_prompt=Answer with only the final choice letter." in model_args
     assert "is_qwen3_vl=true" in model_args

@@ -45,6 +45,8 @@ B6-mixed is the official six-benchmark comparison protocol:
 
 - v2: GQA, DynaMath, ViewSpatial, MMMMU-Pro
 - v1: ReMI, MMBench
+- Four independent sampled generations per benchmark at temperature 1.0
+- Primary values are avg@4, not pass@1 or pass@4
 
 Pinned result summary:
 
@@ -57,6 +59,11 @@ Important boundaries:
 - The four v2 tasks use 4096-token decoding and deterministic `<answer>`-tag
   first scoring.
 - ReMI uses strict exact full-denominator scoring over 2,600 rows.
+- ReMI strict exact is averaged over four replay files and written to
+  `remi_avg4.json`.
+- MV-MATH replay, official-compatible judging, and strict completed-answer
+  gating are likewise repeated four times; `mv_math_avg4.json` is the mean of
+  four `strict_weighted_accuracy` values.
 - MMBench uses the v1 judged protocol.
 - Do not compare B6-mixed scores directly with Project15 scores except at the
   individual task level when the task version and scoring chain are identical.

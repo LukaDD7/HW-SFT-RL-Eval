@@ -42,14 +42,18 @@ The evaluation runtime also requires a pinned `lmms-eval` checkout. See
 
 | Protocol | Use case | Entry point |
 |---|---|---|
-| B6-mixed | v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench | `scripts/eval/run_pinned_eval.sh --protocol b6-mixed` |
-| Project15 v1 / offline | Native `lmms-eval` Project15 tasks | `scripts/eval/run_pinned_eval.sh --protocol project15` |
+| B6-mixed avg@4 | v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol b6-mixed` |
+| Project15 avg@4 | Native `lmms-eval` Project15 tasks, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol project15` |
 | ReMI strict | Full 2,600-row denominator, task-aware extraction | `scripts/sft_rl/remi_reeval.py --mode exact` |
 | MV-MATH strict | Completed-answer gate over judge sidecar | `python -m dual_track_opd.eval.score_mv_math --mode strict` |
 
 Use `scripts/eval/run_pinned_eval.sh` as the only user-facing evaluation
 entrypoint. The underlying v1/v2 runners remain internal implementation
 details.
+
+Both canonical protocols use `repeat_count=4` and `sampling_temperature=1.0`.
+The reported primary value is the mean of four independent repeat metrics. This
+is an engineering avg@4 protocol, not pass@4.
 
 Detailed protocol rules are in [docs/remi_mv_math_protocol_20260913.md](docs/remi_mv_math_protocol_20260913.md)
 and [docs/eval_protocol_v2_20260904.md](docs/eval_protocol_v2_20260904.md).
