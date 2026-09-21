@@ -24,7 +24,6 @@ from .thinking_adapter import (
     VALID_MODES,
     apply_environment,
     benchmark_for_task,
-    max_new_tokens_for_mode,
     mode_from_environment,
     protocol_record,
     validate_resume_protocol,
@@ -248,6 +247,23 @@ def _model_args(
     return ",".join(f"{key}={value}" for key, value in values.items())
 
 
+def generation_budget(spec: BenchmarkSpec) -> int:
+    """Resolve the same per-benchmark budget for every prompt mode and runner."""
+    budget = int(os.environ.get("SFT_RL_MAX_NEW_TOKENS_OVERRIDE", "") or spec.max_new_tokens)
+    if budget <= 0:
+        raise ValueError(f"max_new_tokens must be positive, got {budget}")
+    return budget
+
+
+def validate_resume_budgets(previous: Mapping[str, int] | None, current: Mapping[str, int]) -> None:
+    for benchmark_id, budget in current.items():
+        if previous is None or previous.get(benchmark_id) != budget:
+            raise ValueError(
+                f"resume generation budget mismatch for {benchmark_id}: "
+                f"current={budget}, prior={(previous or {}).get(benchmark_id)}. Use a new run directory."
+            )
+
+
 def build_command(
     spec: BenchmarkSpec,
     *,
@@ -285,14 +301,11 @@ def build_command(
             # Preserve the upstream opt-in path; explicit prompt modes use
             # the OpenAI chat adapter instead of comma-separated model args.
             inference_backend = "async_openai"
-        max_new_tokens = spec.max_new_tokens
-        if override := os.environ.get("SFT_RL_MAX_NEW_TOKENS_OVERRIDE"):
-            max_new_tokens = int(override)
-        max_new_tokens = max_new_tokens_for_mode(max_new_tokens, think_mode)
+        max_new_tokens = generation_budget(spec)
         command = [
             python,
             "-m",
-            "lmms_eval" if think_mode == "auto" else "dual_track_opd.eval.lmms_thinking",
+            "dual_track_opd.eval.lmms_thinking" if inference_backend == "openai" else "lmms_eval",
             "--model",
             inference_backend,
             "--model_args",
@@ -355,7 +368,7 @@ def build_command(
             "--model",
             str(defaults["served_model_name"]),
             "--max-tokens",
-            str(max_new_tokens_for_mode(spec.max_new_tokens, think_mode)),
+            str(generation_budget(spec)),
             "--temperature",
             str(sampling_temperature),
             "--seed",
@@ -587,6 +600,10 @@ def run_suite(args: argparse.Namespace) -> int:
             raise FileNotFoundError(f"manifest not found in resume directory: {manifest_candidate}")
         existing_manifest = json.loads(manifest_candidate.read_text(encoding="utf-8"))
         validate_resume_protocol(existing_manifest.get("thinking_protocol"), thinking_protocol)
+        validate_resume_budgets(
+            existing_manifest.get("generation_budgets"),
+            {spec.benchmark_id: generation_budget(spec) for spec in specs},
+        )
         if int(existing_manifest.get("repeat_count", 1)) != repeat_count:
             raise ValueError(
                 "resume protocol mismatch: expected "
@@ -687,6 +704,9 @@ def run_suite(args: argparse.Namespace) -> int:
             "raw_output_path": str(run_dir),
             "inference_backend": args.inference_backend,
             "thinking_protocol": thinking_protocol,
+            "generation_budgets": {
+                spec.benchmark_id: generation_budget(spec) for spec in suite.benchmarks.values()
+            },
             "api_base": api_base,
             "judge_policy": args.judge_policy,
             "repeat_count": repeat_count,
@@ -736,6 +756,7 @@ def run_suite(args: argparse.Namespace) -> int:
             "primary_metric": spec.primary_metric,
             "command": commands,
             "repeat_count": repeat_count,
+            "max_new_tokens": generation_budget(spec),
         }
         if not commands:
             record["status"] = "deferred"

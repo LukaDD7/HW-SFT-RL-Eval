@@ -38,7 +38,10 @@ Four deterministic tasks:
 - ViewSpatial
 - MMMU-Pro
 
-Use 4096 output tokens and `<answer>`-tag-first deterministic scoring.
+Use 16384 output tokens for DynaMath/MMMU-Pro and 8192 for GQA/ViewSpatial,
+with `<answer>`-tag-first deterministic scoring. ReMI uses 16384 and MMBench
+8192 in the canonical v1 suite. All prompt modes share these per-task budgets;
+use the repository adapter to preserve them past the pinned backend clamp.
 
 ```bash
 scripts/eval/run_target_benchmarks_v2.sh

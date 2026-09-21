@@ -54,9 +54,9 @@ benchmarks:
     metric_tier: community_standard
     scoring: deterministic_mcq_tag_first
     primary_metric: overall_accuracy
-    max_new_tokens: 4096
+    max_new_tokens: 8192
     judge_required: false
-    note: 4096 budget; <answer>-tag-first extraction, last-line fallback; official prompt shape kept.
+    note: 8192 budget in all prompt modes; <answer>-tag-first extraction, last-line fallback; official prompt shape kept.
 
   gqa:
     contract_name: GQA (v2)
@@ -66,9 +66,9 @@ benchmarks:
     metric_tier: community_standard
     scoring: normalized_exact_tag_or_direct
     primary_metric: exact_match
-    max_new_tokens: 4096
+    max_new_tokens: 8192
     judge_required: false
-    note: 4096 budget (was 128); official single-word post_prompt kept; scoring accepts direct or tagged answers.
+    note: 8192 budget in all prompt modes; official single-word post_prompt kept; scoring accepts direct or tagged answers.
 
   dynamath:
     contract_name: DynaMath (v2)
@@ -78,7 +78,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: rule_based_math_last_tag
     primary_metric: dynamath_average
-    max_new_tokens: 4096
+    max_new_tokens: 16384
     judge_required: false
     note: Official reasoning_utils scoring chain kept; stale <answer> blocks stripped so the last tag wins.
 
@@ -90,6 +90,6 @@ benchmarks:
     metric_tier: community_standard
     scoring: deterministic_mcq_tag_first
     primary_metric: mmmu_acc
-    max_new_tokens: 4096
+    max_new_tokens: 16384
     judge_required: false
-    note: 4096 budget (was 2048); <answer>-tag-first extraction; random.choice fallback removed.
+    note: 16384 budget in all prompt modes; <answer>-tag-first extraction; random.choice fallback removed.

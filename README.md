@@ -60,11 +60,23 @@ is an engineering avg@4 protocol, not pass@4.
 The B6 adapter supports three modes without changing the upstream scorers or
 avg@4 aggregation:
 
-| Mode | Prompt and output budget |
+| Mode | Prompt |
 |---|---|
-| `auto` (default) | Native benchmark prompts and token limits; reasoning may occur naturally. |
-| `think` | Open-MOPD training instruction, assistant `<think>\n` prefill, and **8192 output tokens for every B6 task**, including ReMI and MMBench. |
-| `no-think` | Explicit direct-answer instruction, no thinking prefill, native benchmark token limits. |
+| `auto` (default) | Native benchmark prompts; reasoning may occur naturally. |
+| `think` | Open-MOPD training instruction and assistant `<think>\n` prefill. |
+| `no-think` | Explicit direct-answer instruction, no thinking prefill. |
+
+Output budgets are identical in all three modes and come from the benchmark
+configuration, with no Think-specific override:
+
+| Benchmarks | `max_new_tokens` |
+|---|---:|
+| MMMU-Pro, DynaMath, ReMI | **16384** |
+| MMBench, ViewSpatial, GQA | **8192** |
+
+The OpenAI adapter preserves these values in the actual API payload after the
+pinned lmms backend's historical 4096-token clamp, including in `auto` mode.
+The total server context remains 65536 tokens, including image/prompt tokens.
 
 With the environment and asset paths configured as described in
 [environment/KEY_VERSIONS.md](environment/KEY_VERSIONS.md), select a mode through
@@ -78,7 +90,9 @@ EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_model_think_avg4 \
 `EVAL_THINK_MODE` (or `SFT_RL_THINK_MODE`) provides the same selection when no
 CLI mode is specified. All modes retain four repeats at temperature 1.0 with
 configured seeds 42, 43, 44, and 45, followed by the upstream mean aggregation.
-Use new run names for avg@4; do not resume old single-generation outputs.
+Use new run names for the shared budgets; do not resume old single-generation
+or differently budgeted outputs. Manifests record resolved budgets and replay
+rows record generation settings; resume rejects mismatches or missing settings.
 
 Think requests use this exact system instruction on all six benchmarks:
 

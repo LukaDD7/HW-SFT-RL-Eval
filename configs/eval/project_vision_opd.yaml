@@ -72,7 +72,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: deterministic_mcq
     primary_metric: overall_accuracy
-    max_new_tokens: 1024
+    max_new_tokens: 8192
     judge_required: false
 
   mindcube:
@@ -94,7 +94,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: normalized_exact
     primary_metric: exact_match
-    max_new_tokens: 128
+    max_new_tokens: 8192
     judge_required: false
     note: Use the official GQA evaluator for paper-level consistency/validity/plausibility diagnostics.
 
@@ -140,7 +140,7 @@ benchmarks:
     metric_tier: internal_diagnostic
     scoring: official_exact_or_relaxed_accuracy_sidecar
     primary_metric: null
-    max_new_tokens: 8192
+    max_new_tokens: 16384
     judge_required: false
     note: lmms-eval v0.7.1 has no ReMI task. Use scripts/sft_rl/remi_reeval.py --mode exact, which follows the paper's exact/relaxed tolerance protocol with a full denominator.
 
@@ -152,7 +152,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: rule_based_math
     primary_metric: dynamath_average
-    max_new_tokens: 4096
+    max_new_tokens: 16384
     judge_required: false
 
   mathverse:
@@ -208,7 +208,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: llm_choice_extractor
     primary_metric: gpt_eval_score
-    max_new_tokens: 2048
+    max_new_tokens: 8192
     judge_required: true
     note: Record the extractor model and CircularEval settings before using the score in a paper table.
 
@@ -220,7 +220,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: deterministic_mcq
     primary_metric: mmmu_acc
-    max_new_tokens: 4096
+    max_new_tokens: 16384
     judge_required: false
 
   mmvet:

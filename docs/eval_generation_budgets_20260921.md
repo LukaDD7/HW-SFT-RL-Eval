@@ -1,9 +1,40 @@
 # Eval generation budget update (2026-09-21)
 
-## Canonical protocol change
+## Current shared Bench6 budgets
 
-The canonical v1 suite now uses the following per-request output budgets. The
-v2 B6 tasks already used 4096 tokens and are unchanged.
+The canonical v1 and v2 suite configs use these output limits in `auto`,
+`think`, and `no-think`. Prompt selection does not change the token budget.
+
+| Benchmark | Output token limit |
+|---|---:|
+| MMMU-Pro | 16384 |
+| DynaMath | 16384 |
+| ReMI | 16384 |
+| MMBench | 8192 |
+| ViewSpatial | 8192 |
+| GQA | 8192 |
+
+The four v2 task YAMLs use the same values. The common lmms OpenAI adapter
+preserves each request's configured limit at the SDK boundary, bypassing the
+pinned backend's 4096-token clamp for every prompt mode. ReMI sends its
+configured limit directly. The total context limit remains 65536.
+
+The prompt text, scorer selection, and avg@4 settings (temperature 1.0,
+seeds 42–45) are preserved. Use a new run name: manifests record resolved
+budgets and replay rows record the budget, temperature, and seed. Resume
+rejects missing or mismatched settings rather than combining old and new
+generations. Diagnostic `SFT_RL_MAX_NEW_TOKENS_OVERRIDE` applies equally to
+lmms and replay runners in all prompt modes and is recorded in the manifest.
+
+These budgets aim to reduce truncation bias; they do not establish that any
+model's truncation rate will be below 1%. Report truncation alongside scores.
+Historical aligned/offline configs and archived results retain their original
+settings. Unrelated Project15 task budgets retain upstream values.
+
+## Earlier upstream change (superseded for the six tasks above)
+
+Upstream commits 730e66c and b06701c previously set the following per-request
+output budgets. At that point the v2 B6 tasks remained at 4096 tokens.
 
 | Benchmark | Before | After |
 |---|---:|---:|
@@ -16,7 +47,7 @@ v2 B6 tasks already used 4096 tokens and are unchanged.
 | MMMU-Pro (Project15 v1) | 2048 | 4096 |
 | GQA/DynaMath/ViewSpatial/MMMU-Pro (B6 v2) | 4096 | 4096 |
 
-GQA and VQAv2 remain at 128 tokens because the user change request explicitly
+GQA and VQAv2 remained at 128 tokens because that change request explicitly
 covered the 256-token tasks, not the 128-token tasks. Historical archived
 aligned/offline configs are not rewritten.
 

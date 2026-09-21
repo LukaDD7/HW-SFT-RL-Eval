@@ -17,11 +17,9 @@ from urllib.request import ProxyHandler, Request, build_opener
 
 THINK_MODE_ENV = "SFT_RL_THINK_MODE"
 VALID_MODES = ("auto", "think", "no-think")
-# The generation budget is part of the prompt/evaluation protocol. Bumping
-# this version prevents an old Think run from being silently resumed with the
-# enlarged output cap.
-THINKING_PROTOCOL_VERSION = "open-mopd-b6-prompt-v3"
-THINK_MAX_NEW_TOKENS = 8192
+# Prompt modes no longer own generation budgets. Bump the protocol so old
+# runs with a think-only cap cannot be silently resumed.
+THINKING_PROTOCOL_VERSION = "open-mopd-b6-prompt-v4"
 THINKING_SYSTEM_PROMPT = (
     "Explain your reasoning inside <think>...</think>, then give the final answer inside <answer>...</answer>. "
     "Any request in the question for a short or direct response applies to the final answer only. "
@@ -74,19 +72,6 @@ def normalize_mode(value: str | None) -> str:
 
 def mode_from_environment(env=None) -> str:
     return normalize_mode((os.environ if env is None else env).get(THINK_MODE_ENV))
-
-
-def max_new_tokens_for_mode(base: int, mode: str | None = None) -> int:
-    """Return the B6 generation cap for the selected prompt mode.
-
-    Think responses need room for both reasoning and the final answer. The B6
-    protocol uses one 8192-token cap for all six Think tasks. ``no-think`` and
-    ``auto`` retain each benchmark's historical cap for comparability.
-    """
-    if base <= 0:
-        raise ValueError(f"max_new_tokens must be positive, got {base}")
-    resolved = mode_from_environment() if mode is None else normalize_mode(mode)
-    return THINK_MAX_NEW_TOKENS if resolved == "think" else base
 
 
 def apply_environment(env: MutableMapping[str, str], mode: str | None = None):
@@ -201,7 +186,7 @@ def protocol_record(mode: str | None = None) -> dict[str, Any]:
                           NO_THINK_SYSTEM_PROMPT if resolved == "no-think" else None),
         "math_instruction": THINKING_MATH_INSTRUCTION if resolved != "auto" else None,
         "assistant_prefill": "<think>\n" if resolved == "think" else "",
-        "max_new_tokens": THINK_MAX_NEW_TOKENS if resolved == "think" else None,
+        "generation_budget_policy": "benchmark_config",
         "suffix_policy": "known B6 formatting footers only" if resolved != "auto" else "native",
     }
     record["sha256"] = hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()

@@ -6,7 +6,7 @@ tag:
   - opd_v2
 
 generation_kwargs:
-  max_new_tokens: 4096
+  max_new_tokens: 8192
   temperature: 0
   do_sample: false
 

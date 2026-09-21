@@ -8,6 +8,7 @@ from dual_track_opd.eval.benchmark_suite import (
     load_suite,
     select_benchmarks,
     validate_checkpoint_identity,
+    validate_resume_budgets,
 )
 
 
@@ -102,7 +103,7 @@ def test_lmms_command_records_generation_and_raw_outputs() -> None:
     )
     assert command is not None
     assert "model=/checkpoint" in command[command.index("--model_args") + 1]
-    assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=1024"
+    assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=8192"
     assert command[command.index("--limit") + 1] == "4"
     assert command[command.index("--seed") + 1] == "42"
     output_path = Path(command[command.index("--output_path") + 1])
@@ -118,13 +119,15 @@ def test_canonical_generation_budgets() -> None:
         benchmark_id: spec.max_new_tokens
         for benchmark_id, spec in suite.benchmarks.items()
     }
-    assert budgets["viewspatial"] == 1024
+    assert budgets["viewspatial"] == 8192
+    assert budgets["gqa"] == 8192
+    assert budgets["dynamath"] == 16384
     assert budgets["mindcube"] == 1024
     assert budgets["scienceqa"] == 1024
-    assert budgets["remi"] == 8192
+    assert budgets["remi"] == 16384
     assert budgets["blink"] == 2048
-    assert budgets["mmbench"] == 2048
-    assert budgets["mmmu_pro"] == 4096
+    assert budgets["mmbench"] == 8192
+    assert budgets["mmmu_pro"] == 16384
 
 
 def test_avg4_builds_four_independent_repeat_commands() -> None:
@@ -195,7 +198,7 @@ def test_b6_prompt_modes_preserve_avg4(monkeypatch, mode, benchmark_id) -> None:
         judge_policy="predict" if spec.judge_required else "defer",
     )
     assert len(commands) == 4
-    expected_cap = 8192 if mode == "think" else spec.max_new_tokens
+    expected_cap = 16384 if benchmark_id in {"mmmu_pro", "dynamath", "remi"} else 8192
     outputs, caches = [], []
     for repeat_index, command in enumerate(commands):
         assert command[command.index("--seed") + 1] == str(42 + repeat_index)
@@ -205,9 +208,7 @@ def test_b6_prompt_modes_preserve_avg4(monkeypatch, mode, benchmark_id) -> None:
             output = command[command.index("--output-jsonl") + 1]
             assert output.endswith(f"remi.repeat_{repeat_index}.jsonl")
         else:
-            assert command[2] == (
-                "lmms_eval" if mode == "auto" else "dual_track_opd.eval.lmms_thinking"
-            )
+            assert command[2] == "dual_track_opd.eval.lmms_thinking"
             assert command[command.index("--model") + 1] == "openai"
             assert command[command.index("--gen_kwargs") + 1] == (
                 f"temperature=1.0,max_new_tokens={expected_cap}"
@@ -219,6 +220,42 @@ def test_b6_prompt_modes_preserve_avg4(monkeypatch, mode, benchmark_id) -> None:
     assert len(set(outputs)) == 4
     if caches:
         assert len(set(caches)) == 4
+
+
+@pytest.mark.parametrize("mode", ["auto", "think", "no-think"])
+@pytest.mark.parametrize("benchmark_id", ["mmmu_pro", "remi"])
+def test_explicit_budget_override_is_shared_by_modes_and_runners(monkeypatch, mode, benchmark_id):
+    monkeypatch.setenv("SFT_RL_THINK_MODE", mode)
+    monkeypatch.setenv("SFT_RL_MAX_NEW_TOKENS_OVERRIDE", "12000")
+    suite = load_suite(CONFIG)
+    command = build_command(
+        suite.benchmarks[benchmark_id], suite=suite, run_dir=Path("/tmp/run"), python="python",
+        inference_backend="openai", checkpoint="/checkpoint", api_base="http://unused/v1",
+        limit=4, judge_policy="defer",
+    )
+    if benchmark_id == "remi":
+        assert command[command.index("--max-tokens") + 1] == "12000"
+    else:
+        assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=12000"
+
+
+def test_v2_task_defaults_match_suite_budgets():
+    import yaml
+
+    suite = load_suite(CONFIG_V2)
+    for spec in suite.benchmarks.values():
+        task_path = ROOT / "eval_tasks" / "opd_v2" / f"{spec.task}.yaml"
+        task = yaml.load(task_path.read_text(), Loader=yaml.BaseLoader)
+        assert int(task["generation_kwargs"]["max_new_tokens"]) == spec.max_new_tokens
+
+
+def test_resume_rejects_old_or_changed_generation_budgets():
+    current = {"remi": 16384, "gqa": 8192}
+    validate_resume_budgets(current, current)
+    validate_resume_budgets(current, {"remi": 16384})
+    for previous in (None, {}, {"remi": 8192, "gqa": 8192}):
+        with pytest.raises(ValueError, match="resume generation budget mismatch"):
+            validate_resume_budgets(previous, current)
 
 
 def test_checkpoint_identity_guard_rejects_mislabeled_ptdpo_run() -> None:

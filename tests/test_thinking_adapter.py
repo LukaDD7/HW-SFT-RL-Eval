@@ -11,7 +11,7 @@ from dual_track_opd.eval.thinking_adapter import (
     ASSISTANT_HEADER, DYNAMATH_SYSTEM_PROMPT, NO_THINK_SYSTEM_PROMPT,
     SUFFIXES, THINKING_MATH_INSTRUCTION, THINKING_SYSTEM_PROMPT,
     apply_environment, apply_openai_messages, build_chat_template,
-    load_chat_template, max_new_tokens_for_mode, normalize_mode,
+    load_chat_template, normalize_mode,
     protocol_record, render_probe, validate_resume_protocol,
 )
 
@@ -27,23 +27,13 @@ CONDITIONAL = PLAIN.replace("assistant\\n'", "assistant\\n'") + """
 {%- else %}{{- '<think>\\n' }}{%- endif %}{%- endif %}"""
 
 
-@pytest.mark.parametrize(
-    ("mode", "expected"),
-    [("think", 8192), ("no-think", 4096), ("auto", 4096)],
-)
-def test_think_generation_cap_is_fixed_for_think_mode(mode, expected):
-    assert max_new_tokens_for_mode(4096, mode) == expected
-
-
-@pytest.mark.parametrize("base", [1024, 2048, 4096])
-def test_all_b6_think_caps_are_8192(base):
-    assert max_new_tokens_for_mode(base, "think") == 8192
-
-
-def test_think_protocol_records_generation_cap_policy():
-    record = protocol_record("think")
-    assert record["version"] == "open-mopd-b6-prompt-v3"
-    assert record["max_new_tokens"] == 8192
+@pytest.mark.parametrize("mode", ["auto", "think", "no-think"])
+def test_prompt_protocol_uses_benchmark_budget_policy(mode):
+    record = protocol_record(mode)
+    assert record["generation_budget_policy"] == "benchmark_config"
+    assert "max_new_tokens" not in record
+    if mode != "auto":
+        assert record["version"] == "open-mopd-b6-prompt-v4"
 
 
 @pytest.mark.parametrize("source", [PLAIN, HARD_THINK, CONDITIONAL])

@@ -24,8 +24,9 @@ Protocols:
 B6 prompt adapter:
   --think-mode auto|think|no-think
   Default: EVAL_THINK_MODE, then SFT_RL_THINK_MODE, then auto (native prompts).
-  Think uses the Open-MOPD prompt and 8192 output tokens on all six tasks.
-  Use a different EVAL_RUN_NAME for each mode and for new avg@4 runs.
+  Think uses the Open-MOPD prompt. All modes share the same output budgets:
+  MMMU-Pro/DynaMath/ReMI 16384; MMBench/ViewSpatial/GQA 8192.
+  Use a different EVAL_RUN_NAME for each mode or changed generation budget.
 EOF
 }
 
