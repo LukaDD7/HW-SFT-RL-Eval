@@ -16,6 +16,8 @@
 
 - [eval_truncation_audit_20260909.md](eval_truncation_audit_20260909.md)
   Low-cap v1 truncation diagnosis and v2 rationale.
+- [eval_generation_budgets_20260921.md](eval_generation_budgets_20260921.md)
+  2026-09-21 canonical generation-budget update and historical truncation audit.
 - [tailsft_truncation_audit_20260913.md](tailsft_truncation_audit_20260913.md)
   TailSFT benchmark-by-benchmark truncation audit.
 - [project15_offline_model_identity_audit_20260915.md](project15_offline_model_identity_audit_20260915.md)
