@@ -7,9 +7,9 @@ v2 B6 tasks already used 4096 tokens and are unchanged.
 
 | Benchmark | Before | After |
 |---|---:|---:|
-| ViewSpatial (Project15 v1) | 256 | 1048 |
-| MindCube | 256 | 1048 |
-| ScienceQA | 256 | 1048 |
+| ViewSpatial (Project15 v1) | 256 | 1024 |
+| MindCube | 256 | 1024 |
+| ScienceQA | 256 | 1024 |
 | ReMI | 2048 | 8192 |
 | BLINK | 1024 | 2048 |
 | MMBench | 1024 | 2048 |
@@ -20,8 +20,8 @@ GQA and VQAv2 remain at 128 tokens because the user change request explicitly
 covered the 256-token tasks, not the 128-token tasks. Historical archived
 aligned/offline configs are not rewritten.
 
-The value 1048 is intentional in this protocol update. If the intended value
-was the more conventional 1024, it must be changed before merging.
+The value is 1024, correcting the earlier transient 1048 value before any
+new evaluation run used it.
 
 ## Historical truncation evidence
 

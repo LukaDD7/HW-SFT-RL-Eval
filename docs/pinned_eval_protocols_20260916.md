@@ -98,7 +98,7 @@ results/20260916/project15/summary.json
 Important boundaries:
 
 - ReMI and MV-MATH are diagnostics, not native Project15 rows.
-- Canonical v1 budgets: ViewSpatial/MindCube/ScienceQA 1048 tokens, ReMI 8192,
+- Canonical v1 budgets: ViewSpatial/MindCube/ScienceQA 1024 tokens, ReMI 8192,
   BLINK/MMBench 2048, and MMMU-Pro 4096. GQA and VQAv2 remain 128.
 - Project15 is not equivalent to B6-mixed; it is a different task set.
 - Do not average Project15 and B6-mixed scores in the same table.

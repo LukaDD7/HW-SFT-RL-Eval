@@ -72,7 +72,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: deterministic_mcq
     primary_metric: overall_accuracy
-    max_new_tokens: 1048
+    max_new_tokens: 1024
     judge_required: false
 
   mindcube:
@@ -83,7 +83,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: deterministic_mcq_with_subcategories
     primary_metric: overall_accuracy
-    max_new_tokens: 1048
+    max_new_tokens: 1024
     judge_required: false
 
   gqa:
@@ -117,7 +117,7 @@ benchmarks:
     metric_tier: community_standard
     scoring: deterministic_mcq
     primary_metric: exact_match
-    max_new_tokens: 1048
+    max_new_tokens: 1024
     judge_required: false
 
   mv_math:
