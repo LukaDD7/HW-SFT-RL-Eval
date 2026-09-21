@@ -101,7 +101,7 @@ def test_lmms_command_records_generation_and_raw_outputs() -> None:
     )
     assert command is not None
     assert "model=/checkpoint" in command[command.index("--model_args") + 1]
-    assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=1048"
+    assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=1024"
     assert command[command.index("--limit") + 1] == "4"
     assert command[command.index("--seed") + 1] == "42"
     output_path = Path(command[command.index("--output_path") + 1])
@@ -117,9 +117,9 @@ def test_canonical_generation_budgets() -> None:
         benchmark_id: spec.max_new_tokens
         for benchmark_id, spec in suite.benchmarks.items()
     }
-    assert budgets["viewspatial"] == 1048
-    assert budgets["mindcube"] == 1048
-    assert budgets["scienceqa"] == 1048
+    assert budgets["viewspatial"] == 1024
+    assert budgets["mindcube"] == 1024
+    assert budgets["scienceqa"] == 1024
     assert budgets["remi"] == 8192
     assert budgets["blink"] == 2048
     assert budgets["mmbench"] == 2048
