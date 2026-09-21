@@ -18,7 +18,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e ".[dev]"
       - name: Install pinned lmms-eval runtime
-        run: python -m pip install "git+https://github.com/EvolvingLMMs-Lab/lmms-eval@88b23e2bfa16a1edbc16e9e238ed82130b3a4f56"
+        run: python -m pip install -c environment/constraints-ci.txt "git+https://github.com/EvolvingLMMs-Lab/lmms-eval@88b23e2bfa16a1edbc16e9e238ed82130b3a4f56"
       - run: pytest -q
 
   repository-hygiene:
