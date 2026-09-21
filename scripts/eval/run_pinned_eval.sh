@@ -4,6 +4,10 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
+EVAL_ENV="${HW_EVAL_ENV:-}"
+[[ -n "${EVAL_ENV}" ]] || { echo "FATAL: set HW_EVAL_ENV" >&2; exit 1; }
+PY="${EVAL_ENV}/bin/python"
+
 usage() {
   cat <<'EOF'
 Usage:
@@ -42,6 +46,19 @@ done
 
 [[ -n "$protocol" ]] || { usage; exit 2; }
 
+# Keep both stages of B6-mixed under one output root and one run name.  The
+# underlying v1/v2 runners have different historical defaults, so exposing only
+# this canonical entrypoint makes the protocol boundary explicit.
+export DTOPD_EVAL_ROOT="${DTOPD_EVAL_ROOT:-${DTOPD_ROOT:-${REPO_ROOT}}/eval_runs/vision_opd_project_baseline}"
+case "$protocol" in
+  b6-mixed)
+    export EVAL_RUN_NAME="${EVAL_RUN_NAME:-b6_mixed_avg4}"
+    ;;
+  project15)
+    export EVAL_RUN_NAME="${EVAL_RUN_NAME:-project15_avg4}"
+    ;;
+esac
+
 # Historical runs accidentally used literal closing braces in DTOPD_EVAL_ROOT.
 # Refuse that pattern so future runs cannot silently create another
 # `vision_opd_project_baseline}}...` directory.
@@ -52,6 +69,40 @@ if [[ "${DTOPD_EVAL_ROOT:-}" == *'}'* ]]; then
   exit 2
 fi
 
+score_remi_avg4() {
+  local suffix=""
+  if [[ "${EVAL_SMOKE:-${SFT_RL_SMOKE:-0}}" == "1" ]]; then
+    suffix="_smoke"
+  fi
+  local run_dir="${DTOPD_EVAL_ROOT}/${EVAL_RUN_NAME}${suffix}_nojudge"
+  local -a files=( "${run_dir}"/replay/remi.repeat_*.jsonl )
+  local -a existing=()
+  local file
+  for file in "${files[@]}"; do
+    [[ -f "${file}" ]] && existing+=( "${file}" )
+  done
+  if [[ ${#existing[@]} -eq 0 ]]; then
+    return 0
+  fi
+  if [[ ${#existing[@]} -ne 4 ]]; then
+    echo "FATAL: ReMI avg@4 requires 4 replay files, found ${#existing[@]} in ${run_dir}/replay" >&2
+    return 1
+  fi
+
+  "${PY}" scripts/sft_rl/remi_reeval.py \
+    --mode exact \
+    --jsonl "${existing[0]}" \
+    --jsonl "${existing[1]}" \
+    --jsonl "${existing[2]}" \
+    --jsonl "${existing[3]}" \
+    --label-jsonl assets/remi_replay/raw_responses/qwen3vl8b_ReMI_test_len65536_maxtok1024_raw.jsonl \
+    --aggregate-mean \
+    --out "${run_dir}/remi_avg4.json"
+
+  "${PY}" -m dual_track_opd.eval.project_summary "${run_dir}" \
+    --config configs/eval/project_vision_opd.yaml
+}
+
 case "$protocol" in
   b6-mixed)
     bash scripts/eval/run_target_benchmarks_v2.sh
@@ -59,12 +110,14 @@ case "$protocol" in
     SFT_RL_JUDGE_BENCHMARKS=mmbench \
     SFT_RL_EVAL_CONFIG=configs/eval/project_vision_opd.yaml \
       bash scripts/eval/run_target_benchmarks.sh
+    score_remi_avg4
     ;;
   project15)
-    SFT_RL_BENCHMARKS=viewspatial,mindcube,gqa,vqav2,scienceqa,dynamath,mmsi_bench,blink,mmmu_pro,remi \
+    SFT_RL_BENCHMARKS=viewspatial,mindcube,gqa,vqav2,scienceqa,mv_math,dynamath,mmsi_bench,blink,mmmu_pro,remi \
     SFT_RL_JUDGE_BENCHMARKS=mathverse,mathvista,mmbench,mmvet \
     SFT_RL_EVAL_CONFIG=configs/eval/project_vision_opd.yaml \
       bash scripts/eval/run_target_benchmarks.sh
+    score_remi_avg4
     ;;
   *)
     echo "Unknown protocol: $protocol" >&2

@@ -18,6 +18,8 @@ defaults:
   include_task_path: ${DTOPD_EVAL_TASK_PATH:-eval_tasks/opd_v1_offline}
   seed: 42
   batch_size: 1
+  repeat_count: 4
+  sampling_temperature: 1.0
   tensor_parallel_size: 1
   gpu_memory_utilization: 0.85
   max_model_len: 65536

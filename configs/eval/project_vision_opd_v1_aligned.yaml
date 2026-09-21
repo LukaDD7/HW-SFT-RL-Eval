@@ -23,6 +23,8 @@ defaults:
   prior_raw_root: ${QWEN3VL8B_RAW_ROOT:-./assets/remi_replay/raw_responses}
   seed: 42
   batch_size: 1
+  repeat_count: 4
+  sampling_temperature: 1.0
   tensor_parallel_size: 1
   gpu_memory_utilization: 0.85
   max_model_len: 65536

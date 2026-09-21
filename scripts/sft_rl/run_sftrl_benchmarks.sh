@@ -29,7 +29,7 @@ EVAL_ENV="${SFT_RL_EVAL_ENV:-${HW_EVAL_ENV:-}}"
 [ -n "${EVAL_ENV}" ] || { echo "FATAL: set HW_EVAL_ENV or SFT_RL_EVAL_ENV" >&2; exit 1; }
 PY="${EVAL_ENV}/bin/python"
 VLLM_BIN="${EVAL_ENV}/bin/vllm"
-LOG_DIR="${HW_EVAL_LOG_DIR:-${DTOPD_ROOT}/logs}}"
+LOG_DIR="${HW_EVAL_LOG_DIR:-${DTOPD_ROOT}/logs}"
 CUDA_TOOLCHAIN="${SFT_RL_CUDA_TOOLCHAIN:-${CUDA_TOOLCHAIN:-/usr/local/cuda}}"
 [ -x "${CUDA_TOOLCHAIN}/bin/nvcc" ] || { echo "FATAL: nvcc not found: ${CUDA_TOOLCHAIN}/bin/nvcc"; exit 1; }
 mkdir -p "${LOG_DIR}"
@@ -166,6 +166,66 @@ if [[ "${SFT_RL_KEEP_GOING:-0}" == "1" ]]; then
   KEEP_GOING_ARGS=(--keep-going)
 fi
 
+score_mv_math_avg4() {
+  local run_dir="${OUT_ROOT}/${RUN_NAME}_nojudge"
+  local dataset_root="${DTOPD_DATASET_ROOT:-${REPO_ROOT}/assets/datasets}"
+  local metadata="${dataset_root}/MV-MATH/MV-MATH.json"
+  local -a files=( "${run_dir}"/replay/mv_math.repeat_*.jsonl )
+  local -a existing=()
+  local file
+  for file in "${files[@]}"; do
+    [[ -s "${file}" ]] && existing+=( "${file}" )
+  done
+  if [[ ${#existing[@]} -eq 0 ]]; then
+    return 0
+  fi
+  if [[ ${#existing[@]} -ne 4 ]]; then
+    echo "FATAL: MV-MATH avg@4 requires 4 replay files, found ${#existing[@]} in ${run_dir}/replay" >&2
+    return 1
+  fi
+  [[ -f "${metadata}" ]] || { echo "FATAL: MV-MATH metadata not found: ${metadata}" >&2; return 1; }
+
+  local -a strict_results=()
+  local repeat_index
+  for repeat_index in 0 1 2 3; do
+    local replay="${run_dir}/replay/mv_math.repeat_${repeat_index}.jsonl"
+    local sidecar="${run_dir}/replay/mv_math.repeat_${repeat_index}.official_judge.jsonl"
+    local official_json="${run_dir}/replay/mv_math.repeat_${repeat_index}.official.json"
+    local strict_json="${run_dir}/replay/mv_math.repeat_${repeat_index}.strict.json"
+
+    if [[ ! -s "${sidecar}" ]]; then
+      "${PY}" -m dual_track_opd.eval.score_mv_math \
+        --mode official \
+        --replay-jsonl "${replay}" \
+        --metadata-json "${metadata}" \
+        --judge-url "${JUDGE_API_URL}" \
+        --judge-model "${JUDGE_NAME}" \
+        --judge-key "${JUDGE_API_KEY:-EMPTY}" \
+        --workers "${SFT_RL_MV_MATH_JUDGE_WORKERS:-16}" \
+        --judge-sidecar "${sidecar}" \
+        --resume \
+        --output-json "${official_json}"
+    fi
+
+    "${PY}" -m dual_track_opd.eval.score_mv_math \
+      --mode strict \
+      --replay-jsonl "${replay}" \
+      --metadata-json "${metadata}" \
+      --judge-sidecar "${sidecar}" \
+      --judge-model "${JUDGE_NAME}" \
+      --output-json "${strict_json}"
+    strict_results+=( "${strict_json}" )
+  done
+
+  "${PY}" -m dual_track_opd.eval.aggregate_replay_avg \
+    --result-json "${strict_results[0]}" \
+    --result-json "${strict_results[1]}" \
+    --result-json "${strict_results[2]}" \
+    --result-json "${strict_results[3]}" \
+    --metric strict_weighted_accuracy \
+    --out "${run_dir}/mv_math_avg4.json"
+}
+
 # 自动续跑：同 run name 已有输出目录时用 --resume-from 跳过已完成 benchmark
 # （进行中的 benchmark 由 lmms-eval response cache 逐条回放，不会白跑）
 RESUME1=()
@@ -193,6 +253,16 @@ if [[ -n "${BENCH1}" ]]; then
 fi
 
 echo "== [2/2] judge benchmarks (${BENCH2}) =="
+
+if [[ ",${BENCH1}," == *",mv_math,"* ]]; then
+  if [[ "${JUDGE_ENABLED}" == "1" ]]; then
+    echo "== scoring MV-MATH strict avg@4 =="
+    score_mv_math_avg4
+  else
+    echo "WARNING: MV-MATH replay files were generated, but no judge endpoint is running; official avg@4 scoring is pending." >&2
+  fi
+fi
+
 if [[ -n "${BENCH2}" ]]; then
   export JUDGE_API_KEY="EMPTY"
   export JUDGE_API_URL="${JUDGE_API_URL}"

@@ -339,6 +339,11 @@ def main() -> int:
     ap.add_argument("--timeout", type=float, default=120)
     ap.add_argument("--limit", type=int, default=None, help="cap judge drain rows")
     ap.add_argument("--out", default=None, help="sidecar JSONL path for judge decisions")
+    ap.add_argument(
+        "--aggregate-mean",
+        action="store_true",
+        help="With --mode exact, write one avg@N summary to --out when multiple replay files are supplied.",
+    )
     args = ap.parse_args()
 
     try:
@@ -398,6 +403,32 @@ def main() -> int:
                 )
         summary.pop("per_row", None)
         summaries.append(summary)
+
+    if args.mode == "exact" and args.aggregate_mean:
+        values = [float(summary["exact_accuracy_full_denominator"]) for summary in summaries]
+        if not values:
+            print(json.dumps({"error": "no replay files supplied"}), file=sys.stderr)
+            return 2
+        aggregate = {
+            "mode": "exact",
+            "metric": "exact_accuracy_full_denominator",
+            "aggregation": "mean",
+            "repeat_count": len(values),
+            "values": values,
+            "mean": sum(values) / len(values),
+            "row_counts": [summary["row_count"] for summary in summaries],
+            "correct_counts": [summary["correct"] for summary in summaries],
+            "jsonls": [summary["jsonl"] for summary in summaries],
+        }
+        if args.out:
+            output = Path(args.out).expanduser()
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(
+                json.dumps(aggregate, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+        print(json.dumps(aggregate, ensure_ascii=False, indent=2))
+        return 0
 
     print(json.dumps(summaries, ensure_ascii=False, indent=2))
     return 0

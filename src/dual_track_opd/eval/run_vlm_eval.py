@@ -192,6 +192,8 @@ def _request(
     question: str,
     images: list[bytes | Path],
     max_tokens: int,
+    temperature: float,
+    seed: int | None,
     timeout: float,
 ) -> dict[str, Any]:
     content: list[dict[str, Any]] = [
@@ -201,9 +203,11 @@ def _request(
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": content}],
-        "temperature": 0,
+        "temperature": temperature,
         "max_tokens": max_tokens,
     }
+    if seed is not None:
+        payload["seed"] = seed
     request = urllib.request.Request(
         f"{api_base.rstrip('/')}/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
@@ -232,6 +236,8 @@ def replay_rows(
     api_key: str,
     model: str,
     max_tokens: int,
+    temperature: float,
+    seed: int | None,
     workers: int,
     timeout: float,
 ) -> list[dict[str, Any]]:
@@ -258,6 +264,8 @@ def replay_rows(
             question=question,
             images=images,
             max_tokens=max_tokens,
+            temperature=temperature,
+            seed=seed,
             timeout=timeout,
         )
         choice = response.get("choices", [{}])[0]
@@ -350,6 +358,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--api-key", default="EMPTY")
     parser.add_argument("--model", default="Vision-OPD-4B")
     parser.add_argument("--max-tokens", type=int, default=2048)
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Sampling temperature; use > 0 for avg@N replay repeats.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Optional server-side sampling seed for repeat tracking.",
+    )
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--timeout", type=float, default=600)
     parser.add_argument("--limit", type=int)
@@ -395,6 +415,8 @@ def main() -> None:
         api_key=args.api_key,
         model=args.model,
         max_tokens=args.max_tokens,
+        temperature=args.temperature,
+        seed=args.seed,
         workers=args.workers,
         timeout=args.timeout,
     )
