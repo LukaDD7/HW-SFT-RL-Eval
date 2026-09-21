@@ -11,12 +11,23 @@ import argparse
 import base64
 import json
 import mimetypes
+import os
 import threading
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Iterable, Sequence
+
+from .thinking_adapter import (
+    VALID_MODES,
+    apply_environment,
+    apply_openai_messages,
+    max_new_tokens_for_mode,
+    mode_from_environment,
+    protocol_record,
+    validate_resume_protocol,
+)
 
 
 QUESTION_KEYS = ("question", "query", "prompt", "problem", "instruction", "input", "user_prompt")
@@ -195,6 +206,7 @@ def _request(
     temperature: float,
     seed: int | None,
     timeout: float,
+    task_name: str = "ReMI",
 ) -> dict[str, Any]:
     content: list[dict[str, Any]] = [
         {"type": "image_url", "image_url": {"url": _data_url(image)}} for image in images
@@ -202,9 +214,11 @@ def _request(
     content.append({"type": "text", "text": question})
     payload = {
         "model": model,
-        "messages": [{"role": "user", "content": content}],
+        "messages": apply_openai_messages(
+            [{"role": "user", "content": content}], task_name=task_name
+        ),
         "temperature": temperature,
-        "max_tokens": max_tokens,
+        "max_tokens": max_new_tokens_for_mode(max_tokens, mode_from_environment()),
     }
     if seed is not None:
         payload["seed"] = seed
@@ -267,6 +281,7 @@ def replay_rows(
             temperature=temperature,
             seed=seed,
             timeout=timeout,
+            task_name=dataset,
         )
         choice = response.get("choices", [{}])[0]
         message = choice.get("message", {}) if isinstance(choice, dict) else {}
@@ -280,6 +295,10 @@ def replay_rows(
             "finish_reason": choice.get("finish_reason"),
             "image_count": len(images),
             "model": model,
+            **({"thinking_protocol": protocol_record(),
+                "request_prompt": apply_openai_messages(
+                    [{"role": "user", "content": question}], task_name=dataset)[-1]["content"]}
+               if mode_from_environment() != "auto" else {}),
             "usage": response.get("usage", {}),
             "error": "",
         }
@@ -337,6 +356,7 @@ def _completed_by_sample_id(
             sample_id = str(item.get("sample_id", ""))
             if item.get("error"):
                 continue
+            validate_resume_protocol(item.get("thinking_protocol"), protocol_record())
             if item.get("dataset") != dataset or item.get("model") != model:
                 raise ValueError(
                     f"{path}:{line_number}: output belongs to a different dataset/model; "
@@ -357,6 +377,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--api-base", default="http://127.0.0.1:8000/v1")
     parser.add_argument("--api-key", default="EMPTY")
     parser.add_argument("--model", default="Vision-OPD-4B")
+    parser.add_argument("--think-mode", choices=VALID_MODES)
     parser.add_argument("--max-tokens", type=int, default=2048)
     parser.add_argument(
         "--temperature",
@@ -383,6 +404,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    apply_environment(os.environ, args.think_mode)
     input_path = Path(args.input_jsonl).expanduser()
     rows = _read_jsonl(input_path, args.limit)
     output_path = Path(args.output_jsonl).expanduser()

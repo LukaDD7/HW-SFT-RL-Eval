@@ -15,6 +15,9 @@
 #   EVAL_SMOKE=1 bash scripts/eval/run_target_benchmarks_v2.sh   # 每项 8 条
 #   EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_ckpt \
 #     bash scripts/eval/run_target_benchmarks_v2.sh
+#   EVAL_THINK_MODE=think EVAL_CKPT=/path/to/model \
+#     bash scripts/eval/run_target_benchmarks_v2.sh
+#   EVAL_THINK_MODE=no-think ...  # request only the final answer
 #
 # v2 协议无 judge 任务，因此不启动 judge 服务器（省一张 GPU）。
 # 复用 v1 runner 的服务器管理（含 FlashInfer JIT 所需 CUDA toolchain 导出），但
@@ -54,11 +57,18 @@ EVAL_SERVED_MODEL="${EVAL_SERVED_MODEL:-${SFT_RL_SERVED_MODEL:-Vision-OPD-4B}}"
 EVAL_GPU="${EVAL_GPU:-${SFT_RL_EVAL_GPU:-0}}"
 EVAL_PORT="${EVAL_PORT:-${SFT_RL_EVAL_PORT:-8000}}"
 MAX_LEN="${EVAL_MAX_LEN:-${SFT_RL_MAX_LEN:-65536}}"
+THINK_MODE="${EVAL_THINK_MODE:-${SFT_RL_THINK_MODE:-auto}}"
+case "${THINK_MODE}" in
+  auto|think|no-think) ;;
+  *) echo "FATAL: EVAL_THINK_MODE must be auto, think, or no-think" >&2; exit 2 ;;
+esac
+export SFT_RL_THINK_MODE="${THINK_MODE}"
 
 # v2 protocol knobs
 export DTOPD_EVAL_ROOT="${DTOPD_EVAL_ROOT:-${DTOPD_ROOT}/eval_runs/vision_opd_project_v2}"
 export DTOPD_EVAL_TASK_PATH="${REPO_ROOT}/eval_tasks/opd_v2"
 V2_BENCHMARKS="${V2_BENCHMARKS:-gqa,dynamath,viewspatial,mmmu_pro}"
+export PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}"
 
 [ -f "${EVAL_CKPT}/model.safetensors" ] || compgen -G "${EVAL_CKPT}/model-*.safetensors" >/dev/null || { echo "FATAL: no model.safetensors/model-*.safetensors in ${EVAL_CKPT}"; exit 1; }
 [ -x "${PY}" ] && [ -x "${VLLM_BIN}" ] || { echo "FATAL: eval env missing: ${EVAL_ENV}"; exit 1; }
@@ -81,6 +91,13 @@ fi
 
 OUT_ROOT="${DTOPD_EVAL_ROOT}"
 EVAL_LOG="${LOG_DIR}/v2_bench_eval_server_${EVAL_RUN_NAME}.log"
+TEMPLATE_ARGS=()
+if [[ "${THINK_MODE}" != "auto" ]]; then
+  TEMPLATE_PATH="${OUT_ROOT}/.thinking_templates/${EVAL_RUN_NAME}_${THINK_MODE}.jinja"
+  "${PY}" -m dual_track_opd.eval.thinking_adapter \
+    --checkpoint "${EVAL_CKPT}" --mode "${THINK_MODE}" --output "${TEMPLATE_PATH}"
+  TEMPLATE_ARGS=(--chat-template "${TEMPLATE_PATH}" --chat-template-content-format openai)
+fi
 
 cleanup() {
   echo "[v2-bench] stopping server..."
@@ -90,7 +107,7 @@ trap cleanup EXIT
 
 echo "== v2 benchmarks: model=${EVAL_CKPT} =="
 echo "== eval: GPU${EVAL_GPU}:${EVAL_PORT} (no judge server) =="
-echo "== run_name=${EVAL_RUN_NAME}  out_root=${OUT_ROOT} =="
+echo "== run_name=${EVAL_RUN_NAME}  think_mode=${THINK_MODE}  out_root=${OUT_ROOT} =="
 
 CUDA_VISIBLE_DEVICES="${EVAL_GPU}" \
   "${VLLM_BIN}" serve "${EVAL_CKPT}" \
@@ -99,7 +116,8 @@ CUDA_VISIBLE_DEVICES="${EVAL_GPU}" \
   --tensor-parallel-size 1 \
   --gpu-memory-utilization 0.85 \
   --max-model-len "${MAX_LEN}" \
-  --trust-remote-code > "${EVAL_LOG}" 2>&1 &
+  --trust-remote-code \
+  "${TEMPLATE_ARGS[@]}" > "${EVAL_LOG}" 2>&1 &
 EVAL_PID=$!
 
 echo "[v2-bench] waiting for eval server..."
@@ -119,8 +137,6 @@ curl -s --max-time 5 "http://127.0.0.1:${EVAL_PORT}/v1/models" >/dev/null 2>&1 |
 export VISION_OPD_CHECKPOINT="${EVAL_CKPT}"
 export VISION_OPD_SERVED_MODEL="${EVAL_SERVED_MODEL}"
 export VISION_OPD_API_BASE="http://127.0.0.1:${EVAL_PORT}/v1"
-export PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}"
-
 # 自动续跑：同 run name 已有输出目录时用 --resume-from 跳过已完成 benchmark
 # （进行中的 benchmark 由 lmms-eval response cache 逐条回放，不会白跑）
 RESUME_ARGS=()

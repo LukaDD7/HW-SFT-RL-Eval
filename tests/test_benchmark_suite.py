@@ -13,6 +13,7 @@ from dual_track_opd.eval.benchmark_suite import (
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "eval" / "project_vision_opd.yaml"
+CONFIG_V2 = ROOT / "configs" / "eval" / "project_vision_opd_v2.yaml"
 
 
 def test_contract_suite_has_five_benchmarks_per_category() -> None:
@@ -164,6 +165,45 @@ def test_checkpoint_identity_guard_accepts_matching_ptdpo_path() -> None:
         served_model_name="Qwen3-VL-8B-PTDPO-R4",
     )
     assert checkpoint.endswith("qwen3vl_ptdpo_r4_step390")
+
+
+@pytest.mark.parametrize("mode", ["auto", "think", "no-think"])
+@pytest.mark.parametrize("benchmark_id", ["gqa", "dynamath", "viewspatial", "mmmu_pro", "remi", "mmbench"])
+def test_b6_prompt_modes_preserve_avg4(monkeypatch, mode, benchmark_id) -> None:
+    monkeypatch.setenv("SFT_RL_THINK_MODE", mode)
+    suite = load_suite(CONFIG if benchmark_id in {"remi", "mmbench"} else CONFIG_V2)
+    spec = suite.benchmarks[benchmark_id]
+    commands = build_commands(
+        spec, suite=suite, run_dir=Path("/tmp/run"), python="python",
+        inference_backend="openai", checkpoint="/checkpoint",
+        api_base="http://127.0.0.1:8000/v1", limit=4,
+        judge_policy="predict" if spec.judge_required else "defer",
+    )
+    assert len(commands) == 4
+    expected_cap = 8192 if mode == "think" else spec.max_new_tokens
+    outputs, caches = [], []
+    for repeat_index, command in enumerate(commands):
+        assert command[command.index("--seed") + 1] == str(42 + repeat_index)
+        if spec.runner == "replay_openai":
+            assert command[command.index("--temperature") + 1] == "1.0"
+            assert command[command.index("--max-tokens") + 1] == str(expected_cap)
+            output = command[command.index("--output-jsonl") + 1]
+            assert output.endswith(f"remi.repeat_{repeat_index}.jsonl")
+        else:
+            assert command[2] == (
+                "lmms_eval" if mode == "auto" else "dual_track_opd.eval.lmms_thinking"
+            )
+            assert command[command.index("--model") + 1] == "openai"
+            assert command[command.index("--gen_kwargs") + 1] == (
+                f"temperature=1.0,max_new_tokens={expected_cap}"
+            )
+            output = command[command.index("--output_path") + 1]
+            assert output.endswith(f"repeat_{repeat_index}")
+            caches.append(command[command.index("--use_cache") + 1])
+        outputs.append(output)
+    assert len(set(outputs)) == 4
+    if caches:
+        assert len(set(caches)) == 4
 
 
 def test_checkpoint_identity_guard_rejects_mislabeled_ptdpo_run() -> None:

@@ -55,6 +55,43 @@ Both canonical protocols use `repeat_count=4` and `sampling_temperature=1.0`.
 The reported primary value is the mean of four independent repeat metrics. This
 is an engineering avg@4 protocol, not pass@4.
 
+### Optional B6 thinking prompt
+
+The B6 adapter supports three modes without changing the upstream scorers or
+avg@4 aggregation:
+
+| Mode | Prompt and output budget |
+|---|---|
+| `auto` (default) | Native benchmark prompts and token limits; reasoning may occur naturally. |
+| `think` | Open-MOPD training instruction, assistant `<think>\n` prefill, and **8192 output tokens for every B6 task**, including ReMI and MMBench. |
+| `no-think` | Explicit direct-answer instruction, no thinking prefill, native benchmark token limits. |
+
+With the environment and asset paths configured as described in
+[environment/KEY_VERSIONS.md](environment/KEY_VERSIONS.md), select a mode through
+the canonical entrypoint:
+
+```bash
+EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_model_think_avg4 \
+  bash scripts/eval/run_pinned_eval.sh --protocol b6-mixed --think-mode think
+```
+
+`EVAL_THINK_MODE` (or `SFT_RL_THINK_MODE`) provides the same selection when no
+CLI mode is specified. All modes retain four repeats at temperature 1.0 with
+configured seeds 42, 43, 44, and 45, followed by the upstream mean aggregation.
+Use new run names for avg@4; do not resume old single-generation outputs.
+
+Think requests use this exact system instruction on all six benchmarks:
+
+```text
+Explain your reasoning inside <think>...</think>, then give the final answer inside <answer>...</answer>. Any request in the question for a short or direct response applies to the final answer only. Keep the reasoning proportional to the question; simple questions need only brief reasoning.
+```
+
+DynaMath additionally requests `Put the final mathematical result in \boxed{}
+inside the answer section.` Known direct-answer task footers are adjusted to
+apply to the final answer only. Each explicit mode generates a separate server
+chat template, verifies its rendered prompt before evaluation, and records the
+prompt protocol for safe resume. Project15 retains native prompts (`auto`).
+
 Detailed protocol rules are in [docs/remi_mv_math_protocol_20260913.md](docs/remi_mv_math_protocol_20260913.md)
 and [docs/eval_protocol_v2_20260904.md](docs/eval_protocol_v2_20260904.md).
 

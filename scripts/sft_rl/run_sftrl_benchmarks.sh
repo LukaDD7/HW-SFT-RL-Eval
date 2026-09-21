@@ -21,6 +21,7 @@
 #     SFT_RL_JUDGE_BENCHMARKS（judge 列表，默认 mmbench；mathverse 可显式追加，置空跳过）
 #     SFT_RL_LIMIT（可选：--limit 传给 benchmark_suite，例如 VQAv2 全量 214K 不可行时
 #     用 SFT_RL_LIMIT=5000 对齐 2026-07 基线 replay 口径）
+#     SFT_RL_THINK_MODE=think|no-think|auto 选择 Open-MOPD 思考协议
 set -euo pipefail
 
 REPO_ROOT="${HW_EVAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
@@ -63,6 +64,12 @@ JUDGE_PORT="${SFT_RL_JUDGE_PORT:-8001}"
 MAX_LEN="${SFT_RL_MAX_LEN:-65536}"
 RUN_NAME="${SFT_RL_RUN_NAME:-sftrl_grpo184}"
 OUT_ROOT="${DTOPD_EVAL_ROOT:-${DTOPD_ROOT}/eval_runs/vision_opd_project_baseline}"
+THINK_MODE="${SFT_RL_THINK_MODE:-auto}"
+case "${THINK_MODE}" in
+  auto|think|no-think) ;;
+  *) echo "FATAL: SFT_RL_THINK_MODE must be auto, think, or no-think" >&2; exit 2 ;;
+esac
+export SFT_RL_THINK_MODE="${THINK_MODE}"
 JUDGE_API_URL="http://127.0.0.1:${JUDGE_PORT}/v1"
 JUDGE_BENCHMARKS_RAW="${SFT_RL_JUDGE_BENCHMARKS-mmbench}"
 JUDGE_ENABLED=0
@@ -76,6 +83,7 @@ if [[ "${JUDGE_ENABLED}" == "1" && -z "${SFT_RL_JUDGE_HF}" ]]; then
 fi
 
 cd "${REPO_ROOT}"
+export PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}"
 
 if [[ ! -d "${HF_HOME}/datasets" ]]; then
   echo "FATAL: benchmark dataset cache not found at ${HF_HOME}/datasets"
@@ -94,6 +102,13 @@ fi
 
 EVAL_LOG="${LOG_DIR}/sftrl_bench_eval_server_${RUN_NAME}.log"
 JUDGE_LOG="${LOG_DIR}/sftrl_bench_judge_server_${RUN_NAME}.log"
+TEMPLATE_ARGS=()
+if [[ "${THINK_MODE}" != "auto" ]]; then
+  TEMPLATE_PATH="${OUT_ROOT}/.thinking_templates/${RUN_NAME}_${THINK_MODE}.jinja"
+  "${PY}" -m dual_track_opd.eval.thinking_adapter \
+    --checkpoint "${SFT_RL_MODEL_HF}" --mode "${THINK_MODE}" --output "${TEMPLATE_PATH}"
+  TEMPLATE_ARGS=(--chat-template "${TEMPLATE_PATH}" --chat-template-content-format openai)
+fi
 
 cleanup() {
   echo "[sftrl-bench] stopping servers..."
@@ -108,7 +123,7 @@ if [[ "${JUDGE_ENABLED}" == "1" ]]; then
 else
   echo "== eval: GPU${EVAL_GPU}:${EVAL_PORT}  judge: disabled (no judged benchmarks) =="
 fi
-echo "== run_name=${RUN_NAME}  out_root=${OUT_ROOT} =="
+echo "== run_name=${RUN_NAME}  think_mode=${THINK_MODE}  out_root=${OUT_ROOT} =="
 
 CUDA_VISIBLE_DEVICES="${EVAL_GPU}" \
   "${VLLM_BIN}" serve "${SFT_RL_MODEL_HF}" \
@@ -117,7 +132,8 @@ CUDA_VISIBLE_DEVICES="${EVAL_GPU}" \
   --tensor-parallel-size 1 \
   --gpu-memory-utilization 0.85 \
   --max-model-len "${MAX_LEN}" \
-  --trust-remote-code > "${EVAL_LOG}" 2>&1 &
+  --trust-remote-code \
+  "${TEMPLATE_ARGS[@]}" > "${EVAL_LOG}" 2>&1 &
 EVAL_PID=$!
 
 if [[ "${JUDGE_ENABLED}" == "1" ]]; then
