@@ -155,8 +155,8 @@ cat > "${STAGE}/README_B.md" <<'EOF_README_B'
 | dynamath | kcz358/DynaMath | **v2** | rule, 官方链 + 标签优先 | 4096 |
 | viewspatial | oscarqjh/ViewSpatial_lmmseval | **v2** | rule, 标签优先 | 4096 |
 | mmmu_pro | MMMU/MMMU_Pro (standard 10 选项) | **v2** | rule, 标签优先 | 4096 |
-| remi | 本地 replay（包内 remi_replay/） | **v1 生成 + exact 重算** | task-aware exact/relaxed, 全 2600 分母 | 2048 (replay 预算) |
-| mmbench | lmms-lab/MMBench (en dev) | **v1** | judge（Qwen3-VL-32B-Instruct） | 1024 |
+| remi | 本地 replay（包内 remi_replay/） | **v1 生成 + exact 重算** | task-aware exact/relaxed, 全 2600 分母 | 8192 (replay 预算) |
+| mmbench | lmms-lab/MMBench (en dev) | **v1** | judge（Qwen3-VL-32B-Instruct） | 2048 |
 
 对表规则（manuscript 第 0(b) 步已定）: **v2 4 项 + v1 2 项, 各用各口径**。
 v1 的历史 6 项全 v1 口径分数（macro avg 0.3714 等）只作历史对照。

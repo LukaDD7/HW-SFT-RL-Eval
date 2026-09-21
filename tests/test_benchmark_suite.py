@@ -101,7 +101,7 @@ def test_lmms_command_records_generation_and_raw_outputs() -> None:
     )
     assert command is not None
     assert "model=/checkpoint" in command[command.index("--model_args") + 1]
-    assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=256"
+    assert command[command.index("--gen_kwargs") + 1] == "temperature=1.0,max_new_tokens=1048"
     assert command[command.index("--limit") + 1] == "4"
     assert command[command.index("--seed") + 1] == "42"
     output_path = Path(command[command.index("--output_path") + 1])
@@ -109,6 +109,21 @@ def test_lmms_command_records_generation_and_raw_outputs() -> None:
     assert output_path.parts[-2:] == ("viewspatial", "repeat_0")
     assert cache_path.parts[-1] == "repeat_0"
     assert "--log_samples" in command
+
+
+def test_canonical_generation_budgets() -> None:
+    suite = load_suite(CONFIG)
+    budgets = {
+        benchmark_id: spec.max_new_tokens
+        for benchmark_id, spec in suite.benchmarks.items()
+    }
+    assert budgets["viewspatial"] == 1048
+    assert budgets["mindcube"] == 1048
+    assert budgets["scienceqa"] == 1048
+    assert budgets["remi"] == 8192
+    assert budgets["blink"] == 2048
+    assert budgets["mmbench"] == 2048
+    assert budgets["mmmu_pro"] == 4096
 
 
 def test_avg4_builds_four_independent_repeat_commands() -> None:
