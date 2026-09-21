@@ -58,6 +58,7 @@ Important boundaries:
 
 - The four v2 tasks use 4096-token decoding and deterministic `<answer>`-tag
   first scoring.
+- ReMI uses an 8192-token replay generation budget; MMBench uses 2048 tokens.
 - ReMI uses strict exact full-denominator scoring over 2,600 rows.
 - ReMI strict exact is averaged over four replay files and written to
   `remi_avg4.json`.
@@ -97,6 +98,8 @@ results/20260916/project15/summary.json
 Important boundaries:
 
 - ReMI and MV-MATH are diagnostics, not native Project15 rows.
+- Canonical v1 budgets: ViewSpatial/MindCube/ScienceQA 1024 tokens, ReMI 8192,
+  BLINK/MMBench 2048, and MMMU-Pro 4096. GQA and VQAv2 remain 128.
 - Project15 is not equivalent to B6-mixed; it is a different task set.
 - Do not average Project15 and B6-mixed scores in the same table.
 
