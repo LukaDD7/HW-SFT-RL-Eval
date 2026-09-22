@@ -56,6 +56,13 @@ Both canonical protocols use `repeat_count=4` and `sampling_temperature=1.0`.
 The reported primary value is the mean of four independent repeat metrics. This
 is an engineering avg@4 protocol, not pass@4.
 
+B6-mixed runs the v2 stage on two GPUs by default. It launches two vLLM eval
+servers: GQA+DynaMath on `EVAL_GPU` and ViewSpatial+MMMU-Pro on
+`EVAL_JUDGE_GPU`; after both shards finish, their outputs are merged into the
+canonical run directory and the judge stage begins. Set `EVAL_V2_PARALLEL=0`
+to preserve the historical one-server behavior. When think and no-think runs
+share a four-GPU instance, assign each mode two GPUs and distinct port pairs.
+
 `project15-complement` is an explicit compute-saving protocol. It runs the nine
 Project15 tasks that are not in B6-mixed. Use the same checkpoint and protocol
 generation as the existing B6-mixed run, then combine the two result sets in a
