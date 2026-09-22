@@ -151,7 +151,11 @@ score_remi_avg4() {
 
 case "$protocol" in
   b6-mixed)
-    bash scripts/eval/run_target_benchmarks_v2.sh
+    if [[ "${EVAL_V2_PARALLEL:-1}" == "1" ]]; then
+      bash scripts/eval/run_target_benchmarks_v2_parallel.sh
+    else
+      bash scripts/eval/run_target_benchmarks_v2.sh
+    fi
     SFT_RL_BENCHMARKS=remi \
     SFT_RL_JUDGE_BENCHMARKS=mmbench \
     SFT_RL_EVAL_CONFIG=configs/eval/project_vision_opd.yaml \

@@ -47,6 +47,9 @@ B6-mixed is the official six-benchmark comparison protocol:
 - v1: ReMI, MMBench
 - Four independent sampled generations per benchmark at temperature 1.0
 - Primary values are avg@4, not pass@1 or pass@4
+- The v2 stage uses two eval GPUs by default: GQA+DynaMath on one server and
+  ViewSpatial+MMMU-Pro on another. Shard outputs are merged into the canonical
+  run; set `EVAL_V2_PARALLEL=0` for the historical single-server path.
 
 Pinned result summary:
 
