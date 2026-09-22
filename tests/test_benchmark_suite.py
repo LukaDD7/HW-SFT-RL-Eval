@@ -45,6 +45,25 @@ def test_target_profile_covers_requested_six_benchmarks() -> None:
     assert selected == {"gqa", "mmbench", "remi", "dynamath", "viewspatial", "mmmu_pro"}
 
 
+def test_project15_complement_excludes_b6_tasks() -> None:
+    suite = load_suite(CONFIG)
+    selected = {
+        spec.benchmark_id
+        for spec in select_benchmarks(suite, "project15_complement")
+    }
+    assert selected == {
+        "mindcube",
+        "vqav2",
+        "scienceqa",
+        "mv_math",
+        "mathverse",
+        "mathvista",
+        "mmsi_bench",
+        "blink",
+        "mmvet",
+    }
+
+
 def test_judge_is_deferred_or_predict_only() -> None:
     suite = load_suite(CONFIG)
     spec = suite.benchmarks["mathvista"]

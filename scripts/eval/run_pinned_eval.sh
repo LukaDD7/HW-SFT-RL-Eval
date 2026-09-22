@@ -13,9 +13,13 @@ Usage:
   EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_run HW_EVAL_ENV=/path/to/env \
     bash scripts/eval/run_pinned_eval.sh --protocol project15
 
+  EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_run HW_EVAL_ENV=/path/to/env \
+    bash scripts/eval/run_pinned_eval.sh --protocol project15-complement
+
 Protocols:
   b6-mixed   v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench
   project15  15-task Project15 v1/offline suite
+  project15-complement  9 Project15 tasks not covered by b6-mixed
 
 B6 prompt adapter:
   --think-mode auto|think|no-think
@@ -96,6 +100,9 @@ case "$protocol" in
   project15)
     export EVAL_RUN_NAME="${EVAL_RUN_NAME:-project15_avg4}"
     ;;
+  project15-complement)
+    export EVAL_RUN_NAME="${EVAL_RUN_NAME:-project15_complement_avg4}"
+    ;;
 esac
 
 # Historical runs accidentally used literal closing braces in DTOPD_EVAL_ROOT.
@@ -157,6 +164,12 @@ case "$protocol" in
     SFT_RL_EVAL_CONFIG=configs/eval/project_vision_opd.yaml \
       bash scripts/eval/run_target_benchmarks.sh
     score_remi_avg4
+    ;;
+  project15-complement)
+    SFT_RL_BENCHMARKS=mindcube,vqav2,scienceqa,mv_math,mmsi_bench,blink
+    SFT_RL_JUDGE_BENCHMARKS=mathverse,mathvista,mmvet
+    SFT_RL_EVAL_CONFIG=configs/eval/project_vision_opd.yaml \
+      bash scripts/eval/run_target_benchmarks.sh
     ;;
   *)
     echo "Unknown protocol: $protocol" >&2

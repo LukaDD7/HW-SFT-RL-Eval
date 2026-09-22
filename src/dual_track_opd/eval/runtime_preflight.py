@@ -7,6 +7,8 @@ from pathlib import Path
 
 
 REMI_REPLAY = Path("assets/remi_replay/raw_responses/qwen3vl8b_ReMI_test_len65536_maxtok1024_raw.jsonl")
+MV_MATH_REPLAY = Path("assets/remi_replay/raw_responses/qwen3vl8b_MV_MATH_len65536_maxtok1024_raw.jsonl")
+MV_MATH_METADATA = Path("MV-MATH/MV-MATH.json")
 
 
 def validate_environment(environment: Path) -> None:
@@ -52,7 +54,7 @@ def validate_protocol_assets(
     Git worktrees do not contain ignored benchmark assets. A canonical run must
     fail before loading models if those assets are not linked or configured.
     """
-    if protocol not in {"b6-mixed", "project15"}:
+    if protocol not in {"b6-mixed", "project15", "project15-complement"}:
         raise ValueError(f"unknown protocol: {protocol}")
 
     resolved_root = dataset_root or repo_root / "assets" / "datasets"
@@ -62,7 +64,7 @@ def validate_protocol_assets(
             f"Set DTOPD_DATASET_ROOT or link {repo_root / 'assets' / 'datasets'}; checked {resolved_root}"
         )
 
-    if protocol == "b6-mixed":
+    if protocol in {"b6-mixed", "project15"}:
         remi_replay = repo_root / REMI_REPLAY
         if not remi_replay.is_file():
             raise FileNotFoundError(
@@ -75,13 +77,28 @@ def validate_protocol_assets(
                 f"ReMI parquet files not found under {remi_dataset}"
             )
 
+    if protocol in {"project15", "project15-complement"}:
+        mv_math_replay = repo_root / MV_MATH_REPLAY
+        if not mv_math_replay.is_file():
+            raise FileNotFoundError(
+                "MV-MATH replay source not found. Git worktrees do not include ignored assets. "
+                f"Link assets/remi_replay or use the main checkout; checked {mv_math_replay}"
+            )
+        mv_math_metadata = resolved_root / "MV-MATH" / "MV-MATH.json"
+        if not mv_math_metadata.is_file():
+            raise FileNotFoundError(f"MV-MATH metadata not found: {mv_math_metadata}")
+
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--environment", required=True, type=Path)
     parser.add_argument("--cuda-toolchain", required=True, type=Path)
     parser.add_argument("--repo-root", required=True, type=Path)
-    parser.add_argument("--protocol", choices=("b6-mixed", "project15"), required=True)
+    parser.add_argument(
+        "--protocol",
+        choices=("b6-mixed", "project15", "project15-complement"),
+        required=True,
+    )
     parser.add_argument("--dataset-root", type=Path)
     return parser
 
