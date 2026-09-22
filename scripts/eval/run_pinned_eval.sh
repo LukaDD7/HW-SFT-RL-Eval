@@ -4,10 +4,6 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
-EVAL_ENV="${HW_EVAL_ENV:-}"
-[[ -n "${EVAL_ENV}" ]] || { echo "FATAL: set HW_EVAL_ENV" >&2; exit 1; }
-PY="${EVAL_ENV}/bin/python"
-
 usage() {
   cat <<'EOF'
 Usage:
@@ -67,6 +63,27 @@ if [[ "$think_mode" != "auto" && "$protocol" != "b6-mixed" ]]; then
   exit 2
 fi
 export EVAL_THINK_MODE="$think_mode" SFT_RL_THINK_MODE="$think_mode"
+
+EVAL_ENV="${HW_EVAL_ENV:-}"
+[[ -n "${EVAL_ENV}" ]] || { echo "FATAL: set HW_EVAL_ENV" >&2; exit 1; }
+PY="${EVAL_ENV}/bin/python"
+export PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}"
+
+# Canonical preflight: fail before loading any vLLM process when the selected
+# environment, CUDA toolchain, or ignored/local benchmark assets are missing.
+# Both CUDA names are exported because v2 reads EVAL_CUDA_TOOLCHAIN while the
+# historical v1 runner reads SFT_RL_CUDA_TOOLCHAIN.
+CUDA_TOOLCHAIN="${EVAL_CUDA_TOOLCHAIN:-${SFT_RL_CUDA_TOOLCHAIN:-${CUDA_TOOLCHAIN:-/usr/local/cuda}}}"
+DATASET_ROOT="${DTOPD_DATASET_ROOT:-${REPO_ROOT}/assets/datasets}"
+"${PY}" -m dual_track_opd.eval.runtime_preflight \
+  --environment "${EVAL_ENV}" \
+  --cuda-toolchain "${CUDA_TOOLCHAIN}" \
+  --repo-root "${REPO_ROOT}" \
+  --protocol "${protocol}" \
+  --dataset-root "${DATASET_ROOT}"
+export EVAL_CUDA_TOOLCHAIN="${CUDA_TOOLCHAIN}"
+export SFT_RL_CUDA_TOOLCHAIN="${CUDA_TOOLCHAIN}"
+export DTOPD_DATASET_ROOT="${DATASET_ROOT}"
 
 # Keep both stages of B6-mixed under one output root and one run name.  The
 # underlying v1/v2 runners have different historical defaults, so exposing only
