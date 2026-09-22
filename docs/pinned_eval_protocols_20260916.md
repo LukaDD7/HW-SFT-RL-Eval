@@ -106,6 +106,21 @@ Important boundaries:
 - Project15 is not equivalent to B6-mixed; it is a different task set.
 - Do not average Project15 and B6-mixed scores in the same table.
 
+### Project15 complement
+
+When a matching B6-mixed run already exists, `project15-complement` avoids
+regenerating the six overlapping tasks and runs only:
+
+```text
+MindCube, VQAv2, ScienceQA, MV-MATH, MathVerse, MathVista,
+MMSI-Bench, BLINK, MMVet
+```
+
+Use the same checkpoint and generation protocol as the existing B6 run. Keep
+B6 and complement rows labeled by their source run and task version when
+combining them. This entrypoint is explicit compute saving; it does not
+automatically import or mutate an existing B6 result.
+
 ## MMBench clarification
 
 Base and PTD-PO r4 step390 both report:

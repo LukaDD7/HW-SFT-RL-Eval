@@ -5,6 +5,8 @@ import subprocess
 
 from dual_track_opd.eval.runtime_preflight import (
     REMI_REPLAY,
+    MV_MATH_METADATA,
+    MV_MATH_REPLAY,
     validate_cuda_toolchain,
     validate_environment,
     validate_protocol_assets,
@@ -77,15 +79,58 @@ def test_b6_requires_remi_replay_and_parquet(tmp_path: Path) -> None:
     validate_protocol_assets(repo, protocol="b6-mixed", dataset_root=dataset_root)
 
 
-def test_project15_requires_dataset_root(tmp_path: Path) -> None:
+def test_project15_requires_remi_and_mv_math_assets(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()
     with pytest.raises(FileNotFoundError, match="benchmark dataset root not found"):
         validate_protocol_assets(repo, protocol="project15")
 
     dataset_root = tmp_path / "datasets"
-    dataset_root.mkdir()
+    (dataset_root / "ReMI").mkdir(parents=True)
+    with pytest.raises(FileNotFoundError, match="ReMI replay source not found"):
+        validate_protocol_assets(repo, protocol="project15", dataset_root=dataset_root)
+
+    remi = repo.joinpath(REMI_REPLAY)
+    remi.parent.mkdir(parents=True)
+    remi.write_text("{}", encoding="utf-8")
+    (dataset_root / "ReMI" / "test.parquet").write_bytes(b"parquet")
+    with pytest.raises(FileNotFoundError, match="MV-MATH replay source not found"):
+        validate_protocol_assets(repo, protocol="project15", dataset_root=dataset_root)
+
+    mv_math = repo.joinpath(MV_MATH_REPLAY)
+    mv_math.write_text("{}", encoding="utf-8")
+    with pytest.raises(FileNotFoundError, match="MV-MATH metadata not found"):
+        validate_protocol_assets(repo, protocol="project15", dataset_root=dataset_root)
+
+    metadata = dataset_root.joinpath(MV_MATH_METADATA)
+    metadata.parent.mkdir(parents=True, exist_ok=True)
+    metadata.write_text("[]", encoding="utf-8")
     validate_protocol_assets(repo, protocol="project15", dataset_root=dataset_root)
+
+
+def test_project15_complement_requires_mv_math_but_not_remi(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    dataset_root = tmp_path / "datasets"
+    dataset_root.mkdir()
+    with pytest.raises(FileNotFoundError, match="MV-MATH replay source not found"):
+        validate_protocol_assets(
+            repo,
+            protocol="project15-complement",
+            dataset_root=dataset_root,
+        )
+
+    mv_math = repo.joinpath(MV_MATH_REPLAY)
+    mv_math.parent.mkdir(parents=True)
+    mv_math.write_text("{}", encoding="utf-8")
+    metadata = dataset_root.joinpath(MV_MATH_METADATA)
+    metadata.parent.mkdir(parents=True, exist_ok=True)
+    metadata.write_text("[]", encoding="utf-8")
+    validate_protocol_assets(
+        repo,
+        protocol="project15-complement",
+        dataset_root=dataset_root,
+    )
 
 
 def test_canonical_entrypoint_normalizes_runner_variables() -> None:
