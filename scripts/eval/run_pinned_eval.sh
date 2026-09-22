@@ -20,16 +20,29 @@ Usage:
 Protocols:
   b6-mixed   v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench
   project15  15-task Project15 v1/offline suite
+
+B6 prompt adapter:
+  --think-mode auto|think|no-think
+  Default: EVAL_THINK_MODE, then SFT_RL_THINK_MODE, then auto (native prompts).
+  Think uses the Open-MOPD prompt. All modes share the same output budgets:
+  MMMU-Pro/DynaMath/ReMI 16384; MMBench/ViewSpatial/GQA 8192.
+  Use a different EVAL_RUN_NAME for each mode or changed generation budget.
 EOF
 }
 
 protocol=""
+think_mode="${EVAL_THINK_MODE:-${SFT_RL_THINK_MODE:-auto}}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --protocol)
       [[ $# -ge 2 ]] || { usage; exit 2; }
       protocol="$2"
+      shift 2
+      ;;
+    --think-mode)
+      [[ $# -ge 2 ]] || { usage; exit 2; }
+      think_mode="$2"
       shift 2
       ;;
     -h|--help)
@@ -45,6 +58,15 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$protocol" ]] || { usage; exit 2; }
+case "$think_mode" in
+  auto|think|no-think) ;;
+  *) echo "Invalid --think-mode: $think_mode" >&2; exit 2 ;;
+esac
+if [[ "$think_mode" != "auto" && "$protocol" != "b6-mixed" ]]; then
+  echo "The Think adapter currently supports --protocol b6-mixed only" >&2
+  exit 2
+fi
+export EVAL_THINK_MODE="$think_mode" SFT_RL_THINK_MODE="$think_mode"
 
 # Keep both stages of B6-mixed under one output root and one run name.  The
 # underlying v1/v2 runners have different historical defaults, so exposing only

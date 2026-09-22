@@ -1,10 +1,46 @@
 import json
+import io
 import sys
 from pathlib import Path
 
 import pytest
 
 from dual_track_opd.eval import run_vlm_eval
+from dual_track_opd.eval.thinking_adapter import THINKING_SYSTEM_PROMPT
+
+
+@pytest.mark.parametrize("mode", ["auto", "think", "no-think"])
+@pytest.mark.parametrize("cap", [1024, 8192, 16384])
+def test_replay_prompt_preserves_sampled_payload(monkeypatch, mode, cap):
+    monkeypatch.setenv("SFT_RL_THINK_MODE", mode)
+    sent = []
+
+    class Opener:
+        def open(self, request, timeout):
+            sent.append(json.loads(request.data))
+            return io.BytesIO(b'{"choices": [{"message": {"content": "A"}}]}')
+
+    monkeypatch.setattr(run_vlm_eval.urllib.request, "build_opener", lambda *args: Opener())
+    question = "Which option?\nReturn only the final answer. Do not provide reasoning."
+    for seed in range(42, 46):
+        response = run_vlm_eval._request(
+            api_base="http://unused/v1", api_key="EMPTY", model="test-model",
+            question=question, images=[b"image-fixture"], max_tokens=cap,
+            temperature=1.0, seed=seed, timeout=1, task_name="ReMI",
+        )
+        assert response["choices"][0]["message"]["content"] == "A"
+    assert [payload["seed"] for payload in sent] == [42, 43, 44, 45]
+    for payload in sent:
+        assert payload["temperature"] == 1.0
+        assert payload["max_tokens"] == cap
+        assert payload["model"] == "test-model"
+        assert payload["messages"][-1]["content"][0]["type"] == "image_url"
+        if mode == "think":
+            assert payload["messages"][0]["content"] == THINKING_SYSTEM_PROMPT
+            assert "Do not provide reasoning" not in payload["messages"][-1]["content"][-1]["text"]
+        elif mode == "auto":
+            assert len(payload["messages"]) == 1
+            assert payload["messages"][0]["content"][-1]["text"] == question
 
 
 def test_mv_math_replay_resolves_historical_problem_id(tmp_path: Path, monkeypatch) -> None:
@@ -51,6 +87,7 @@ def test_mv_math_replay_resolves_historical_problem_id(tmp_path: Path, monkeypat
             "finish_reason": "stop",
             "image_count": 1,
             "model": "Vision-OPD-4B",
+            "generation_config": {"max_new_tokens": 32, "temperature": 1.0, "seed": 42},
             "usage": {"completion_tokens": 1},
             "error": "",
         }
@@ -90,6 +127,7 @@ def test_replay_resume_preserves_successful_rows_and_retries_failures(
                 "prediction": "OLD",
                 "error": "",
                 "model": "Vision-OPD-4B",
+                "generation_config": {"max_new_tokens": 2048, "temperature": 0.0, "seed": None},
             }
         )
         + "\n"
@@ -130,3 +168,24 @@ def test_replay_resume_preserves_successful_rows_and_retries_failures(
         ("17", "OLD"),
         ("18", "NEW"),
     ]
+
+
+@pytest.mark.parametrize("mode", ["auto", "think", "no-think"])
+@pytest.mark.parametrize("old_budget", [None, 8192, 16384])
+def test_replay_resume_checks_actual_generation_settings(tmp_path, monkeypatch, mode, old_budget):
+    from dual_track_opd.eval.thinking_adapter import protocol_record
+
+    monkeypatch.setenv("SFT_RL_THINK_MODE", mode)
+    generation = {"max_new_tokens": 16384, "temperature": 1.0, "seed": 42}
+    row = {"dataset": "ReMI", "model": "model", "sample_id": "1", "error": "",
+           "thinking_protocol": protocol_record(mode)}
+    if old_budget is not None:
+        row["generation_config"] = dict(generation, max_new_tokens=old_budget)
+    path = tmp_path / "replay.jsonl"
+    path.write_text(json.dumps(row) + "\n")
+    kwargs = dict(dataset="ReMI", model="model", expected_ids=["1"], generation_config=generation)
+    if old_budget == 16384:
+        assert run_vlm_eval._completed_by_sample_id(path, **kwargs) == {"1": row}
+    else:
+        with pytest.raises(ValueError, match="resume generation config mismatch"):
+            run_vlm_eval._completed_by_sample_id(path, **kwargs)

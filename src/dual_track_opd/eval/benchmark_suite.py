@@ -20,6 +20,16 @@ from typing import Any, Mapping, Sequence
 
 import yaml
 
+from .thinking_adapter import (
+    VALID_MODES,
+    apply_environment,
+    benchmark_for_task,
+    mode_from_environment,
+    protocol_record,
+    validate_resume_protocol,
+    verify_server_template,
+)
+
 # ---------------------------------------------------------------------------
 # Per-process signal flag – set by the SIGTERM/SIGINT handler so the main
 # loop can interrupt gracefully after the current benchmark finishes.
@@ -237,6 +247,23 @@ def _model_args(
     return ",".join(f"{key}={value}" for key, value in values.items())
 
 
+def generation_budget(spec: BenchmarkSpec) -> int:
+    """Resolve the same per-benchmark budget for every prompt mode and runner."""
+    budget = int(os.environ.get("SFT_RL_MAX_NEW_TOKENS_OVERRIDE", "") or spec.max_new_tokens)
+    if budget <= 0:
+        raise ValueError(f"max_new_tokens must be positive, got {budget}")
+    return budget
+
+
+def validate_resume_budgets(previous: Mapping[str, int] | None, current: Mapping[str, int]) -> None:
+    for benchmark_id, budget in current.items():
+        if previous is None or previous.get(benchmark_id) != budget:
+            raise ValueError(
+                f"resume generation budget mismatch for {benchmark_id}: "
+                f"current={budget}, prior={(previous or {}).get(benchmark_id)}. Use a new run directory."
+            )
+
+
 def build_command(
     spec: BenchmarkSpec,
     *,
@@ -250,6 +277,11 @@ def build_command(
     judge_policy: str,
     repeat_index: int = 0,
 ) -> list[str] | None:
+    think_mode = mode_from_environment()
+    if think_mode != "auto":
+        benchmark_for_task(spec.benchmark_id)
+        if inference_backend != "openai":
+            raise ValueError("Think adapter requires --inference-backend openai")
     if spec.judge_required and judge_policy == "defer":
         return None
     defaults = suite.defaults
@@ -265,18 +297,15 @@ def build_command(
         raise ValueError(f"repeat_index must be in [0, {repeat_count}), got {repeat_index}")
 
     if spec.runner == "lmms_eval":
-        inference_backend = (
-            "async_openai"
-            if os.environ.get("SFT_RL_SYSTEM_INSTRUCTION")
-            else inference_backend
-        )
-        max_new_tokens = spec.max_new_tokens
-        if override := os.environ.get("SFT_RL_MAX_NEW_TOKENS_OVERRIDE"):
-            max_new_tokens = int(override)
+        if think_mode == "auto" and os.environ.get("SFT_RL_SYSTEM_INSTRUCTION"):
+            # Preserve the upstream opt-in path; explicit prompt modes use
+            # the OpenAI chat adapter instead of comma-separated model args.
+            inference_backend = "async_openai"
+        max_new_tokens = generation_budget(spec)
         command = [
             python,
             "-m",
-            "lmms_eval",
+            "dual_track_opd.eval.lmms_thinking" if inference_backend == "openai" else "lmms_eval",
             "--model",
             inference_backend,
             "--model_args",
@@ -339,7 +368,7 @@ def build_command(
             "--model",
             str(defaults["served_model_name"]),
             "--max-tokens",
-            str(spec.max_new_tokens),
+            str(generation_budget(spec)),
             "--temperature",
             str(sampling_temperature),
             "--seed",
@@ -541,6 +570,9 @@ def _save_manifest(manifest_path: Path, manifest: dict[str, Any]) -> None:
 def run_suite(args: argparse.Namespace) -> int:
     global _interrupted
 
+    apply_environment(os.environ, getattr(args, "think_mode", None))
+    thinking_protocol = protocol_record()
+
     suite = load_suite(args.config)
     repeat_count = int(suite.defaults.get("repeat_count", 1))
     sampling_temperature = float(suite.defaults.get("sampling_temperature", 0.0))
@@ -567,6 +599,11 @@ def run_suite(args: argparse.Namespace) -> int:
         if not manifest_candidate.is_file():
             raise FileNotFoundError(f"manifest not found in resume directory: {manifest_candidate}")
         existing_manifest = json.loads(manifest_candidate.read_text(encoding="utf-8"))
+        validate_resume_protocol(existing_manifest.get("thinking_protocol"), thinking_protocol)
+        validate_resume_budgets(
+            existing_manifest.get("generation_budgets"),
+            {spec.benchmark_id: generation_budget(spec) for spec in specs},
+        )
         if int(existing_manifest.get("repeat_count", 1)) != repeat_count:
             raise ValueError(
                 "resume protocol mismatch: expected "
@@ -634,6 +671,12 @@ def run_suite(args: argparse.Namespace) -> int:
     ]
     if pending and args.inference_backend == "openai":
         _check_openai_endpoint(api_base, str(suite.defaults.get("api_key", "EMPTY")))
+    prompt_check = None
+    if pending and thinking_protocol["mode"] != "auto":
+        prompt_check = verify_server_template(
+            checkpoint, thinking_protocol["mode"], api_base,
+            str(suite.defaults["served_model_name"]), str(suite.defaults.get("api_key", "EMPTY")),
+        )
     for spec, commands in rows:
         if commands and spec.runner == "replay_openai" and spec.benchmark_id not in completed_ids:
             source = Path(str(suite.defaults["prior_raw_root"])) / str(spec.source_file)
@@ -660,6 +703,10 @@ def run_suite(args: argparse.Namespace) -> int:
             "checkpoint_path": checkpoint,
             "raw_output_path": str(run_dir),
             "inference_backend": args.inference_backend,
+            "thinking_protocol": thinking_protocol,
+            "generation_budgets": {
+                spec.benchmark_id: generation_budget(spec) for spec in suite.benchmarks.values()
+            },
             "api_base": api_base,
             "judge_policy": args.judge_policy,
             "repeat_count": repeat_count,
@@ -677,6 +724,8 @@ def run_suite(args: argparse.Namespace) -> int:
         )
 
     manifest_path = run_dir / "run_manifest.json"
+    if prompt_check is not None:
+        _save_manifest(run_dir / "server_prompt_check.json", prompt_check)
     _save_manifest(manifest_path, manifest)
 
     # ---- signal handling ------------------------------------------------
@@ -707,6 +756,7 @@ def run_suite(args: argparse.Namespace) -> int:
             "primary_metric": spec.primary_metric,
             "command": commands,
             "repeat_count": repeat_count,
+            "max_new_tokens": generation_budget(spec),
         }
         if not commands:
             record["status"] = "deferred"
@@ -720,8 +770,16 @@ def run_suite(args: argparse.Namespace) -> int:
                 # reused as a different sample. Sampling temperature is > 0,
                 # so lmms-eval also marks these generations non-cacheable.
                 run_env = env.copy()
+                apply_environment(run_env)
+                mode_suffix = (
+                    "" if thinking_protocol["mode"] == "auto"
+                    else f"__{thinking_protocol['sha256']}"
+                )
                 run_env["LMMS_CACHE_RUN_ID"] = (
-                    f"{manifest['run_name']}__{spec.benchmark_id}__repeat_{repeat_index}"
+                    f"{manifest['run_name']}__{spec.benchmark_id}__repeat_{repeat_index}{mode_suffix}"
+                )
+                run_env["HW_EVAL_PROMPT_AUDIT_DIR"] = str(
+                    _repeat_output_dir(run_dir, "prompt_previews", "", repeat_index, repeat_count)
                 )
 
                 print(f"\n[run] {spec.contract_name} (repeat {repeat_index})", flush=True)
@@ -771,6 +829,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--benchmarks", action="append", default=[], help="Comma-separated benchmark ids."
     )
     parser.add_argument("--checkpoint")
+    parser.add_argument(
+        "--think-mode", choices=VALID_MODES,
+        help="B6 adapter mode; defaults to SFT_RL_THINK_MODE or auto.",
+    )
     parser.add_argument("--api-base")
     parser.add_argument("--output-root")
     parser.add_argument("--run-name")

@@ -11,6 +11,7 @@
 #   EVAL_SMOKE=1 bash scripts/eval/run_target_benchmarks.sh
 #   EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_ckpt \
 #     bash scripts/eval/run_target_benchmarks.sh
+#   EVAL_THINK_MODE=think ...  # Open-MOPD-compatible thinking protocol
 
 set -euo pipefail
 
@@ -32,6 +33,7 @@ export SFT_RL_EVAL_GPU="${EVAL_GPU}"
 export SFT_RL_JUDGE_GPU="${EVAL_JUDGE_GPU}"
 export SFT_RL_EVAL_PORT="${EVAL_PORT}"
 export SFT_RL_JUDGE_PORT="${EVAL_JUDGE_PORT}"
+export SFT_RL_THINK_MODE="${EVAL_THINK_MODE:-${SFT_RL_THINK_MODE:-auto}}"
 
 if [[ "${EVAL_SMOKE:-${SFT_RL_SMOKE:-0}}" == "1" ]]; then
   export SFT_RL_SMOKE=1
