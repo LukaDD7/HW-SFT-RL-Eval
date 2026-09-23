@@ -108,6 +108,9 @@ Important boundaries:
   Historical aligned/offline configs retain their archived settings.
 - Project15 is not equivalent to B6-mixed; it is a different task set.
 - Do not average Project15 and B6-mixed scores in the same table.
+- Project15 supports explicit `think` and `no-think` modes with the same
+  prompt-protocol record as B6. Pair a mode-specific B6 run with the same-mode
+  Project15 complement run; do not mix `auto` with explicit comparison arms.
 
 ### Project15 complement
 

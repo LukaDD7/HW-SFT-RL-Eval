@@ -165,3 +165,10 @@ def test_canonical_entrypoint_propagates_hf_cache_to_v1_runner() -> None:
     script = Path(__file__).resolve().parents[1] / "scripts/eval/run_pinned_eval.sh"
     source = script.read_text(encoding="utf-8")
     assert 'export SFT_RL_HF_CACHE="${SFT_RL_HF_CACHE:-${EVAL_HF_CACHE}}"' in source
+
+
+def test_canonical_entrypoint_allows_project15_think_modes() -> None:
+    script = Path(__file__).resolve().parents[1] / "scripts/eval/run_pinned_eval.sh"
+    source = script.read_text(encoding="utf-8")
+    assert "The Think adapter currently supports --protocol b6-mixed only" not in source
+    assert "B6 and Project15 support think/no-think" in source
