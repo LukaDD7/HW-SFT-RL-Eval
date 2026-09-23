@@ -159,3 +159,9 @@ def test_canonical_entrypoint_preflight_uses_repository_pythonpath(tmp_path: Pat
     script = Path(__file__).resolve().parents[1] / "scripts/eval/run_pinned_eval.sh"
     source = script.read_text(encoding="utf-8")
     assert 'export PYTHONPATH="${REPO_ROOT}/src' in source
+
+
+def test_canonical_entrypoint_propagates_hf_cache_to_v1_runner() -> None:
+    script = Path(__file__).resolve().parents[1] / "scripts/eval/run_pinned_eval.sh"
+    source = script.read_text(encoding="utf-8")
+    assert 'export SFT_RL_HF_CACHE="${SFT_RL_HF_CACHE:-${EVAL_HF_CACHE}}"' in source

@@ -89,6 +89,13 @@ export EVAL_CUDA_TOOLCHAIN="${CUDA_TOOLCHAIN}"
 export SFT_RL_CUDA_TOOLCHAIN="${CUDA_TOOLCHAIN}"
 export DTOPD_DATASET_ROOT="${DATASET_ROOT}"
 
+# v1 and v2 runners historically used different cache variable names. Export
+# both from the single canonical EVAL_HF_CACHE so B6-mixed does not lose the
+# dataset cache between the v2 and v1 stages.
+if [[ -n "${EVAL_HF_CACHE:-}" ]]; then
+  export SFT_RL_HF_CACHE="${SFT_RL_HF_CACHE:-${EVAL_HF_CACHE}}"
+fi
+
 # Keep both stages of B6-mixed under one output root and one run name.  The
 # underlying v1/v2 runners have different historical defaults, so exposing only
 # this canonical entrypoint makes the protocol boundary explicit.
