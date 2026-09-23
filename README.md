@@ -43,8 +43,8 @@ The evaluation runtime also requires a pinned `lmms-eval` checkout. See
 | Protocol | Use case | Entry point |
 |---|---|---|
 | B6-mixed avg@4 | v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol b6-mixed` |
-| Project15 avg@4 | Native `lmms-eval` Project15 tasks, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol project15` |
-| Project15 complement avg@4 | Run only the nine Project15 tasks not covered by B6-mixed; use after an existing B6-mixed run to avoid duplicate generation | `scripts/eval/run_pinned_eval.sh --protocol project15-complement` |
+| Project15 avg@4 | 15-task v1/offline suite, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol project15` |
+| Project15 complement avg@4 | Run only the nine Project15 tasks not covered by B6-mixed; use after a matching B6-mixed run to avoid duplicate generation | `scripts/eval/run_pinned_eval.sh --protocol project15-complement` |
 | ReMI strict | Full 2,600-row denominator, task-aware extraction | `scripts/sft_rl/remi_reeval.py --mode exact` |
 | MV-MATH strict | Completed-answer gate over judge sidecar | `python -m dual_track_opd.eval.score_mv_math --mode strict` |
 
@@ -68,6 +68,12 @@ Project15 tasks that are not in B6-mixed. Use the same checkpoint and protocol
 generation as the existing B6-mixed run, then combine the two result sets in a
 report. It does not silently import or rewrite an old B6 run; the user must
 select the matching B6 run and keep task-version/scoring labels explicit.
+
+Project15 supports the same `--think-mode think` and `--think-mode no-think`
+comparison arms as B6. For compute reuse, pair a B6 mode-specific run with
+`project15-complement --think-mode <mode>` using the same mode and a distinct
+Project15 run name. `auto` remains the historical native-prompt protocol and
+must not be mixed with explicit think/no-think comparisons.
 
 ### Optional B6 thinking prompt
 

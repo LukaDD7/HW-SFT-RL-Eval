@@ -21,11 +21,11 @@ Protocols:
   project15  15-task Project15 v1/offline suite
   project15-complement  9 Project15 tasks not covered by b6-mixed
 
-B6 prompt adapter:
+Prompt adapter:
   --think-mode auto|think|no-think
   Default: EVAL_THINK_MODE, then SFT_RL_THINK_MODE, then auto (native prompts).
-  Think uses the Open-MOPD prompt. All modes share the same output budgets:
-  MMMU-Pro/DynaMath/ReMI 16384; MMBench/ViewSpatial/GQA 8192.
+  Think uses the Open-MOPD prompt. B6 and Project15 support think/no-think
+  comparison arms; all modes share each protocol's output budgets.
   Use a different EVAL_RUN_NAME for each mode or changed generation budget.
 EOF
 }
@@ -62,10 +62,6 @@ case "$think_mode" in
   auto|think|no-think) ;;
   *) echo "Invalid --think-mode: $think_mode" >&2; exit 2 ;;
 esac
-if [[ "$think_mode" != "auto" && "$protocol" != "b6-mixed" ]]; then
-  echo "The Think adapter currently supports --protocol b6-mixed only" >&2
-  exit 2
-fi
 export EVAL_THINK_MODE="$think_mode" SFT_RL_THINK_MODE="$think_mode"
 
 EVAL_ENV="${HW_EVAL_ENV:-}"

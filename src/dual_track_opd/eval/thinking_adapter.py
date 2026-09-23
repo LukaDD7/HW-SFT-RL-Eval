@@ -1,4 +1,4 @@
-"""Opt-in B6 prompt adapter; Think text and prefill match Open-MOPD training.
+"""Opt-in B6/Project15 prompt adapter; Think text matches Open-MOPD training.
 
 Prompt source: Open-MOPD/training/verl/verl/utils/dataset/thinking.py.
 No-think is an explicit direct-answer protocol. Auto preserves native prompts.
@@ -55,6 +55,15 @@ TASK_ALIASES = {
     "mmmu_pro": "mmmu_pro", "mmmu_pro_standard": "mmmu_pro", "mmmu_pro_standard_v2": "mmmu_pro",
     "dynamath": "dynamath", "dynamath_reasoning": "dynamath", "dynamath_reasoning_v2": "dynamath",
     "remi": "remi",
+    "mindcube": "mindcube", "mindcube_full": "mindcube",
+    "vqav2": "vqav2", "vqav2_val": "vqav2",
+    "scienceqa": "scienceqa", "scienceqa_img": "scienceqa",
+    "mv_math": "mv_math", "mv-math": "mv_math",
+    "mathverse": "mathverse", "mathverse_testmini": "mathverse",
+    "mathvista": "mathvista", "mathvista_testmini": "mathvista",
+    "mmsi_bench": "mmsi_bench",
+    "blink": "blink",
+    "mmvet": "mmvet",
 }
 _ENV_KEYS = (
     "VISION_OPD_THINK_SYSTEM_PROMPT", "VISION_OPD_THINK_MATH_INSTRUCTION",
@@ -88,7 +97,7 @@ def benchmark_for_task(task_name: str) -> str:
     try:
         return TASK_ALIASES[task_name.lower()]
     except KeyError as exc:
-        raise ValueError(f"Think adapter supports B6 tasks only, got {task_name!r}") from exc
+        raise ValueError(f"Think adapter supports B6 and Project15 tasks only, got {task_name!r}") from exc
 
 
 def system_prompt_for_task(task_name: str, mode: str | None = None) -> str | None:
@@ -187,7 +196,7 @@ def protocol_record(mode: str | None = None) -> dict[str, Any]:
         "math_instruction": THINKING_MATH_INSTRUCTION if resolved != "auto" else None,
         "assistant_prefill": "<think>\n" if resolved == "think" else "",
         "generation_budget_policy": "benchmark_config",
-        "suffix_policy": "known B6 formatting footers only" if resolved != "auto" else "native",
+        "suffix_policy": "known B6 formatting footers only; other Project15 prompts unchanged" if resolved != "auto" else "native",
     }
     record["sha256"] = hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
     return record

@@ -73,8 +73,16 @@ def test_adapter_clears_legacy_injection(mode):
 
 
 @pytest.mark.parametrize("mode", ["think", "no-think"])
-@pytest.mark.parametrize("task", ["gqa", "mmbench", "viewspatial", "mmmu_pro", "dynamath", "remi"])
-def test_six_messages_are_conflict_free_and_preserve_media(task, mode):
+@pytest.mark.parametrize(
+    "task",
+    [
+        "gqa", "mmbench", "viewspatial", "mmmu_pro", "dynamath", "remi",
+        "mindcube_full", "vqav2_val", "scienceqa_img", "mv-math",
+        "mathverse_testmini", "mathvista_testmini", "mmsi_bench", "blink",
+        "mmvet",
+    ],
+)
+def test_project15_messages_are_conflict_free_and_preserve_media(task, mode):
     question = "Original question, A. 1 B. 2."
     suffix = SUFFIXES.get(task, ("Answer with the option letter inside <answer></answer> tags.", ""))[0]
     messages = [{"role": "user", "content": [
@@ -123,5 +131,16 @@ def test_load_checkpoint_template_variants(tmp_path):
 def test_invalid_mode_and_unsupported_tasks_fail():
     with pytest.raises(ValueError, match="invalid think mode"):
         normalize_mode("thnik")
-    with pytest.raises(ValueError, match="B6 tasks only"):
-        apply_openai_messages([], task_name="mv_math", mode="think")
+    with pytest.raises(ValueError, match="B6 and Project15 tasks only"):
+        apply_openai_messages([], task_name="unknown_task", mode="think")
+
+
+def test_project15_task_aliases_are_supported():
+    from dual_track_opd.eval.thinking_adapter import TASK_ALIASES
+
+    expected = {
+        "mindcube_full", "vqav2_val", "scienceqa_img", "mv-math",
+        "mathverse_testmini", "mathvista_testmini", "mmsi_bench", "blink",
+        "mmvet",
+    }
+    assert expected.issubset(TASK_ALIASES)
