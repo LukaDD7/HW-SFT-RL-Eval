@@ -22,6 +22,9 @@ bash scripts/eval/run_pinned_eval.sh --protocol project15
 `project15` runs the full 15-task Project15 v1/offline suite. Both protocols
 run four independent sampled generations at temperature 1.0 and report avg@4.
 
+The v1 wrapper applies the repository-owned MMBench tag-first patch to the
+pinned external `lmms-eval` checkout before starting the judge stage.
+
 The underlying `run_target_benchmarks*.sh` scripts are internal implementation
 details. Do not call them directly for new evaluations.
 

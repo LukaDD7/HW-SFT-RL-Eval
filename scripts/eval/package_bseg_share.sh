@@ -70,6 +70,8 @@ mkdir -p "${STAGE}/lmms-eval"
 (cd "${LMMS_GIT}" && tar -cf - --exclude=.git --exclude=__pycache__ .) | tar -xf - -C "${STAGE}/lmms-eval"
 mkdir -p "${STAGE}/patches"
 git -C "${LMMS_GIT}" diff > "${STAGE}/patches/lmms_eval_mainline_uncommitted.patch"
+cp "${REPO_ROOT}/patches/lmms_eval_mmbench_tag_first.patch" \
+    "${STAGE}/patches/lmms_eval_mmbench_tag_first.patch"
 echo "   (含未提交修改 $(grep -c '^diff --git' "${STAGE}/patches/lmms_eval_mainline_uncommitted.patch") 个文件; patch 副本在 patches/ 供 git 干净树重放)"
 
 echo "== Dual-Track-OPD eval 调度层 =="

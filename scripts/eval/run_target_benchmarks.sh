@@ -39,4 +39,10 @@ if [[ "${EVAL_SMOKE:-${SFT_RL_SMOKE:-0}}" == "1" ]]; then
   export SFT_RL_SMOKE=1
 fi
 
+# MMBench is the only benchmark-specific patch carried by this repository;
+# lmms-eval itself remains the pinned external dependency.
+HW_EVAL_ENV="${SFT_RL_EVAL_ENV:-${HW_EVAL_ENV:-}}" \
+  LMMS_EVAL_ROOT="${LMMS_EVAL_ROOT:-}" \
+  bash "${REPO_ROOT}/scripts/eval/apply_mmbench_patch.sh"
+
 exec bash "${REPO_ROOT}/scripts/sft_rl/run_sftrl_benchmarks.sh"
