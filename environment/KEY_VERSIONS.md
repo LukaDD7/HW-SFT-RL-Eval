@@ -15,9 +15,12 @@ The canonical evaluated environment used by the migration source was:
 | flash-attn | 2.8.3 (optional for OpenAI-backend evaluation) |
 
 The source runtime was an editable `lmms-eval` checkout with local fixes for
-MMBench judge URL construction and empty response handling. Those fixes are
-required for judged MMBench runs; they do not affect the deterministic v2 four
-task protocol.
+MMBench judge URL construction and empty response handling. This repository
+also owns the tag-first MMBench extraction patch at
+`patches/lmms_eval_mmbench_tag_first.patch`; the canonical v1 runner applies it
+to the pinned external checkout before a judged run. These fixes are required
+for judged MMBench runs and do not affect the deterministic v2 four-task
+protocol.
 
 ## Recommended install
 
@@ -32,7 +35,8 @@ python -m pip install -e path/to/local/lmms-eval
 ```
 
 Use the `lmms-eval` commit above. If using a clean upstream checkout, apply the
-same local MMBench fixes before running judge-dependent tasks.
+repository patch with `scripts/eval/apply_mmbench_patch.sh` before running
+judge-dependent tasks.
 
 ## Environment variables
 
@@ -46,3 +50,4 @@ Use environment variables instead of absolute paths:
 | `DTOPD_ROOT` | Optional shared NFS root for legacy runners |
 | `DTOPD_EVAL_ROOT` | Output root |
 | `DTOPD_DATASET_ROOT` | Local benchmark/replay data root |
+| `LMMS_EVAL_ROOT` | Optional path to the pinned external lmms-eval checkout |

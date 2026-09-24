@@ -1,0 +1,110 @@
+--- a/lmms_eval/tasks/mmbench/mmbench_evals.py
++++ b/lmms_eval/tasks/mmbench/mmbench_evals.py
+@@ -1,12 +1,32 @@
+ import math
+ import os
+ import random as rd
++import re
+ import string
+ import time
+
+ import pandas as pd
+ import requests
+ from loguru import logger as eval_logger
++
++
++_FINAL_ANSWER_PATTERNS = (
++    re.compile(r"<answer>\s*([A-E])\s*</answer>\s*$", re.IGNORECASE),
++    re.compile(r"(?:^|\n)\s*(?:answer>|\(answer\))\s*([A-E])\s*</answer>\s*$", re.IGNORECASE),
++    re.compile(r"(?:^|\n)\s*(?:answer|\(answer\))\s*\n\s*([A-E])\s*</answer>\s*$", re.IGNORECASE),
++    re.compile(r"(?:^|\n)\s*answer\s*\n\s*([A-E])\s*$", re.IGNORECASE),
++)
++
++
++def extract_final_answer(text):
++    """Extract only a terminal single-letter answer marker from model output."""
++    if not isinstance(text, str):
++        return False
++    for pattern in _FINAL_ANSWER_PATTERNS:
++        matches = list(pattern.finditer(text))
++        if matches:
++            return matches[-1].group(1).upper()
++    return False
+
+
+ class MMBench_Evaluator:
+@@ -123,8 +143,10 @@
+         return copt if copt else self.can_infer_text(answer, choices)
+
+     def prefetch_answer(self, item):
+-        choices = self.build_choices(item)
+-        return self.can_infer(item["prediction"], choices)
++        # Think-mode answers must be extracted from the final answer marker.
++        # Scanning the full chain of thought can mistake an option mentioned
++        # during reasoning for the selected answer and bypass the judge.
++        return extract_final_answer(item["prediction"])
+
+     def _post_request(self, payload):
+         if self.API_TYPE == "azure":
+@@ -173,11 +195,6 @@
+
+         prompt = self.build_prompt(item["question"], option_str, item["prediction"])
+         retry = 3
+-        choices = self.build_choices(item)
+-
+-        ret = self.can_infer(item["prediction"], choices)
+-        if ret:
+-            return ret, item["prediction"]
+
+         while retry:
+             ans = self.get_chat_response(prompt)
+@@ -186,7 +203,9 @@
+                 eval_logger.info(msg)
+                 retry -= 1
+             else:
+-                ret = self.can_infer(ans, choices)
++                # The judge is instructed to emit one letter. Do not scan an
++                # explanatory response for arbitrary option letters.
++                ret = ans.strip().upper() if re.fullmatch(r"[A-E]", ans.strip(), re.IGNORECASE) else extract_final_answer(ans)
+                 if ret:
+                     return ret, ans
+                 else:
+@@ -194,13 +213,8 @@
+                     retry -= 1
+
+             if retry == 0:
+-                num_options = sum([ch in item for ch in "ABCD"])
+-                if num_options >= 2:
+-                    chars = string.ascii_uppercase[:num_options]
+-                    chars = chars + "E"
+-                    num_options += 1
+-                    tmp = rd.randint(0, num_options - 1)
+-                    return chars[tmp], "Failed to predict, thus randomly generate one. "
++                # Never turn an extraction failure into a random answer.
++                return False, "Failed to predict after judge retries."
+
+     # Extract answer from multiple rolling records
+     def eval_sub_data(self, sub_data, answer_map):
+--- a/lmms_eval/api/reasoning.py
++++ b/lmms_eval/api/reasoning.py
+@@ -27,5 +27,19 @@
+         # final answer. In that case, keep the suffix after the final closing
+         # tag so downstream scorers see the answer instead of the reasoning.
+         if end_tag in result and start_tag not in result:
+-            result = result.rsplit(end_tag, 1)[-1]
++            prefix, suffix = result.rsplit(end_tag, 1)
++            if suffix.strip():
++                result = suffix
++            # A few think-mode completions put the final answer immediately
++            # before an orphan closing tag. Keep that terminal answer instead
++            # of turning the whole response into an empty string.
++            elif re.search(
++                r"(?:^|\n)\s*(?:<answer>|answer>|\(answer\)|answer)\s*"
++                r"(?:[A-E]\s*(?:</answer>)?)\s*$",
++                prefix,
++                re.IGNORECASE,
++            ):
++                result = prefix
++            else:
++                result = ""
+     return result.strip()

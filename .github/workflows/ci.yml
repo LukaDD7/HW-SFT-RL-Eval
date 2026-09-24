@@ -21,6 +21,28 @@ jobs:
         run: python -m pip install -c environment/constraints-ci.txt "git+https://github.com/EvolvingLMMs-Lab/lmms-eval@88b23e2bfa16a1edbc16e9e238ed82130b3a4f56"
       - run: pytest -q
 
+  mmbench-patch-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone pinned lmms-eval
+        run: |
+          git clone https://github.com/EvolvingLMMs-Lab/lmms-eval.git /tmp/lmms-eval
+          git -C /tmp/lmms-eval checkout 88b23e2bfa16a1edbc16e9e238ed82130b3a4f56
+      - name: Apply and re-apply MMBench patch
+        run: |
+          bash scripts/eval/apply_mmbench_patch.sh
+          bash scripts/eval/apply_mmbench_patch.sh
+        env:
+          LMMS_EVAL_ROOT: /tmp/lmms-eval
+      - name: Compile patched files
+        run: |
+          python -m py_compile \
+            /tmp/lmms-eval/lmms_eval/tasks/mmbench/mmbench_evals.py \
+            /tmp/lmms-eval/lmms_eval/api/reasoning.py
+      - name: Check patched tree
+        run: git -C /tmp/lmms-eval diff --check
+
   repository-hygiene:
     runs-on: ubuntu-latest
     steps:
