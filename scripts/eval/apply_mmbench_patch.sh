@@ -30,7 +30,8 @@ if grep -q 'def extract_final_answer' "${MMBENCH_FILE}" \
 fi
 
 echo "Applying repository MMBench patch to ${LMMS_ROOT}"
-(cd "${LMMS_ROOT}" && patch --forward --batch -p1 < "${PATCH_FILE}")
+git -C "${LMMS_ROOT}" apply --check "${PATCH_FILE}"
+git -C "${LMMS_ROOT}" apply "${PATCH_FILE}"
 
 grep -q 'def extract_final_answer' "${MMBENCH_FILE}" \
   || { echo "FATAL: MMBench extractor patch did not apply" >&2; exit 1; }

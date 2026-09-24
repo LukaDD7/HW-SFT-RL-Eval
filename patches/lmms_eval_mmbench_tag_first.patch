@@ -87,7 +87,7 @@
      def eval_sub_data(self, sub_data, answer_map):
 --- a/lmms_eval/api/reasoning.py
 +++ b/lmms_eval/api/reasoning.py
-@@ -27,7 +27,21 @@
+@@ -27,5 +27,19 @@
          # final answer. In that case, keep the suffix after the final closing
          # tag so downstream scorers see the answer instead of the reasoning.
          if end_tag in result and start_tag not in result:
