@@ -15,6 +15,30 @@
     "note": "Runs launched from 83bdcbb apply the tag-first extraction patch. MMBench has not yet run for SFT6939 or GRPO50."
   },
   "arms": {
+    "base8b_instruct_think": {
+      "status": "complete_with_provisional_pr12_upper_bound",
+      "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/Qwen3-VL-8B-Instruct",
+      "run_names": [
+        "base8b_b6_think_2gpu_r3_avg4",
+        "base8b_b6_think_2gpu_r3_avg4_v2a",
+        "base8b_b6_think_2gpu_r3_avg4_v2b",
+        "base8b_b6_think_2gpu_r3_avg4_nojudge",
+        "base8b_b6_think_2gpu_r3_avg4_judged"
+      ],
+      "metrics": {
+        "gqa": 0.5494315471458101,
+        "dynamath": 0.6637225548902195,
+        "viewspatial": 0.44704131652661067,
+        "mmmu_pro": 0.5510115606936417,
+        "remi_exact_full_denominator": 0.4765384615384615,
+        "mmbench_legacy_raw_percent": 77.87800687285224,
+        "mmbench_pr12_lower_bound_raw_percent": 82.903780,
+        "mmbench_pr12_upper_bound_raw_percent": 85.094502,
+        "mmbench_pr12_provisional_normalized_for_macro": 0.85094502,
+        "six_benchmark_macro_pr12_upper_bound": 0.5897817434657906
+      },
+      "mmbench_status": "legacy_generation_reinterpreted_with_pr12_terminal_tag_only; unresolved_rows_scored_correct"
+    },
     "pure_rl_step100": {
       "status": "complete",
       "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/qwen3-vl-8b-pure-rl-seed42-step100",
@@ -30,11 +54,13 @@
         "mmmu_pro": 0.551300578034682,
         "remi_exact_full_denominator": 0.4860576923076923,
         "mmbench_raw_percent": 75.12886597938144,
-        "mmbench_normalized_for_macro": 0.7512886597938144,
-        "six_benchmark_macro": 0.5747345171014836
+        "mmbench_pr12_lower_bound_raw_percent": 83.655498,
+        "mmbench_pr12_upper_bound_raw_percent": 84.128007,
+        "mmbench_pr12_provisional_normalized_for_macro": 0.84128007,
+        "six_benchmark_macro_pr12_upper_bound": 0.5897330854691812
       },
       "mmbench_manifest_commit": "5242d9ddeec2fb6e9c0ee6241301ca0cc949bbaf",
-      "mmbench_caveat": "This completed run predates the PR #12 merge in its run manifest. Its MMBench score is retained as a legacy result and is not claimed as PR #12-fixed without a runtime patch audit."
+      "mmbench_caveat": "This completed run predates the PR #12 merge in its run manifest. Existing generation outputs were reinterpreted with the PR #12 terminal-tag extractor; unresolved rows were scored correct for an optimistic upper bound. Judge fallback was not run."
     },
     "sft6939": {
       "status": "partial",

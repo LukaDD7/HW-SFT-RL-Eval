@@ -1,9 +1,8 @@
 # B6 think avg@4 partial results — 2026-09-29
 
-This report records the current three-arm B6-mixed `think` comparison and the
-per-repeat resume fix used for recovery after GPU-instance reclamation. It is
-an interim record: SFT6939 and SFT6939→GRPO50 have not completed all six
-benchmarks yet.
+This report records the current B6-mixed `think` comparison and the per-repeat
+resume fix used for recovery after GPU-instance reclamation. It is an interim
+record: SFT6939 and SFT6939→GRPO50 have not completed all six benchmarks yet.
 
 Raw model outputs, response caches, model weights, and datasets remain outside
 Git. The compact metric record is in `results/20260929/`.
@@ -41,13 +40,31 @@ patch audit.
 MMBench is reported on its native 0–100 scale in the table; the macro uses
 MMBench divided by 100. Pending values are not imputed.
 
+For the two completed arms, the reported MMBench value is the optimistic
+PR #12 upper bound: existing model generations are retained, terminal answer
+tags are parsed directly, and every unresolved row is provisionally scored
+correct without calling the judge. This gives a completed comparison arm the
+most favorable interpretation while judge fallback is pending. The formal PR
+#12 score cannot exceed this bound, but may be lower. Do not mix this
+provisional value with the legacy score from the pre-PR #12 evaluator.
+
 | Arm | Status | GQA | DynaMath | ViewSpatial | MMMU-Pro | ReMI exact | MMBench | Six-benchmark macro |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| 8B direct RL step100 | complete | 0.544482 | 0.669112 | 0.446166 | 0.551301 | 0.486058 | 75.128866* | 0.574735 |
+| Base 8B Instruct | complete, PR #12 upper-bound MMBench | 0.549432 | 0.663723 | 0.447041 | 0.551012 | 0.476538 | 85.094502 | 0.589782 |
+| 8B direct RL step100 | complete, PR #12 upper-bound MMBench | 0.544482 | 0.669112 | 0.446166 | 0.551301 | 0.486058 | 84.128007 | 0.589733 |
 | SFT6939 | partial | 0.466549 | 0.671989† | 0.386423 | 0.475434 | pending | pending | pending |
 | SFT6939→GRPO50 | partial | 0.467662 | 0.666168 | 0.386992 | 0.471387 | pending‡ | pending | pending |
 
-`*` Legacy MMBench run manifest predates the PR #12 merge; see the caveat above.
+The PR #12 MMBench reparse bounds are:
+
+| Arm | Lower bound | Upper bound | Unresolved rows |
+|---|---:|---:|---:|
+| Base 8B Instruct | 82.903780 | 85.094502 | 194 / 17,316 |
+| 8B direct RL step100 | 83.655498 | 84.128007 | 50 / 17,316 |
+
+The lower bounds are audit-only values that assume every unresolved row is
+incorrect. The reported upper bounds use the official circular evaluator and
+unresolved-row-as-correct semantics.
 
 `†` DynaMath average over completed repeats 0–2 only; repeat 3 was interrupted
 around 58%.
