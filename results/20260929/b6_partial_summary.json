@@ -1,0 +1,88 @@
+{
+  "report_date": "2026-09-29",
+  "protocol": "b6-mixed",
+  "mode": "think",
+  "aggregation": "avg@4",
+  "sampling": {
+    "temperature": 1.0,
+    "seeds": [42, 43, 44, 45]
+  },
+  "eval_commit": "83bdcbb97a9a1f83a5b0219846a742cc143fbbbc",
+  "mmbench_implementation": {
+    "repo_state": "fixed",
+    "fix": "PR #12 / codex/mmbench-patch-reliability",
+    "patch": "patches/lmms_eval_mmbench_tag_first.patch",
+    "note": "Runs launched from 83bdcbb apply the tag-first extraction patch. MMBench has not yet run for SFT6939 or GRPO50."
+  },
+  "arms": {
+    "pure_rl_step100": {
+      "status": "complete",
+      "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/qwen3-vl-8b-pure-rl-seed42-step100",
+      "run_names": [
+        "pure_rl_step100_b6_think_2gpu_r1_avg4",
+        "pure_rl_step100_b6_think_2gpu_r1_avg4_nojudge",
+        "pure_rl_step100_b6_think_2gpu_r1_avg4_judged"
+      ],
+      "metrics": {
+        "gqa": 0.5444824296390522,
+        "dynamath": 0.6691117764471057,
+        "viewspatial": 0.44616596638655465,
+        "mmmu_pro": 0.551300578034682,
+        "remi_exact_full_denominator": 0.4860576923076923,
+        "mmbench_raw_percent": 75.12886597938144,
+        "mmbench_normalized_for_macro": 0.7512886597938144,
+        "six_benchmark_macro": 0.5747345171014836
+      },
+      "mmbench_manifest_commit": "5242d9ddeec2fb6e9c0ee6241301ca0cc949bbaf",
+      "mmbench_caveat": "This completed run predates the PR #12 merge in its run manifest. Its MMBench score is retained as a legacy result and is not claimed as PR #12-fixed without a runtime patch audit."
+    },
+    "sft6939": {
+      "status": "partial",
+      "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/qwen3vl_sft_warmup_20260826_1324",
+      "run_names": [
+        "sft6939_b6_think_2gpu_r1_avg4",
+        "sft6939_b6_think_2gpu_r1_avg4_v2a",
+        "sft6939_b6_think_2gpu_r1_avg4_v2b"
+      ],
+      "metrics": {
+        "gqa": 0.4665487358880585,
+        "dynamath_avg3_partial": 0.6719893546240848,
+        "viewspatial": 0.3864233193277311,
+        "mmmu_pro": 0.4754335260115607
+      },
+      "remaining": [
+        "dynamath repeat_3",
+        "remi repeats 0-3",
+        "mmbench repeats 0-3"
+      ],
+      "mmbench_status": "pending_on_fixed_83bdcbb"
+    },
+    "grpo50": {
+      "status": "partial",
+      "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/qwen3vl_grpo_mmf_sft6939_lr5e6_steps50",
+      "run_names": [
+        "grpo50_b6_think_2gpu_r1_avg4",
+        "grpo50_b6_think_2gpu_r1_avg4_v2a",
+        "grpo50_b6_think_2gpu_r1_avg4_v2b",
+        "grpo50_b6_think_2gpu_r1_avg4_nojudge"
+      ],
+      "metrics": {
+        "gqa": 0.46766179042773093,
+        "dynamath": 0.6661676646706588,
+        "viewspatial": 0.3869922969187675,
+        "mmmu_pro": 0.4713872832369942
+      },
+      "remaining": [
+        "remi repeat_3",
+        "mmbench repeats 0-3"
+      ],
+      "mmbench_status": "pending_on_fixed_83bdcbb"
+    }
+  },
+  "resume_fix": {
+    "behavior": "skip repeats that already have complete result files; rerun only missing repeats",
+    "tests": "tests/test_benchmark_suite.py"
+  },
+  "raw_output_root": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/hweval_pr5_budget",
+  "raw_outputs_in_git": false
+}

@@ -765,7 +765,29 @@ def run_suite(args: argparse.Namespace) -> int:
             )
         else:
             all_succeeded = True
+            resumed_repeat_indexes: set[int] = set()
             for repeat_index, command in enumerate(commands):
+                # A repeat with a complete result file is already usable even
+                # when the benchmark-level manifest is failed or interrupted.
+                # This is a safe per-repeat resume boundary: no partial-file
+                # merging is attempted. Repeats lacking result files run again
+                # and benefit from the lmms-eval response cache.
+                if _repeat_has_results(
+                    spec=spec,
+                    run_dir=run_dir,
+                    repeat_index=repeat_index,
+                    repeat_count=repeat_count,
+                ):
+                    resumed_repeat_indexes.add(repeat_index)
+                    record[f"returncode_repeat_{repeat_index}"] = 0
+                    record[f"resume_repeat_{repeat_index}"] = "skipped_existing_result"
+                    print(
+                        f"\n[skip] {spec.contract_name} (repeat {repeat_index}) "
+                        "already has result files",
+                        flush=True,
+                    )
+                    continue
+
                 # Separate cache run IDs prevent an earlier repeat from being
                 # reused as a different sample. Sampling temperature is > 0,
                 # so lmms-eval also marks these generations non-cacheable.
@@ -802,6 +824,8 @@ def run_suite(args: argparse.Namespace) -> int:
                     )
                     overall_rc = completed.returncode if completed.returncode != 0 else 1
                     break
+            if resumed_repeat_indexes and all_succeeded:
+                record["resumed_repeat_indexes"] = sorted(resumed_repeat_indexes)
             record["status"] = "completed" if all_succeeded else "failed"
             if not all_succeeded and not args.keep_going:
                 manifest["runs"].append(record)

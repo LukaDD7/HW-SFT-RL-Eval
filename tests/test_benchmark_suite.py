@@ -6,6 +6,7 @@ from dual_track_opd.eval.benchmark_suite import (
     build_commands,
     build_command,
     load_suite,
+    _repeat_has_results,
     select_benchmarks,
     validate_checkpoint_identity,
     validate_resume_budgets,
@@ -169,6 +170,19 @@ def test_avg4_builds_four_independent_repeat_commands() -> None:
     outputs = [Path(command[command.index("--output_path") + 1]) for command in commands]
     assert [path.parts[-1] for path in outputs] == [f"repeat_{i}" for i in range(4)]
     assert [path.parts[-2] for path in outputs] == ["viewspatial"] * 4
+
+
+def test_repeat_has_results_detects_existing_result_files(tmp_path) -> None:
+    suite = load_suite(CONFIG)
+    spec = suite.benchmarks["viewspatial"]
+    result = tmp_path / "lmms" / "viewspatial" / "repeat_2" / "model" / "results.json"
+    result.parent.mkdir(parents=True)
+    result.write_text("{}", encoding="utf-8")
+    assert _repeat_has_results(spec=spec, run_dir=tmp_path, repeat_index=2, repeat_count=4)
+
+    empty_dir = tmp_path / "lmms" / "viewspatial" / "repeat_3"
+    empty_dir.mkdir(parents=True)
+    assert not _repeat_has_results(spec=spec, run_dir=tmp_path, repeat_index=3, repeat_count=4)
 
 
 def test_lmms_command_supports_format_pilot_overrides(monkeypatch) -> None:
