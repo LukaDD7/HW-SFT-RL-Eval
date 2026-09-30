@@ -40,31 +40,29 @@ patch audit.
 MMBench is reported on its native 0–100 scale in the table; the macro uses
 MMBench divided by 100. Pending values are not imputed.
 
-For the two completed arms, the reported MMBench value is the optimistic
-PR #12 upper bound: existing model generations are retained, terminal answer
-tags are parsed directly, and every unresolved row is provisionally scored
-correct without calling the judge. This gives a completed comparison arm the
-most favorable interpretation while judge fallback is pending. The formal PR
-#12 score cannot exceed this bound, but may be lower. Do not mix this
-provisional value with the legacy score from the pre-PR #12 evaluator.
+For the two completed arms, the reported MMBench value is the formal PR #12
+offline rescore: existing model generations are retained, terminal answer tags
+are parsed directly, and unresolved rows are resolved with the Qwen3-VL-32B
+LLM judge. Do not mix this value with the legacy score from the pre-PR #12
+evaluator.
 
 | Arm | Status | GQA | DynaMath | ViewSpatial | MMMU-Pro | ReMI exact | MMBench | Six-benchmark macro |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| Base 8B Instruct | complete, PR #12 upper-bound MMBench | 0.549432 | 0.663723 | 0.447041 | 0.551012 | 0.476538 | 85.094502 | 0.589782 |
-| 8B direct RL step100 | complete, PR #12 upper-bound MMBench | 0.544482 | 0.669112 | 0.446166 | 0.551301 | 0.486058 | 84.128007 | 0.589733 |
-| SFT6939 | partial | 0.466549 | 0.671989† | 0.386423 | 0.475434 | pending | pending | pending |
-| SFT6939→GRPO50 | partial | 0.467662 | 0.666168 | 0.386992 | 0.471387 | pending‡ | pending | pending |
+| Base 8B Instruct | complete, PR #12 official MMBench rescore | 0.549432 | 0.663723 | 0.447041 | 0.551012 | 0.476538 | 84.664948 | 0.589058 |
+| 8B direct RL step100 | complete, PR #12 official MMBench rescore | 0.544482 | 0.669112 | 0.446166 | 0.551301 | 0.486058 | 83.977663 | 0.589483 |
+| SFT6939 | partial | 0.466549 | 0.671856 | 0.386423 | 0.475434 | pending | pending | pending |
+| SFT6939→GRPO50 | complete | 0.467662 | 0.666168 | 0.386992 | 0.471387 | 0.393750 | 68.277491 | 0.511456 |
 
-The PR #12 MMBench reparse bounds are:
+The earlier PR #12 audit-only bounds are superseded by the official LLM-judge
+rescores above:
 
 | Arm | Lower bound | Upper bound | Unresolved rows |
 |---|---:|---:|---:|
-| Base 8B Instruct | 82.903780 | 85.094502 | 194 / 17,316 |
-| 8B direct RL step100 | 83.655498 | 84.128007 | 50 / 17,316 |
+| Arm | Official PR #12 rescore |
+|---|---:|
+| Base 8B Instruct | 84.664948 |
+| 8B direct RL step100 | 83.977663 |
 
-The lower bounds are audit-only values that assume every unresolved row is
-incorrect. The reported upper bounds use the official circular evaluator and
-unresolved-row-as-correct semantics.
 
 `†` DynaMath average over completed repeats 0–2 only; repeat 3 was interrupted
 around 58%.

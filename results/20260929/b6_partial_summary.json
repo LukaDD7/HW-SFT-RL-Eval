@@ -16,7 +16,7 @@
   },
   "arms": {
     "base8b_instruct_think": {
-      "status": "complete_with_provisional_pr12_upper_bound",
+      "status": "complete_with_official_pr12_mmbench_rescore",
       "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/Qwen3-VL-8B-Instruct",
       "run_names": [
         "base8b_b6_think_2gpu_r3_avg4",
@@ -32,12 +32,11 @@
         "mmmu_pro": 0.5510115606936417,
         "remi_exact_full_denominator": 0.4765384615384615,
         "mmbench_legacy_raw_percent": 77.87800687285224,
-        "mmbench_pr12_lower_bound_raw_percent": 82.903780,
-        "mmbench_pr12_upper_bound_raw_percent": 85.094502,
-        "mmbench_pr12_provisional_normalized_for_macro": 0.85094502,
-        "six_benchmark_macro_pr12_upper_bound": 0.5897817434657906
+        "mmbench_pr12_official_normalized": 0.8466494845360825,
+        "six_benchmark_macro_pr12_official": 0.589058
       },
-      "mmbench_status": "legacy_generation_reinterpreted_with_pr12_terminal_tag_only; unresolved_rows_scored_correct"
+      "mmbench_status": "legacy_generation_officially_rescored_with_pr12_and_llm_judge",
+      "mmbench_rescore_json": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/hweval_pr5_budget/base8b_b6_think_2gpu_r3_avg4_judged/mmbench_pr12_rescore.json"
     },
     "pure_rl_step100": {
       "status": "complete",
@@ -54,13 +53,12 @@
         "mmmu_pro": 0.551300578034682,
         "remi_exact_full_denominator": 0.4860576923076923,
         "mmbench_raw_percent": 75.12886597938144,
-        "mmbench_pr12_lower_bound_raw_percent": 83.655498,
-        "mmbench_pr12_upper_bound_raw_percent": 84.128007,
-        "mmbench_pr12_provisional_normalized_for_macro": 0.84128007,
-        "six_benchmark_macro_pr12_upper_bound": 0.5897330854691812
+        "mmbench_pr12_official_normalized": 0.8397766323024055,
+        "six_benchmark_macro_pr12_official": 0.589483
       },
       "mmbench_manifest_commit": "5242d9ddeec2fb6e9c0ee6241301ca0cc949bbaf",
-      "mmbench_caveat": "This completed run predates the PR #12 merge in its run manifest. Existing generation outputs were reinterpreted with the PR #12 terminal-tag extractor; unresolved rows were scored correct for an optimistic upper bound. Judge fallback was not run."
+      "mmbench_caveat": "This completed run predates the PR #12 merge in its run manifest. Existing generation outputs were officially rescored with the PR #12 evaluator and LLM-judge fallback.",
+      "mmbench_rescore_json": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/hweval_pr5_budget/pure_rl_step100_b6_think_2gpu_r1_avg4_judged/mmbench_pr12_rescore.json"
     },
     "sft6939": {
       "status": "partial",
@@ -84,7 +82,7 @@
       "mmbench_status": "pending_on_fixed_83bdcbb"
     },
     "grpo50": {
-      "status": "partial",
+      "status": "complete",
       "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/qwen3vl_grpo_mmf_sft6939_lr5e6_steps50",
       "run_names": [
         "grpo50_b6_think_2gpu_r1_avg4",
@@ -96,13 +94,15 @@
         "gqa": 0.46766179042773093,
         "dynamath": 0.6661676646706588,
         "viewspatial": 0.3869922969187675,
-        "mmmu_pro": 0.4713872832369942
+        "mmmu_pro": 0.4713872832369942,
+        "remi_exact_full_denominator": 0.39375,
+        "mmbench_raw_percent": 68.27749140893471,
+        "mmbench_normalized_for_macro": 0.6827749140893471,
+        "six_benchmark_macro": 0.5114556582239164
       },
       "remaining": [
-        "remi repeat_3",
-        "mmbench repeats 0-3"
       ],
-      "mmbench_status": "pending_on_fixed_83bdcbb"
+      "mmbench_status": "official_pr12_run_at_83bdcbb"
     }
   },
   "resume_fix": {
