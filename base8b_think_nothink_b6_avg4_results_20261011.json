@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "result_file_version": 1,
+  "report_date": "2026-10-11",
+  "title": "Qwen3-VL-8B-Instruct B6 think vs no-think avg@4",
+  "protocol": {
+    "name": "B6-mixed",
+    "entrypoint": "scripts/eval/run_pinned_eval.sh --protocol b6-mixed",
+    "aggregation": "mean of four independent repeats (avg@4, not pass@4)",
+    "sampling": {
+      "temperature": 1.0,
+      "seeds": [42, 43, 44, 45]
+    },
+    "benchmarks": [
+      "GQA (v2)",
+      "DynaMath (v2)",
+      "ViewSpatial (v2)",
+      "MMMU-Pro (v2)",
+      "ReMI (replay, strict exact full denominator)",
+      "MMBench (en dev, CircularEval)"
+    ],
+    "generation_budgets": {
+      "gqa": 8192,
+      "viewspatial": 8192,
+      "mmbench": 8192,
+      "dynamath": 16384,
+      "mmmu_pro": 16384,
+      "remi": 16384
+    }
+  },
+  "model": {
+    "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/Qwen3-VL-8B-Instruct",
+    "alias": "Base 8B Instruct"
+  },
+  "mmbench": {
+    "legacy_note": "The original generation runs predate the PR #12 MMBench extraction fix. Existing xlsx prediction files were retained and officially rescored with the PR #12 evaluator and Qwen3-VL-32B-Instruct LLM judge; no student generation was rerun.",
+    "rescore_tool": "scripts/eval/rescore_mmbench_pr12.py",
+    "judge": {
+      "model": "Qwen3-VL-32B-Instruct",
+      "served_weights": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/Qwen3-VL-32B-Instruct-FP8",
+      "temperature": 0,
+      "max_tokens": 256
+    },
+    "patch": "patches/lmms_eval_mmbench_tag_first.patch",
+    "scoring": "terminal answer tag first; LLM-judge fallback for unresolved rows; no random fallback"
+  },
+  "runs": {
+    "think": {
+      "run_names": [
+        "base8b_b6_think_2gpu_r3_avg4",
+        "base8b_b6_think_2gpu_r3_avg4_v2a",
+        "base8b_b6_think_2gpu_r3_avg4_v2b",
+        "base8b_b6_think_2gpu_r3_avg4_nojudge",
+        "base8b_b6_think_2gpu_r3_avg4_judged"
+      ],
+      "run_root": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/hweval_pr5_budget",
+      "mmbench_rescore": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/hweval_pr5_budget/base8b_b6_think_2gpu_r3_avg4_judged/mmbench_pr12_rescore.json"
+    },
+    "no_think": {
+      "run_names": [
+        "base8b_b6_nothink_2gpu_r2_avg4",
+        "base8b_b6_nothink_2gpu_r2_avg4_v2a",
+        "base8b_b6_nothink_2gpu_r2_avg4_v2b",
+        "base8b_b6_nothink_2gpu_r2_avg4_nojudge",
+        "base8b_b6_nothink_2gpu_r2_avg4_judged"
+      ],
+      "run_root": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/hweval_pr5_budget",
+      "mmbench_rescore": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/hweval_pr5_budget/base8b_b6_nothink_2gpu_r2_avg4_judged/mmbench_pr12_rescore.json"
+    }
+  },
+  "results": {
+    "think": {
+      "gqa": 0.5494315471458101,
+      "dynamath": 0.6637225548902195,
+      "viewspatial": 0.44704131652661067,
+      "mmmu_pro": 0.5510115606936417,
+      "remi_exact": 0.4765384615384615,
+      "mmbench_percent": 84.66494845360825,
+      "mmbench_normalized": 0.8466494845360825,
+      "six_benchmark_macro": 0.589058
+    },
+    "no_think": {
+      "gqa": 0.6086023215137542,
+      "dynamath": 0.6604790419161677,
+      "viewspatial": 0.40344887955182074,
+      "mmmu_pro": 0.386271676300578,
+      "remi_exact": 0.27326923076923076,
+      "mmbench_percent": 81.33591065292096,
+      "mmbench_normalized": 0.8133591065292096,
+      "six_benchmark_macro": 0.5242383760967935
+    }
+  },
+  "comparison": {
+    "think_minus_no_think": {
+      "gqa": -0.0591707743679442,
+      "dynamath": 0.0032435129740518,
+      "viewspatial": 0.0435924369747899,
+      "mmmu_pro": 0.1647398843930637,
+      "remi_exact": 0.20326923076923074,
+      "mmbench_normalized": 0.0332903778068729,
+      "six_benchmark_macro": 0.0648196239032065
+    }
+  },
+  "notes": [
+    "MMBench is reported on its native 0-100 scale in results.mmbench_percent and normalized by 100 for the six-benchmark macro.",
+    "Raw outputs, xlsx files, samples, logs, weights, and caches remain outside Git.",
+    "The generation runs used the pinned external lmms-eval backend; the PR #12 MMBench patch is repository-owned and explicitly recorded here.",
+    "This file is compact result metadata intended for version control. Reproduce or audit raw metrics from the recorded run roots and rescore JSON files."
+  ]
+}

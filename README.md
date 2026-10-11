@@ -40,6 +40,11 @@ The evaluation runtime also requires a pinned `lmms-eval` checkout. See
 
 ## Quick protocol map
 
+The compact Base 8B Instruct think/no-think result record is at
+[base8b_think_nothink_b6_avg4_results_20261011.json](base8b_think_nothink_b6_avg4_results_20261011.json).
+It records the B6 avg@4 protocol, model path, generation budgets, MMBench
+PR #12 rescore provenance, raw run roots, and compact metrics.
+
 | Protocol | Use case | Entry point |
 |---|---|---|
 | B6-mixed avg@4 | v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol b6-mixed` |
