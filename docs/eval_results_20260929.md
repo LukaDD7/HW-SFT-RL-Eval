@@ -1,8 +1,7 @@
-# B6 think avg@4 partial results — 2026-09-29
+# B6 think avg@4 results — 2026-09-29
 
-This report records the current B6-mixed `think` comparison and the per-repeat
-resume fix used for recovery after GPU-instance reclamation. It is an interim
-record: SFT6939 and SFT6939→GRPO50 have not completed all six benchmarks yet.
+This report records the completed B6-mixed `think` comparison and the
+per-repeat resume fix used for recovery after GPU-instance reclamation.
 
 Raw model outputs, response caches, model weights, and datasets remain outside
 Git. The compact metric record is in `results/20260929/`.
@@ -50,7 +49,7 @@ evaluator.
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | Base 8B Instruct | complete, PR #12 official MMBench rescore | 0.549432 | 0.663723 | 0.447041 | 0.551012 | 0.476538 | 84.664948 | 0.589058 |
 | 8B direct RL step100 | complete, PR #12 official MMBench rescore | 0.544482 | 0.669112 | 0.446166 | 0.551301 | 0.486058 | 83.977663 | 0.589483 |
-| SFT6939 | partial | 0.466549 | 0.671856 | 0.386423 | 0.475434 | pending | pending | pending |
+| SFT6939 | complete | 0.466549 | 0.671856 | 0.386423 | 0.475434 | 0.395769 | 68.298969 | 0.513170 |
 | SFT6939→GRPO50 | complete | 0.467662 | 0.666168 | 0.386992 | 0.471387 | 0.393750 | 68.277491 | 0.511456 |
 
 The earlier PR #12 audit-only bounds are superseded by the official LLM-judge
@@ -64,12 +63,6 @@ rescores above:
 | 8B direct RL step100 | 83.977663 |
 
 
-`†` DynaMath average over completed repeats 0–2 only; repeat 3 was interrupted
-around 58%.
-
-`‡` ReMI repeat 3 was interrupted at the start. Repeats 0–2 contain 2,600 rows
-each, but the exact score has not yet been summarized because the arm is
-incomplete.
 
 ## Recovery state
 
@@ -77,9 +70,5 @@ The per-repeat resume change skips a repeat when a complete result file
 already exists and reruns only missing repeats. This avoids recomputing
 completed avg@4 repeats after an instance is reclaimed.
 
-Remaining work:
-
-1. SFT6939: DynaMath repeat 3, ReMI repeats 0–3, MMBench repeats 0–3, final
-   merge and summary.
-2. GRPO50: ReMI repeat 3, MMBench repeats 0–3, final judge and summary.
-3. Recompute final six-benchmark macros only after both runs complete.
+All B6 arms in the table are complete. The per-repeat resume boundary remains
+relevant for future interrupted runs.

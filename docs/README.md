@@ -28,8 +28,8 @@
   Base/VA-OPD step175/step300 six-benchmark comparison.
   Complete metric JSON artifacts are in `results/20260915/`.
 - [eval_results_20260929.md](eval_results_20260929.md)
-  Interim B6 think avg@4 three-arm results, MMBench PR #12 provenance marker,
-  and per-repeat resume status. Compact metric JSON is in
+  Completed B6 think avg@4 three-arm results, MMBench PR #12 provenance
+  markers, and per-repeat resume behavior. Compact metric JSON is in
   `results/20260929/`.
 
 ## Collaboration

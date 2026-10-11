@@ -61,7 +61,7 @@
       "mmbench_rescore_json": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/hweval_pr5_budget/pure_rl_step100_b6_think_2gpu_r1_avg4_judged/mmbench_pr12_rescore.json"
     },
     "sft6939": {
-      "status": "partial",
+      "status": "complete",
       "checkpoint": "/inspire/hdd/global_user/mengweicheng-240108120092/lzy/models/qwen3vl_sft_warmup_20260826_1324",
       "run_names": [
         "sft6939_b6_think_2gpu_r1_avg4",
@@ -70,16 +70,17 @@
       ],
       "metrics": {
         "gqa": 0.4665487358880585,
-        "dynamath_avg3_partial": 0.6719893546240848,
+        "dynamath": 0.6718562874251495,
         "viewspatial": 0.3864233193277311,
-        "mmmu_pro": 0.4754335260115607
+        "mmmu_pro": 0.4754335260115607,
+        "remi_exact_full_denominator": 0.39576923076923076,
+        "mmbench_raw_percent": 68.29896907216495,
+        "mmbench_normalized_for_macro": 0.6829896907216495,
+        "six_benchmark_macro": 0.5131701316905634
       },
       "remaining": [
-        "dynamath repeat_3",
-        "remi repeats 0-3",
-        "mmbench repeats 0-3"
       ],
-      "mmbench_status": "pending_on_fixed_83bdcbb"
+      "mmbench_status": "official_pr12_run_at_b8e2fce"
     },
     "grpo50": {
       "status": "complete",
