@@ -4,6 +4,9 @@
 
 - [pinned_eval_protocols_20260916.md](pinned_eval_protocols_20260916.md)
   Single user-facing entrypoint and pinned B6-mixed / Project15 result sets.
+- [project15_rl_execution_plan_20261014.md](project15_rl_execution_plan_20261014.md)
+  Pinned 4-GPU order for VA-OPD step2175 Project15 transfer, ViRL-medium +
+  Cauldron-broad RL data construction, and the 50-step GRPO pilot.
 - [eval_protocol_v2_20260904.md](eval_protocol_v2_20260904.md)
   B-segment v2 four-task deterministic protocol.
 - [remi_mv_math_protocol_20260913.md](remi_mv_math_protocol_20260913.md)
