@@ -1,0 +1,56 @@
+{
+  "protocol": "Project15 B15 current usable values",
+  "scale": "raw benchmark values; Avg normalizes 0-100 metrics to 0-1",
+  "arms": {
+    "base": {
+      "coverage": "15/15",
+      "values": {
+        "viewspatial": 0.42314425770308123,
+        "mindcube": 0.29748510919920584,
+        "gqa": 0.6163937032914613,
+        "vqav2": 0.8181727422861248,
+        "scienceqa": 0.9464551313832424,
+        "dynamath": 0.6279441117764472,
+        "mathverse": 0.5236040609137056,
+        "mathvista": 72.7,
+        "mmsi_bench": 0.307,
+        "blink": 0.6512361914781694,
+        "mmbench": 85.13745704467354,
+        "mmmu_pro": 0.39827,
+        "mmvet": 74.26605504587155,
+        "remi": 0.2792307692307692,
+        "mv_math": 0.35788949726231956
+      },
+      "average": 0.5711907130286652
+    },
+    "iso_mopd_step300": {
+      "coverage": "7/15",
+      "values": {
+        "mindcube": 0.1684315023163468,
+        "mmsi_bench": 0.283,
+        "blink": 0.6217780115728564,
+        "mathverse": 0.6360406091370558,
+        "mathvista": 77.5,
+        "mmvet": 75.9678899082569,
+        "mv_math": 0.3917371826779492
+      },
+      "average": 0.5193808863732092
+    },
+    "pure_rl_step100": {
+      "coverage": "10/15",
+      "values": {
+        "gqa": 0.5444824296390522,
+        "dynamath": 0.6691117764471057,
+        "viewspatial": 0.44616596638655465,
+        "mmmu_pro": 0.551300578034682,
+        "remi": 0.486058,
+        "mmbench": 83.977663,
+        "mathverse": 0.6058375634517766,
+        "mathvista": 75.2,
+        "mmvet": 76.92660550458716,
+        "mv_math": 0.36585365853658536
+      },
+      "average": 0.6029852657541629
+    }
+  }
+}

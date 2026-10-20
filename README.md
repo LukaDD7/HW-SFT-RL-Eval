@@ -50,6 +50,8 @@ PR #12 rescore provenance, raw run roots, and compact metrics.
 | B6-mixed avg@4 | v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol b6-mixed` |
 | Project15 avg@4 | 15-task v1/offline suite, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol project15` |
 | Project15 complement avg@4 | Run only the nine Project15 tasks not covered by B6-mixed; use after a matching B6-mixed run to avoid duplicate generation | `scripts/eval/run_pinned_eval.sh --protocol project15-complement` |
+| Project15 complement 4-GPU | Same nine tasks on a networkless GPU, split across three offline model shards and one judge shard | `scripts/eval/run_pinned_eval.sh --protocol project15-complement-4gpu` |
+| Project15 complement offline | Same nine tasks on a networkless GPU, using local parquet plus shared arrow cache | `scripts/eval/run_pinned_eval.sh --protocol project15-complement-offline` |
 | ReMI strict | Full 2,600-row denominator, task-aware extraction | `scripts/sft_rl/remi_reeval.py --mode exact` |
 | MV-MATH strict | Completed-answer gate over judge sidecar | `python -m dual_track_opd.eval.score_mv_math --mode strict` |
 

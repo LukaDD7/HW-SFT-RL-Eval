@@ -92,7 +92,10 @@ def _summarize_remi_strict(run_dir: Path, expected_repeats: int) -> tuple[float 
 
 
 def _summarize_mv_math_strict(run_dir: Path, expected_repeats: int) -> tuple[float | None, str]:
-    result_path = run_dir / "mv_math_avg4.json"
+    result_path = run_dir / "mv_math_result.json"
+    historical_result_path = run_dir / "mv_math_avg4.json"
+    if not result_path.is_file() and historical_result_path.is_file():
+        result_path = historical_result_path
     if not result_path.is_file():
         return None, "official_evaluator_pending"
     value = json.loads(result_path.read_text(encoding="utf-8"))
@@ -103,7 +106,7 @@ def _summarize_mv_math_strict(run_dir: Path, expected_repeats: int) -> tuple[flo
         )
     metric = value.get("mean")
     if not isinstance(metric, (int, float)):
-        return None, "mv_math_avg4_metric_missing"
+        return None, "mv_math_metric_missing"
     return float(metric), str(result_path)
 
 

@@ -16,10 +16,18 @@ Usage:
   EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_run HW_EVAL_ENV=/path/to/env \
     bash scripts/eval/run_pinned_eval.sh --protocol project15-complement
 
+  EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_run HW_EVAL_ENV=/path/to/env \
+    bash scripts/eval/run_pinned_eval.sh --protocol project15-complement-4gpu
+
+  EVAL_CKPT=/path/to/model EVAL_RUN_NAME=my_run HW_EVAL_ENV=/path/to/env \
+    bash scripts/eval/run_pinned_eval.sh --protocol project15-complement-offline
+
 Protocols:
   b6-mixed   v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench
   project15  15-task Project15 v1/offline suite
   project15-complement  9 Project15 tasks not covered by b6-mixed
+  project15-complement-4gpu  9 Project15 tasks on three model GPUs plus one judge GPU
+  project15-complement-offline  9 Project15 tasks using local parquet/cache for networkless GPUs
 
 Prompt adapter:
   --think-mode auto|think|no-think
@@ -27,6 +35,11 @@ Prompt adapter:
   Think uses the Open-MOPD prompt. B6 and Project15 support think/no-think
   comparison arms; all modes share each protocol's output budgets.
   Use a different EVAL_RUN_NAME for each mode or changed generation budget.
+
+Generation overrides:
+  EVAL_SEED=43 EVAL_REPEAT_COUNT=1 for a single deterministic-index generation.
+  Defaults remain seed 42 and repeat_count 4 (avg@4). Use a fresh run name
+  whenever either override differs from the historical protocol.
 EOF
 }
 
@@ -106,6 +119,12 @@ case "$protocol" in
   project15-complement)
     export EVAL_RUN_NAME="${EVAL_RUN_NAME:-project15_complement_avg4}"
     ;;
+  project15-complement-4gpu)
+    export EVAL_RUN_NAME="${EVAL_RUN_NAME:-project15_complement_4gpu}"
+    ;;
+  project15-complement-offline)
+    export EVAL_RUN_NAME="${EVAL_RUN_NAME:-project15_complement_offline}"
+    ;;
 esac
 
 # Historical runs accidentally used literal closing braces in DTOPD_EVAL_ROOT.
@@ -176,6 +195,15 @@ case "$protocol" in
     SFT_RL_BENCHMARKS=mindcube,vqav2,scienceqa,mv_math,mmsi_bench,blink
     SFT_RL_JUDGE_BENCHMARKS=mathverse,mathvista,mmvet
     SFT_RL_EVAL_CONFIG=configs/eval/project_vision_opd.yaml \
+      bash scripts/eval/run_target_benchmarks.sh
+    ;;
+  project15-complement-4gpu)
+    bash scripts/eval/run_project15_complement_4gpu.sh
+    ;;
+  project15-complement-offline)
+    EVAL_BENCHMARKS=mindcube,vqav2,scienceqa,mv_math,mmsi_bench,blink \
+    EVAL_JUDGE_BENCHMARKS=mathverse,mathvista,mmvet \
+    EVAL_CONFIG=configs/eval/project_vision_opd_v1_offline_complement.yaml \
       bash scripts/eval/run_target_benchmarks.sh
     ;;
   *)

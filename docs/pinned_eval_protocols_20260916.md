@@ -127,6 +127,22 @@ B6 and complement rows labeled by their source run and task version when
 combining them. This entrypoint is explicit compute saving; it does not
 automatically import or mutate an existing B6 result.
 
+### Project15 complement 4-GPU
+
+`project15-complement-4gpu` runs the same nine complement tasks on four
+networkless-GPU shards: one VQAv2 shard, one rule-based shard, one MV-MATH
+shard, and one judge shard. It uses the offline local-parquet complement
+configuration, and the four output directories are merged into one canonical
+run directory and summary.
+
+### Project15 complement offline
+
+`project15-complement-offline` is the networkless-GPU variant of the same nine
+complement tasks. Seven tasks load local parquet files, MathVerse uses the
+shared datasets cache, and MV-MATH uses the local replay source. The runner
+still expects the shared HuggingFace cache root to contain the `datasets/`
+directory, but it does not require outbound network access.
+
 ## MMBench clarification
 
 Base and PTD-PO r4 step390 both report:

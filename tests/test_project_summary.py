@@ -150,3 +150,33 @@ def test_summary_reports_mv_math_strict_avg4(tmp_path: Path) -> None:
     row = next(row for row in summary["rows"] if row["benchmark_id"] == "mv_math")
     assert row["value"] == 0.35
     assert row["source"].endswith("mv_math_avg4.json")
+
+
+def test_summary_reports_mv_math_strict_single_generation(tmp_path: Path) -> None:
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    (run_dir / "mv_math_result.json").write_text(
+        json.dumps(
+            {
+                "metric": "strict_weighted_accuracy",
+                "aggregation": "mean",
+                "repeat_count": 1,
+                "values": [0.4],
+                "mean": 0.4,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (run_dir / "run_manifest.json").write_text(
+        json.dumps(
+            {
+                "repeat_count": 1,
+                "runs": [{"benchmark_id": "mv_math", "status": "completed"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    summary = summarize_run(run_dir, CONFIG)
+    row = next(row for row in summary["rows"] if row["benchmark_id"] == "mv_math")
+    assert row["value"] == 0.4
+    assert row["source"].endswith("mv_math_result.json")

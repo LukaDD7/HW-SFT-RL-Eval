@@ -46,6 +46,7 @@ export FLASHINFER_WORKSPACE_BASE="${FLASHINFER_WORKSPACE_BASE:-${DTOPD_ROOT}/.ca
 
 HF_HOME="${SFT_RL_HF_CACHE:-${DTOPD_ROOT}/.cache/huggingface}"
 export HF_HOME HF_HUB_OFFLINE=1
+export HF_DATASETS_OFFLINE=1
 # lmms-eval 默认会把 HF datasets 缓存从远程 FS（GPFS）重定向到节点本地 scratch；
 # 离线时必须强制用共享缓存目录（LMMS_EVAL_DATASETS_CACHE 优先且不做远程检查）。
 export HF_DATASETS_CACHE="${HF_HOME}/datasets"
@@ -182,32 +183,46 @@ if [[ "${SFT_RL_KEEP_GOING:-0}" == "1" ]]; then
   KEEP_GOING_ARGS=(--keep-going)
 fi
 
-score_mv_math_avg4() {
+score_mv_math_strict() {
   local run_dir="${OUT_ROOT}/${RUN_NAME}_nojudge"
   local dataset_root="${DTOPD_DATASET_ROOT:-${REPO_ROOT}/assets/datasets}"
   local metadata="${dataset_root}/MV-MATH/MV-MATH.json"
-  local -a files=( "${run_dir}"/replay/mv_math.repeat_*.jsonl )
+  local repeat_count="${EVAL_REPEAT_COUNT:-4}"
+  local -a files=()
   local -a existing=()
   local file
+  if [[ "${repeat_count}" -gt 1 ]]; then
+    files=( "${run_dir}"/replay/mv_math.repeat_*.jsonl )
+  else
+    files=( "${run_dir}"/replay/mv_math.jsonl )
+  fi
   for file in "${files[@]}"; do
     [[ -s "${file}" ]] && existing+=( "${file}" )
   done
   if [[ ${#existing[@]} -eq 0 ]]; then
     return 0
   fi
-  if [[ ${#existing[@]} -ne 4 ]]; then
-    echo "FATAL: MV-MATH avg@4 requires 4 replay files, found ${#existing[@]} in ${run_dir}/replay" >&2
+  if [[ ${#existing[@]} -ne "${repeat_count}" ]]; then
+    echo "FATAL: MV-MATH requires ${repeat_count} replay files, found ${#existing[@]} in ${run_dir}/replay" >&2
     return 1
   fi
   [[ -f "${metadata}" ]] || { echo "FATAL: MV-MATH metadata not found: ${metadata}" >&2; return 1; }
 
   local -a strict_results=()
   local repeat_index
-  for repeat_index in 0 1 2 3; do
-    local replay="${run_dir}/replay/mv_math.repeat_${repeat_index}.jsonl"
-    local sidecar="${run_dir}/replay/mv_math.repeat_${repeat_index}.official_judge.jsonl"
-    local official_json="${run_dir}/replay/mv_math.repeat_${repeat_index}.official.json"
-    local strict_json="${run_dir}/replay/mv_math.repeat_${repeat_index}.strict.json"
+  for ((repeat_index=0; repeat_index<repeat_count; repeat_index++)); do
+    local replay sidecar official_json strict_json
+    if [[ "${repeat_count}" -gt 1 ]]; then
+      replay="${run_dir}/replay/mv_math.repeat_${repeat_index}.jsonl"
+      sidecar="${run_dir}/replay/mv_math.repeat_${repeat_index}.official_judge.jsonl"
+      official_json="${run_dir}/replay/mv_math.repeat_${repeat_index}.official.json"
+      strict_json="${run_dir}/replay/mv_math.repeat_${repeat_index}.strict.json"
+    else
+      replay="${run_dir}/replay/mv_math.jsonl"
+      sidecar="${run_dir}/replay/mv_math.official_judge.jsonl"
+      official_json="${run_dir}/replay/mv_math.official.json"
+      strict_json="${run_dir}/replay/mv_math.strict.json"
+    fi
 
     if [[ ! -s "${sidecar}" ]]; then
       "${PY}" -m dual_track_opd.eval.score_mv_math \
@@ -233,13 +248,12 @@ score_mv_math_avg4() {
     strict_results+=( "${strict_json}" )
   done
 
-  "${PY}" -m dual_track_opd.eval.aggregate_replay_avg \
-    --result-json "${strict_results[0]}" \
-    --result-json "${strict_results[1]}" \
-    --result-json "${strict_results[2]}" \
-    --result-json "${strict_results[3]}" \
-    --metric strict_weighted_accuracy \
-    --out "${run_dir}/mv_math_avg4.json"
+  local -a aggregate_args=(--metric strict_weighted_accuracy --out "${run_dir}/mv_math_result.json")
+  for result in "${strict_results[@]}"; do
+    aggregate_args+=(--result-json "${result}")
+  done
+
+  "${PY}" -m dual_track_opd.eval.aggregate_replay_avg "${aggregate_args[@]}"
 }
 
 # 自动续跑：同 run name 已有输出目录时用 --resume-from 跳过已完成 benchmark
@@ -272,8 +286,8 @@ echo "== [2/2] judge benchmarks (${BENCH2}) =="
 
 if [[ ",${BENCH1}," == *",mv_math,"* ]]; then
   if [[ "${JUDGE_ENABLED}" == "1" ]]; then
-    echo "== scoring MV-MATH strict avg@4 =="
-    score_mv_math_avg4
+    echo "== scoring MV-MATH strict =="
+    score_mv_math_strict
   else
     echo "WARNING: MV-MATH replay files were generated, but no judge endpoint is running; official avg@4 scoring is pending." >&2
   fi
