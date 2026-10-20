@@ -41,7 +41,7 @@ the configured base seed is 42 and repeats are 42, 43, 44, and 45.
 |---|---:|---:|---:|---:|---:|---:|---:|
 | ISO-MOPD step300 | 0.4513 | 0.5926 | 0.6938 | 0.3208 | 0.5365 | 87.2852 | 0.5780 |
 | VA-OPD-RL GRPO200 step200 | 0.4097 | 0.6111 | 0.6639 | 0.3370 | 0.2954 | 84.6220 | 0.5272 |
-| Pure RL step100 | 0.4459 | 0.5454 | 0.6691 | 0.5462 | 0.4892 | 75.6014 | 0.5745 |
+| Pure RL step100 | 0.4459 | 0.5454 | 0.6691 | 0.5462 | 0.4892 | 84.6220 | 0.5930 |
 
 ## Provenance notes
 
@@ -54,3 +54,6 @@ the configured base seed is 42 and repeats are 42, 43, 44, and 45.
   scoring change was required.
 - Pure RL seed43 values are extracted from `repeat_1` of the completed avg@4
   artifact, not from a new generation run.
+- MMBench uses the PR #12 offline rescore, not the legacy raw
+  `gpt_eval_score` result file. For Pure RL seed43 (`repeat_1`), the PR #12
+  rescore is 84.621993; the legacy result-file score 75.601375 is not used.
