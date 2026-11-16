@@ -1,6 +1,7 @@
 suite:
   name: project_multimodal_understanding_vision_opd
   contract_id: TC20260430027
+  protocol_status: legacy_v1_reference_only
   description: Vision-OPD baseline for the multimodal-understanding branch only.
   contract_name_aliases:
     MatchVista: MathVista
@@ -18,10 +19,10 @@ defaults:
   output_root: ${DTOPD_EVAL_ROOT:-./eval_runs/vision_opd_project_baseline}
   dataset_root: ${DTOPD_DATASET_ROOT:-./assets/datasets}
   prior_raw_root: ${QWEN3VL8B_RAW_ROOT:-./assets/remi_replay/raw_responses}
-  seed: 42
+  seed: ${EVAL_SEED:-42}
   batch_size: 1
-  repeat_count: 4
-  sampling_temperature: 1.0
+  repeat_count: ${EVAL_REPEAT_COUNT:-4}
+  sampling_temperature: ${EVAL_SAMPLING_TEMPERATURE:-1.0}
   tensor_parallel_size: 1
   gpu_memory_utilization: 0.85
   max_model_len: 65536

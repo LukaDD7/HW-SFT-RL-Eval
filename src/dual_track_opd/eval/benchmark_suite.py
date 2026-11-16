@@ -123,6 +123,33 @@ def validate_checkpoint_identity(
     return canonical
 
 
+def generation_protocol(repeat_count: int, sampling_temperature: float) -> str:
+    if repeat_count > 1:
+        return f"avg@{repeat_count}"
+    return "greedy_pass1" if sampling_temperature == 0 else "single_sample_pass1"
+
+
+def validate_resume_generation(manifest: Mapping[str, Any], suite: SuiteConfig) -> None:
+    """Reject cached generations whose sampling protocol is not identical."""
+    expected = {
+        "seed": int(suite.defaults.get("seed", 42)),
+        "repeat_count": int(suite.defaults.get("repeat_count", 1)),
+        "sampling_temperature": float(suite.defaults.get("sampling_temperature", 0.0)),
+    }
+    for key, value in expected.items():
+        if key not in manifest:
+            raise ValueError(f"resume generation protocol mismatch: missing prior {key}")
+        prior = float(manifest[key]) if key == "sampling_temperature" else int(manifest[key])
+        if prior != value:
+            raise ValueError(
+                f"resume generation protocol mismatch: expected {key}={value}, "
+                f"prior {key}={prior}. Use a new run directory."
+            )
+    expected_protocol = generation_protocol(expected["repeat_count"], expected["sampling_temperature"])
+    if manifest.get("protocol", expected_protocol) != expected_protocol:
+        raise ValueError("resume generation protocol mismatch: protocol label changed")
+
+
 @dataclass(frozen=True)
 class BenchmarkSpec:
     benchmark_id: str
@@ -220,7 +247,7 @@ def _model_args(
             "base_url": api_base,
             "api_key": defaults.get("api_key", "EMPTY"),
             "timeout": 600,
-            "num_concurrent": defaults.get("workers", 8),
+            "num_concurrent": int(os.environ.get("B6_WORKERS_OVERRIDE", "") or defaults.get("workers", 8)),
             "httpx_trust_env": "false",
         }
     elif backend == "async_openai":
@@ -374,7 +401,7 @@ def build_command(
             "--seed",
             str(int(defaults.get("seed", 42)) + repeat_index),
             "--workers",
-            str(defaults.get("workers", 8)),
+            str(int(os.environ.get("B6_WORKERS_OVERRIDE", "") or defaults.get("workers", 8))),
             "--resume",
         ]
         if limit is not None:
@@ -515,7 +542,7 @@ def _judge_environment() -> dict[str, str]:
     return env
 
 
-def _check_openai_endpoint(api_base: str, api_key: str) -> None:
+def _check_openai_endpoint(api_base: str, api_key: str) -> dict[str, Any]:
     request = urllib.request.Request(
         f"{api_base.rstrip('/')}/models",
         headers={"Authorization": f"Bearer {api_key}"},
@@ -524,11 +551,30 @@ def _check_openai_endpoint(api_base: str, api_key: str) -> None:
         with urllib.request.urlopen(request, timeout=10) as response:
             if response.status != 200:
                 raise RuntimeError(f"unexpected HTTP status {response.status}")
-    except (OSError, urllib.error.URLError) as exc:
+            payload = json.load(response)
+    except (OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
         raise RuntimeError(
             f"Vision-OPD endpoint is not ready at {api_base}; "
             "start scripts/eval/start_vision_opd_server.sh first"
         ) from exc
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"OpenAI endpoint returned an invalid model list: {api_base}")
+    return payload
+
+
+def served_endpoint_identity(
+    api_base: str, api_key: str, expected_model: str,
+) -> dict[str, Any]:
+    """Record the served alias without credentials or request payloads."""
+    payload = _check_openai_endpoint(api_base, api_key)
+    models = payload.get("data")
+    if (not isinstance(models, list) or len(models) != 1
+            or not isinstance(models[0], dict)
+            or models[0].get("id") != expected_model):
+        raise RuntimeError(
+            f"endpoint {api_base} does not exclusively serve {expected_model!r}"
+        )
+    return {"served_model": expected_model, "api_base": api_base}
 
 
 def _print_plan(
@@ -565,6 +611,28 @@ def _save_manifest(manifest_path: Path, manifest: dict[str, Any]) -> None:
     tmp = manifest_path.with_suffix(manifest_path.suffix + ".tmp")
     tmp.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     tmp.replace(manifest_path)
+
+
+def judge_provenance_from_environment(
+    env: Mapping[str, str],
+) -> dict[str, Any] | None:
+    """Bind a local judge run to its checkpoint and served alias, never its key."""
+    judge_checkpoint = env.get("JUDGE_CHECKPOINT")
+    if not judge_checkpoint:
+        return None
+    checkpoint = Path(judge_checkpoint)
+    if not checkpoint.is_dir():
+        raise ValueError("JUDGE_CHECKPOINT must be a local directory")
+    if not env["JUDGE_API_URL"].startswith("http://127.0.0.1:"):
+        raise ValueError("a local JUDGE_CHECKPOINT requires a loopback JUDGE_API_URL")
+    return {
+        "judge_model": env["JUDGE_MODEL"],
+        "judge_checkpoint": str(checkpoint.resolve()),
+        "judge_api_url": env["JUDGE_API_URL"],
+        **served_endpoint_identity(
+            env["JUDGE_API_URL"], env["JUDGE_API_KEY"], env["JUDGE_MODEL"],
+        ),
+    }
 
 
 def run_suite(args: argparse.Namespace) -> int:
@@ -604,12 +672,7 @@ def run_suite(args: argparse.Namespace) -> int:
             existing_manifest.get("generation_budgets"),
             {spec.benchmark_id: generation_budget(spec) for spec in specs},
         )
-        if int(existing_manifest.get("repeat_count", 1)) != repeat_count:
-            raise ValueError(
-                "resume protocol mismatch: expected "
-                f"repeat_count={repeat_count}, prior repeat_count="
-                f"{int(existing_manifest.get('repeat_count', 1))}. Use a new run directory."
-            )
+        validate_resume_generation(existing_manifest, suite)
         checkpoint = validate_checkpoint_identity(
             checkpoint,
             run_name=str(existing_manifest.get("run_name", resume_path.name)),
@@ -701,6 +764,7 @@ def run_suite(args: argparse.Namespace) -> int:
             "dataset_manifest_hash": _dataset_manifest_hash(specs, suite.backend),
             "dataset_manifest_kind": "logical_task_registry",
             "checkpoint_path": checkpoint,
+            "served_model_name": str(suite.defaults["served_model_name"]),
             "raw_output_path": str(run_dir),
             "inference_backend": args.inference_backend,
             "thinking_protocol": thinking_protocol,
@@ -710,8 +774,9 @@ def run_suite(args: argparse.Namespace) -> int:
             "api_base": api_base,
             "judge_policy": args.judge_policy,
             "repeat_count": repeat_count,
+            "seed": int(suite.defaults.get("seed", 42)),
             "sampling_temperature": sampling_temperature,
-            "protocol": f"avg@{repeat_count}" if repeat_count > 1 else "single-generation",
+            "protocol": generation_protocol(repeat_count, sampling_temperature),
             "runs": [],
             "notes": "Raw outputs remain outside Git; judge-dependent metrics are explicitly classified.",
         }
@@ -736,6 +801,11 @@ def run_suite(args: argparse.Namespace) -> int:
     signal.signal(signal.SIGINT, _handle_interrupt)
 
     env = _judge_environment() if args.judge_policy == "score" else os.environ.copy()
+    if args.judge_policy == "score":
+        judge_provenance = judge_provenance_from_environment(env)
+        if judge_provenance is not None:
+            manifest["judge_provenance"] = judge_provenance
+            _save_manifest(manifest_path, manifest)
     overall_rc = 0
     for spec, commands in rows:
         if _interrupted:

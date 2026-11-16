@@ -44,6 +44,7 @@ def _validate_shards(config: dict[str, Any], manifests: list[dict[str, Any]]) ->
         "checkpoint_path",
         "thinking_protocol",
         "generation_budgets",
+        "seed",
         "repeat_count",
         "sampling_temperature",
         "protocol",

@@ -5,7 +5,7 @@
 # 与 scripts/eval/run_target_benchmarks.sh（v1）的区别：
 #   - config: configs/eval/project_vision_opd_v2.yaml（任务名 *_v2）
 #   - 每个 lmms-eval 命令自动带 --include_path eval_tasks/opd_v2
-#   - 四项全 4096 解码预算；判分链 <answer> 标签优先 + 确定性 fallback
+#   - 生成预算以 v2 配置为准；判分链 <answer> 标签优先 + 确定性 fallback
 #   - 只跑 rule-based 四项（gqa/dynamath/viewspatial/mmmu_pro），
 #     不含 remi（replay 口径无变化）与 mmbench（judge 口径不变）
 #   - 输出根目录默认 eval_runs/vision_opd_project_v2，与 v1 结果并行保留
@@ -55,6 +55,8 @@ EVAL_CKPT="${EVAL_CKPT:-${SFT_RL_MODEL_HF:-${HW_MODEL_CKPT:-}}}"
 EVAL_RUN_NAME="${EVAL_RUN_NAME:-${SFT_RL_RUN_NAME:-vision_opd_gs65_target_v2}}"
 EVAL_SERVED_MODEL="${EVAL_SERVED_MODEL:-${SFT_RL_SERVED_MODEL:-Vision-OPD-4B}}"
 EVAL_GPU="${EVAL_GPU:-${SFT_RL_EVAL_GPU:-0}}"
+EVAL_GPUS="${EVAL_GPUS:-${SFT_RL_EVAL_GPUS:-${EVAL_GPU}}}"
+EVAL_TP="${EVAL_TP:-${SFT_RL_EVAL_TP:-1}}"
 EVAL_PORT="${EVAL_PORT:-${SFT_RL_EVAL_PORT:-8000}}"
 MAX_LEN="${EVAL_MAX_LEN:-${SFT_RL_MAX_LEN:-65536}}"
 THINK_MODE="${EVAL_THINK_MODE:-${SFT_RL_THINK_MODE:-auto}}"
@@ -106,16 +108,17 @@ cleanup() {
 trap cleanup EXIT
 
 echo "== v2 benchmarks: model=${EVAL_CKPT} =="
-echo "== eval: GPU${EVAL_GPU}:${EVAL_PORT} (no judge server) =="
+echo "== eval: GPU${EVAL_GPUS}:${EVAL_PORT} TP${EVAL_TP} (no judge server) =="
 echo "== run_name=${EVAL_RUN_NAME}  think_mode=${THINK_MODE}  out_root=${OUT_ROOT} =="
 
-CUDA_VISIBLE_DEVICES="${EVAL_GPU}" \
+CUDA_VISIBLE_DEVICES="${EVAL_GPUS}" \
   "${VLLM_BIN}" serve "${EVAL_CKPT}" \
   --host 127.0.0.1 --port "${EVAL_PORT}" \
   --served-model-name "${EVAL_SERVED_MODEL}" \
-  --tensor-parallel-size 1 \
+  --tensor-parallel-size "${EVAL_TP}" \
   --gpu-memory-utilization 0.85 \
   --max-model-len "${MAX_LEN}" \
+  ${EVAL_MAX_NUM_SEQS:+--max-num-seqs "${EVAL_MAX_NUM_SEQS}"} \
   --trust-remote-code \
   "${TEMPLATE_ARGS[@]}" > "${EVAL_LOG}" 2>&1 &
 EVAL_PID=$!

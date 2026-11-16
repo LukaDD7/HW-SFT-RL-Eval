@@ -74,6 +74,57 @@ Important boundaries:
 - Do not compare B6-mixed scores directly with Project15 scores except at the
   individual task level when the task version and scoring chain are identical.
 
+### SCOPED four-expert single-sample pass@1
+
+This is a separate protocol, `b6-mixed-single-sample-pass1-seed42-v1`, not the
+canonical avg@4 result set. On the eight-GPU evaluation node, run from the
+Dual-Track-OPD repository root:
+
+```bash
+bash scripts/hpc/run_scoped_b6_pass1.sh
+```
+
+No arguments or interactive variables are required. The launcher verifies the
+selected C1=300/C2=222/C3=200/C4=444 identities, exports missing C1/C2 weights
+with the pinned official merger, verifies existing C3/C4 exports read-only,
+then runs C1 smoke (eight samples per task) followed by the full C1→C4 queue.
+A smoke or expert failure stops later work. `--prepare-only`, `--dry-run`, and
+`--run-full` are optional diagnostic/explicit alternatives.
+
+The protocol fixes native `auto` prompts, seed 42, one generation, and
+temperature 1.0. GQA/ViewSpatial/MMBench use 8192 tokens;
+DynaMath/MMMU-Pro/ReMI use 16384. ReMI uses exact full-denominator scoring;
+MMBench uses the pinned local Qwen3-VL-32B-Instruct-FP8 judge.
+
+| Stage | GPUs | TP | Port |
+|---|---|---:|---:|
+| v2a: GQA + DynaMath | 0,1 | 2 | 8000 |
+| v2b: ViewSpatial + MMMU-Pro | 2,3 | 2 | 8001 |
+| ReMI, after v2 | 0,1 | 2 | 8000 |
+| MMBench, after v2 | 2,3 | 2 | 8002 |
+| MMBench judge | 4,5 | 2 | 8004 |
+
+Experts are sequential; lanes within an expert are parallel. GPUs 6,7 are
+reserve. The queue applies/checks the MMBench patch once before starting the
+two v1 lanes, and audits the endpoint recorded for each shard.
+
+Every receipt requires a fresh raw-output audit of the exact sample count,
+metric, checkpoint, served alias, endpoint, generation settings, ReMI replay,
+judge provenance, and truncation counts. A process exit code or a stale
+receipt alone is never sufficient. Repeating the same command preserves and
+resumes partial outputs; only a receipt matching a fresh audit is skipped.
+
+Final reports (created only after successful evaluation) are:
+
+```text
+/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/scoped_four_expert_b6_pass1/scoped_b6_pass1_report.json
+/inspire/hdd/global_user/mengweicheng-240108120092/lzy/eval_runs/scoped_four_expert_b6_pass1/scoped_b6_pass1_report.md
+```
+
+Logs are under the SCOPED storage `logs/scoped_b6_pass1/` directory. Local
+synthetic tests do not verify actual exports, vLLM TP=2 startup, or benchmark
+scores; those require the GPU-node run.
+
 ## Project15
 
 Project15 is the 15-task v1/offline protocol:
@@ -126,6 +177,22 @@ Use the same checkpoint and generation protocol as the existing B6 run. Keep
 B6 and complement rows labeled by their source run and task version when
 combining them. This entrypoint is explicit compute saving; it does not
 automatically import or mutate an existing B6 result.
+
+### Project15 complement 4-GPU
+
+`project15-complement-4gpu` runs the same nine complement tasks on four
+networkless-GPU shards: one VQAv2 shard, one rule-based shard, one MV-MATH
+shard, and one judge shard. It uses the offline local-parquet complement
+configuration, and the four output directories are merged into one canonical
+run directory and summary.
+
+### Project15 complement offline
+
+`project15-complement-offline` is the networkless-GPU variant of the same nine
+complement tasks. Seven tasks load local parquet files, MathVerse uses the
+shared datasets cache, and MV-MATH uses the local replay source. The runner
+still expects the shared HuggingFace cache root to contain the `datasets/`
+directory, but it does not require outbound network access.
 
 ## MMBench clarification
 
