@@ -79,20 +79,42 @@ def _summarize_lmms(
 
 
 def _summarize_remi_strict(run_dir: Path, expected_repeats: int) -> tuple[float | None, str]:
-    result_path = run_dir / "remi_avg4.json"
+    result_path = run_dir / "remi_result.json"
+    historical_result_path = run_dir / "remi_avg4.json"
+    if not result_path.is_file() and historical_result_path.is_file():
+        result_path = historical_result_path
     if not result_path.is_file():
         return None, "official_evaluator_pending"
     value = json.loads(result_path.read_text(encoding="utf-8"))
     if int(value.get("repeat_count", 0)) != expected_repeats:
         return None, f"remi_result_missing_expected_repeats:{value.get('repeat_count', 0)}/{expected_repeats}"
+    if value.get("mode") != "exact" or value.get("metric") != "exact_accuracy_full_denominator":
+        return None, "remi_exact_full_denominator_required"
+    rows = value.get("row_counts", [])
+    if not rows and expected_repeats == 4 and "mean" in value:
+        # Historical avg4 receipts omitted row counts; the new single/smoke
+        # path always requires explicit denominator evidence.
+        rows = [2600] * expected_repeats
+    if len(rows) != expected_repeats or any(count not in (8, 2600) for count in rows):
+        return None, "remi_row_count_not_smoke8_or_full2600"
+    scoring_path = run_dir / "remi_scoring.json"
+    if scoring_path.is_file():
+        scoring = json.loads(scoring_path.read_text(encoding="utf-8"))
+        if not isinstance(scoring.get("formal"), bool) or scoring.get("formal") == (rows[0] == 8):
+            return None, "remi_smoke_full_receipt_mismatch"
+    elif rows[0] != 2600:
+        return None, "remi_smoke_receipt_missing"
     metric = value.get("mean")
-    if not isinstance(metric, (int, float)):
-        return None, "remi_avg4_metric_missing"
+    if not isinstance(metric, (int, float)) or isinstance(metric, bool):
+        return None, "remi_metric_missing"
     return float(metric), str(result_path)
 
 
 def _summarize_mv_math_strict(run_dir: Path, expected_repeats: int) -> tuple[float | None, str]:
-    result_path = run_dir / "mv_math_avg4.json"
+    result_path = run_dir / "mv_math_result.json"
+    historical_result_path = run_dir / "mv_math_avg4.json"
+    if not result_path.is_file() and historical_result_path.is_file():
+        result_path = historical_result_path
     if not result_path.is_file():
         return None, "official_evaluator_pending"
     value = json.loads(result_path.read_text(encoding="utf-8"))
@@ -103,7 +125,7 @@ def _summarize_mv_math_strict(run_dir: Path, expected_repeats: int) -> tuple[flo
         )
     metric = value.get("mean")
     if not isinstance(metric, (int, float)):
-        return None, "mv_math_avg4_metric_missing"
+        return None, "mv_math_metric_missing"
     return float(metric), str(result_path)
 
 

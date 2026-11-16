@@ -1,0 +1,70 @@
+{
+  "protocol": "Project15 seed43 repeat1 think-v4 current usable values",
+  "snapshot_date": "2026-10-20",
+  "mean": "normalize 0-100 metrics to 0-1, then mean over available values",
+  "arms": {
+    "iso_mopd_step300": {
+      "latest_protocol_coverage": 11,
+      "total": 15,
+      "values": {
+        "mindcube": 0.1684315023163468,
+        "gqa": 0.5926220385,
+        "scienceqa": 0.8096182449181953,
+        "mathverse": 0.6360406091370558,
+        "mathvista": 77.5,
+        "mmsi_bench": 0.283,
+        "blink": 0.6217780115728564,
+        "mmbench": 87.2852233676976,
+        "mmvet": 75.9678899082569,
+        "remi": 0.5365384615384615,
+        "mv_math": 0.3917371826779492
+      },
+      "legacy_not_usable": {
+        "viewspatial": 0.45133053221288516,
+        "dynamath": 0.6938123752495009,
+        "mmmu_pro": 0.32081
+      },
+      "pending": [
+        "vqav2",
+        "viewspatial_v2",
+        "dynamath_v2",
+        "mmmu_pro_v2"
+      ],
+      "available_mean": 0.5861179257655803
+    },
+    "pure_rl_step100": {
+      "latest_protocol_coverage": 14,
+      "total": 15,
+      "values": {
+        "viewspatial": 0.4459033613,
+        "mindcube": 0.22676562352273802,
+        "gqa": 0.5453967244,
+        "scienceqa": 0.8170550322260783,
+        "dynamath": 0.6690618762,
+        "mathverse": 0.6058375634517766,
+        "mathvista": 75.2,
+        "mmsi_bench": 0.29,
+        "blink": 0.6259863229879011,
+        "mmbench": 84.6219931271,
+        "mmmu_pro": 0.5462427746,
+        "mmvet": 76.92660550458716,
+        "remi": 0.48923076923076925,
+        "mv_math": 0.36585365853658536
+      },
+      "pending": [
+        "vqav2"
+      ],
+      "available_mean": 0.5710585494837658
+    },
+    "va_opd_rl_grpo200_step200": {
+      "status": "historical_auto_native_not_current",
+      "latest_protocol_coverage": null,
+      "historical_coverage": 15
+    },
+    "base8b_instruct": {
+      "status": "historical_v1_reference_only",
+      "latest_protocol_coverage": null,
+      "historical_coverage": 15
+    }
+  }
+}

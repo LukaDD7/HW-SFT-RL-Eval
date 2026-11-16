@@ -1,0 +1,118 @@
+{
+  "snapshot_date": "2026-10-20",
+  "current_contract": {
+    "seed": 43,
+    "repeat_count": 1,
+    "thinking_mode": "think",
+    "thinking_version": "open-mopd-b6-prompt-v4",
+    "mean": "normalize 0-100 metrics to 0-1, then simple mean over 15 benchmarks",
+    "missing_values": "not counted as zero"
+  },
+  "coverage": {
+    "iso_mopd_step300": {
+      "latest_protocol_usable": 11,
+      "total": 15,
+      "remaining": [
+        "vqav2",
+        "viewspatial_v2",
+        "dynamath_v2",
+        "mmmu_pro_v2"
+      ],
+      "historical_raw_usable": 14
+    },
+    "pure_rl_step100": {
+      "latest_protocol_usable": 14,
+      "total": 15,
+      "remaining": [
+        "vqav2"
+      ],
+      "historical_raw_usable": 14
+    },
+    "va_opd_rl_grpo200_step200": {
+      "latest_protocol_usable": null,
+      "remaining": [
+        "not counted as current; historical auto/native generation"
+      ],
+      "historical_raw_usable": 15
+    },
+    "base8b_instruct": {
+      "latest_protocol_usable": null,
+      "remaining": [
+        "reference only; historical v1 baseline"
+      ],
+      "historical_raw_usable": 15
+    }
+  },
+  "current_scoring": {
+    "b6_v2": [
+      "gqa",
+      "viewspatial",
+      "dynamath",
+      "mmmu_pro"
+    ],
+    "project15_complement_answer_tag": [
+      "mindcube",
+      "vqav2",
+      "scienceqa",
+      "mmsi_bench",
+      "blink"
+    ],
+    "judge": [
+      "mathverse",
+      "mathvista",
+      "mmvet"
+    ],
+    "remi": "exact_accuracy_full_denominator",
+    "mmbench": "PR12 rescore where applicable",
+    "mv_math": "official strict scoring sidecar"
+  },
+  "deprecated": [
+    {
+      "rule": "v1 direct parser for explicit-think offline complement tasks",
+      "benchmarks": [
+        "mindcube",
+        "vqav2",
+        "scienceqa",
+        "mmsi_bench",
+        "blink"
+      ],
+      "usable": false
+    },
+    {
+      "rule": "v1 B6 task scores when comparing against v2 arms",
+      "benchmarks": [
+        "gqa",
+        "viewspatial",
+        "dynamath",
+        "mmmu_pro"
+      ],
+      "usable": false
+    },
+    {
+      "rule": "ReMI normalized_exact_diagnostic or partial denominator",
+      "benchmarks": [
+        "remi"
+      ],
+      "usable": false
+    },
+    {
+      "rule": "avg@4 mean mixed with seed43 repeat1",
+      "benchmarks": "all",
+      "usable": false
+    },
+    {
+      "rule": "raw legacy MMBench score where PR12 rescore exists",
+      "benchmarks": [
+        "mmbench"
+      ],
+      "usable": false
+    },
+    {
+      "rule": "VA-OPD-RL auto/native ReMI generation treated as think v4",
+      "benchmarks": [
+        "remi"
+      ],
+      "usable": false
+    }
+  ]
+}

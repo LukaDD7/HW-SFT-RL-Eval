@@ -14,7 +14,7 @@ output_type: generate_until
 doc_to_visual: !function lmms_eval.tasks.mindcube.utils.mindcube_doc_to_visual
 doc_to_text: !function lmms_eval.tasks.mindcube.utils.mindcube_doc_to_text
 doc_to_target: grounded_output
-process_results: !function lmms_eval.tasks.mindcube.utils.mindcube_process_results
+process_results: !function utils.mindcube_process_results
 metric_list:
   - metric: overall_accuracy
     aggregation: !function lmms_eval.tasks.mindcube.utils.mindcube_aggregate_results

@@ -8,7 +8,7 @@ output_type: generate_until
 doc_to_visual: !function lmms_eval.tasks.mmsi_bench.utils.msr_doc_to_visual
 doc_to_text: !function lmms_eval.tasks.mmsi_bench.utils.msr_doc_to_text
 doc_to_target: answer
-process_results: !function lmms_eval.tasks.mmsi_bench.utils.msr_process_results
+process_results: !function utils.msr_process_results
 lmms_eval_specific_kwargs:
   default:
     pre_prompt: ""

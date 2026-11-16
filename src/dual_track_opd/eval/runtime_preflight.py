@@ -54,7 +54,13 @@ def validate_protocol_assets(
     Git worktrees do not contain ignored benchmark assets. A canonical run must
     fail before loading models if those assets are not linked or configured.
     """
-    if protocol not in {"b6-mixed", "project15", "project15-complement"}:
+    if protocol not in {
+        "b6-mixed",
+        "project15",
+        "project15-complement",
+        "project15-complement-4gpu",
+        "project15-complement-offline",
+    }:
         raise ValueError(f"unknown protocol: {protocol}")
 
     resolved_root = dataset_root or repo_root / "assets" / "datasets"
@@ -77,7 +83,12 @@ def validate_protocol_assets(
                 f"ReMI parquet files not found under {remi_dataset}"
             )
 
-    if protocol in {"project15", "project15-complement"}:
+    if protocol in {
+        "project15",
+        "project15-complement",
+        "project15-complement-4gpu",
+        "project15-complement-offline",
+    }:
         mv_math_replay = repo_root / MV_MATH_REPLAY
         if not mv_math_replay.is_file():
             raise FileNotFoundError(
@@ -88,6 +99,23 @@ def validate_protocol_assets(
         if not mv_math_metadata.is_file():
             raise FileNotFoundError(f"MV-MATH metadata not found: {mv_math_metadata}")
 
+    if protocol in {"project15-complement-offline", "project15-complement-4gpu"}:
+        required_patterns = (
+            ("MindCube_lmmseval/full", "combined-*.parquet"),
+            ("VQAv2/data", "validation-*.parquet"),
+            ("ScienceQA-IMG/data", "test-*.parquet"),
+            ("BLINK", "*/val-*.parquet"),
+            ("MathVista/data", "testmini-*.parquet"),
+            ("MMVet/data", "test-*.parquet"),
+        )
+        for relative_dir, pattern in required_patterns:
+            directory = resolved_root / relative_dir
+            if not directory.is_dir() or not any(directory.glob(pattern)):
+                raise FileNotFoundError(
+                    "offline complement parquet files not found. "
+                    f"Checked {directory}/{pattern}"
+                )
+
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -96,7 +124,13 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument(
         "--protocol",
-        choices=("b6-mixed", "project15", "project15-complement"),
+        choices=(
+            "b6-mixed",
+            "project15",
+            "project15-complement",
+            "project15-complement-4gpu",
+            "project15-complement-offline",
+        ),
         required=True,
     )
     parser.add_argument("--dataset-root", type=Path)

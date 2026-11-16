@@ -79,7 +79,10 @@ def test_adapter_clears_legacy_injection(mode):
         "gqa", "mmbench", "viewspatial", "mmmu_pro", "dynamath", "remi",
         "mindcube_full", "vqav2_val", "scienceqa_img", "mv-math",
         "mathverse_testmini", "mathvista_testmini", "mmsi_bench", "blink",
-        "mmvet",
+        "mmvet", "mindcube_full_offline", "vqav2_val_offline",
+        "scienceqa_img_offline", "mathvista_testmini_offline",
+        "mathvista_testmini_solution_offline",
+        "mmsi_bench_offline", "blink_offline", "mmvet_offline",
     ],
 )
 def test_project15_messages_are_conflict_free_and_preserve_media(task, mode):

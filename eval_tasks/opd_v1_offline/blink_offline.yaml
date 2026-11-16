@@ -8,7 +8,7 @@ output_type: generate_until
 doc_to_visual: !function lmms_eval.tasks.blink.utils.blink_doc_to_visual
 doc_to_text: !function lmms_eval.tasks.blink.utils.blink_doc_to_text
 doc_to_target: answer
-process_results: !function lmms_eval.tasks.blink.utils.blink_process_results
+process_results: !function utils.blink_process_results
 metric_list:
   - metric: blink_acc
     aggregation: !function lmms_eval.tasks.blink.utils.blink_aggregate_results

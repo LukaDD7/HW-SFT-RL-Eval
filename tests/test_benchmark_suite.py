@@ -185,6 +185,31 @@ def test_repeat_has_results_detects_existing_result_files(tmp_path) -> None:
     assert not _repeat_has_results(spec=spec, run_dir=tmp_path, repeat_index=3, repeat_count=4)
 
 
+def test_single_generation_overrides_seed_and_repeat(monkeypatch) -> None:
+    monkeypatch.setenv("EVAL_SEED", "43")
+    monkeypatch.setenv("EVAL_REPEAT_COUNT", "1")
+    suite = load_suite(CONFIG)
+    spec = suite.benchmarks["viewspatial"]
+    commands = build_commands(
+        spec,
+        suite=suite,
+        run_dir=Path("/tmp/run"),
+        python="python",
+        inference_backend="openai",
+        checkpoint="/checkpoint",
+        api_base="http://127.0.0.1:8000/v1",
+        limit=4,
+        judge_policy="defer",
+    )
+    assert len(commands) == 1
+    command = commands[0]
+    assert command[command.index("--seed") + 1] == "43"
+    output_path = Path(command[command.index("--output_path") + 1])
+    cache_path = Path(command[command.index("--use_cache") + 1])
+    assert output_path.parts[-1] != "repeat_0"
+    assert cache_path.parts[-1] != "repeat_0"
+
+
 def test_lmms_command_supports_format_pilot_overrides(monkeypatch) -> None:
     suite = load_suite(CONFIG)
     spec = suite.benchmarks["viewspatial"]

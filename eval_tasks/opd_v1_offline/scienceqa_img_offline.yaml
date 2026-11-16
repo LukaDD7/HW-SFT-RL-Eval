@@ -18,7 +18,7 @@ metric_list:
     higher_is_better: true
     ignore_case: true
     ignore_punctuation: true
-process_results: !function lmms_eval.tasks.scienceqa.utils.sqa_process_results
+process_results: !function utils.scienceqa_process_results
 lmms_eval_specific_kwargs:
   default:
     format: default
