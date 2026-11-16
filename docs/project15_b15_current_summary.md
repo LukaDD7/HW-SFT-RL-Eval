@@ -1,37 +1,24 @@
 # Project15 B15 current usable results
 
-This table separates latest-protocol usable values from historical reference
-rows. It was updated after the 2026-10-20 GPU reclamation.
+This table records the currently usable Project15 values for the three arms
+that have completed or partially completed evaluation. Missing values are
+shown as `–`.
 
-The mean normalizes 0–100 metrics to 0–1 and averages available values only.
-Because coverage differs, these means are diagnostic, not final B15 rankings.
+The `Avg` column is the mean of the available values after normalizing the
+0–100 metrics (`MathVista`, `MMBench`, `MMVet`) to the 0–1 scale. It is not
+directly comparable across rows with different coverage.
 
-| Arm | VS | MC | GQA | VQA | SQA | DM | MVerse | MVista | MMSI | BLINK | MMB | MMMU | MMVet | ReMI | MVM | Usable | Mean |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| ISO-MOPD step300 | legacy v1 | 0.1684 | 0.5926 | pending | 0.8096 | legacy v1 | 0.6360 | 77.5 | 0.2830 | 0.6218 | 87.2852 | legacy v1 | 75.9679 | 0.5365 | 0.3917 | 11/15 | 0.5861 |
-| Pure RL step100 | 0.4459 | 0.2268 | 0.5454 | pending | 0.8171 | 0.6691 | 0.6058 | 75.2 | 0.2900 | 0.6260 | 84.6220 | 0.5462 | 76.9266 | 0.4892 | 0.3659 | 14/15 | 0.5711 |
-| VA-OPD-RL step200 | historical | historical | historical | historical | historical | historical | historical | historical | historical | historical | historical | historical | historical | historical | historical | not current | — |
-| Base 8B Instruct | reference | reference | reference | reference | reference | reference | reference | reference | reference | reference | reference | reference | reference | reference | reference | reference | — |
+| Arm | VS | MC | GQA | VQA | SQA | DM | MVerse | MVista | MMSI | BLINK | MMB | MMMU | MMVet | ReMI | MVM | Avg |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Base 8B Instruct (15/15) | 0.4231 | 0.2975 | 0.6164 | 0.8182 | 0.9465 | 0.6279 | 0.5236 | 72.7 | 0.3070 | 0.6512 | 85.1375 | 0.3983 | 74.2661 | 0.2792 | 0.3579 | 0.5712 |
+| ISO-MOPD step300 (7/15) | – | 0.1684 | – | – | – | – | 0.6360 | 77.5 | 0.2830 | 0.6218 | – | – | 75.9679 | – | 0.3917 | 0.5194 |
+| Pure RL step100 (10/15) | 0.4462 | – | 0.5445 | – | – | 0.6691 | 0.6058 | 75.2 | – | – | 83.9777 | 0.5513 | 76.9266 | 0.4861 | 0.3659 | 0.6030 |
 
-## Pending under the latest protocol
+## Notes
 
-- ISO-MOPD: VQAv2, ViewSpatial v2, DynaMath v2, MMMU-Pro v2.
-- Pure RL: VQAv2 only.
-- VA-OPD-RL: the existing row is historical auto/native generation and is not
-  a unified explicit-think seed43 comparison.
-
-## Deprecated values
-
-- ISO ViewSpatial, DynaMath, and MMMU-Pro entries marked `legacy v1` must not
-  be used in the current comparison.
-- Pure RL ScienceQA `0.0` was the old v1 parser artifact; the current
-  answer-tag rescore is `0.8170550322260783`.
-- ReMI must use `exact_accuracy_full_denominator`; the old
-  `normalized_exact_diagnostic` is unusable.
-- MMBench must use the PR12 rescore where applicable; raw legacy MMBench
-  scores must not be mixed with it.
-- avg@4 and seed43/repeat1 values must not be mixed.
-
-The machine-readable protocol status is in
-`docs/project15_seed43_protocol_status_20261020.json`.
-
+- `Base` values come from the completed Project15-v1 baseline.
+- `ISO-MOPD step300` values come from the tag-fixed Project15 complement run;
+  VQAv2 and ScienceQA are still pending.
+- `Pure RL step100` values combine the completed B6 arm with the currently
+  usable Project15 complement values; the remaining complement benchmarks are
+  pending.

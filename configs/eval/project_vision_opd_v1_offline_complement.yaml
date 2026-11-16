@@ -1,7 +1,6 @@
 suite:
   name: project_multimodal_understanding_vision_opd_v1_offline_complement
   contract_id: TC20260430027
-  protocol_status: current_with_answer_tag_extraction
   description: Offline local-parquet complement for Project15 on networkless GPU instances.
 
 backend:
