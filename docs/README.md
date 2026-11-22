@@ -35,3 +35,6 @@
 
 - [agent-collaboration.md](agent-collaboration.md)
   Required agent workflow and shared skill locations.
+- [midterm_report_202611/](midterm_report_202611/)
+  Midterm review, retraining-provenance, and testing workspace; raw artifacts
+  remain external.
