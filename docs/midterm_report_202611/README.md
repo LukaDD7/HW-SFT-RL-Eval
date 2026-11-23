@@ -16,15 +16,16 @@ comments for pre-registration and status/evidence links, not large logs.
 
 | Task | Paradigm | Contract | Issue | Owner / reviewer | Status |
 | --- | --- | --- | --- | --- | --- |
-| T1 | Base + GRPO | [Task](retraining/t1_base_grpo.md) | Pending API auth | Unassigned / TBD | Not started |
-| T2 | Base + RLSD/RLRT | [Task](retraining/t2_base_rlsd_rlrt.md) | Pending API auth | Unassigned / TBD | Not started |
-| T3 | Base + ISO/MOPD + RLSD/RLRT | [Task](retraining/t3_base_iso_mopd_rlsd_rlrt.md) | Pending API auth | Unassigned / TBD | Not started |
-| T4 | Base + ISO/MOPD | [Task](retraining/t4_base_iso_mopd.md) | Pending API auth | Unassigned / TBD | Not started |
-| T5 | Base + SFT + GRPO | [Task](retraining/t5_base_sft_grpo.md) | Pending API auth | Unassigned / TBD | Not started |
+| T1 | Base + GRPO | [Task](retraining/t1_base_grpo.md) | Pending browser submission | Unassigned / TBD | Not started |
+| T2 | Base + RLSD/RLRT | [Task](retraining/t2_base_rlsd_rlrt.md) | Pending browser submission | Unassigned / TBD | Not started |
+| T3 | Base + ISO/MOPD + RLSD/RLRT | [Task](retraining/t3_base_iso_mopd_rlsd_rlrt.md) | Pending browser submission | Unassigned / TBD | Not started |
+| T4 | Base + ISO/MOPD | [Task](retraining/t4_base_iso_mopd.md) | Pending browser submission | Unassigned / TBD | Not started |
+| T5 | Base + SFT + GRPO | [Task](retraining/t5_base_sft_grpo.md) | Pending browser submission | Unassigned / TBD | Not started |
 
-Issue creation is pending a non-interactive GitHub API credential with Issues
-write permission. Until the five issues are linked above, these task contracts
-are the canonical drafts; do not create duplicate issues for the same paradigm.
+The five Issues have not yet been submitted. The coordinator can create them
+without an API token or device code using the [browser creation guide](issue_creation.md).
+Until the five Issues are linked above, these task contracts are the canonical
+drafts; do not create duplicate Issues for the same paradigm.
 
 `IOS` in the original request is normalized to `ISO`. Slash notation is not an
 arm definition: each owner must state whether `RLSD/RLRT` and `ISO/MOPD` mean

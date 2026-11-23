@@ -1,6 +1,6 @@
 # T3 — Base + ISO/MOPD + RLSD/RLRT
 
-- Issue: not created yet; GitHub API authentication is required, then assign yourself.
+- Issue: pending coordinator submission via the [browser guide](../issue_creation.md), then assign yourself.
 - Owner: unassigned; independent reviewer: TBD.
 - Status: not started.
 - Branch: `docs/midterm-t3-<owner>` from `docs/midterm-report-202611`.
