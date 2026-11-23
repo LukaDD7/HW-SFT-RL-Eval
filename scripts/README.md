@@ -18,8 +18,12 @@ HW_EVAL_ENV=/path/to/env \
 bash scripts/eval/run_pinned_eval.sh --protocol project15
 ```
 
-`b6-mixed` runs v2 GQA/DynaMath/ViewSpatial/MMMU-Pro and v1 ReMI/MMBench.
-`project15` runs the full 15-task Project15 v1/offline suite. Both protocols
+Midterm `b6-mixed` runs v2 GQA/MMMU-Pro, v1 no-judge
+ReMI/ScienceQA/MindCube, and judged MMBench/MathVerse. Its default run name is
+`b6_midterm7_avg4`; do not reuse historical six-task output directories.
+`project15-complement` runs only VQAv2, MV-MATH, MMSI-Bench, BLINK, MathVista,
+and MMVet.
+`project15` runs the full 15-task Project15 v1/offline suite. These protocols
 run four independent sampled generations at temperature 1.0 and report avg@4.
 
 The v1 wrapper applies the repository-owned MMBench tag-first patch to the

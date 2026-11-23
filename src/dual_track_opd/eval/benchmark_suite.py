@@ -264,6 +264,38 @@ def validate_resume_budgets(previous: Mapping[str, int] | None, current: Mapping
             )
 
 
+def validate_resume_benchmarks(
+    previous: Mapping[str, Any], current: Sequence[str]
+) -> None:
+    """Prevent results from a different benchmark selection entering a resumed manifest."""
+    current_ids = [str(benchmark_id) for benchmark_id in current]
+    requested = previous.get("requested_benchmarks")
+    if requested is not None:
+        matches = (
+            isinstance(requested, list)
+            and len(requested) == len(current_ids)
+            and {str(benchmark_id) for benchmark_id in requested} == set(current_ids)
+        )
+        if not matches:
+            raise ValueError(
+                "resume benchmark set mismatch: "
+                f"current={current_ids}, prior requested={requested}. Use a new run directory."
+            )
+        return
+
+    previous_ids = {
+        str(record.get("benchmark_id"))
+        for record in previous.get("runs", [])
+    }
+    unexpected = previous_ids - set(current_ids)
+    if unexpected:
+        raise ValueError(
+            "resume benchmark set mismatch: "
+            f"prior run contains benchmarks outside the current request: {sorted(unexpected)}. "
+            "Use a new run directory."
+        )
+
+
 def build_command(
     spec: BenchmarkSpec,
     *,
@@ -600,6 +632,10 @@ def run_suite(args: argparse.Namespace) -> int:
             raise FileNotFoundError(f"manifest not found in resume directory: {manifest_candidate}")
         existing_manifest = json.loads(manifest_candidate.read_text(encoding="utf-8"))
         validate_resume_protocol(existing_manifest.get("thinking_protocol"), thinking_protocol)
+        validate_resume_benchmarks(
+            existing_manifest,
+            [spec.benchmark_id for spec in specs],
+        )
         validate_resume_budgets(
             existing_manifest.get("generation_budgets"),
             {spec.benchmark_id: generation_budget(spec) for spec in specs},
@@ -693,6 +729,7 @@ def run_suite(args: argparse.Namespace) -> int:
         manifest: dict[str, Any] = {
             "suite": suite.raw.get("suite", {}),
             "profile": args.profile,
+            "requested_benchmarks": [spec.benchmark_id for spec in specs],
             "run_name": run_name,
             "started_at": datetime.now().astimezone().isoformat(),
             "repo": _git_state(repo_root),

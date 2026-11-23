@@ -63,14 +63,11 @@ profiles:
     - mmmu_pro
     - mmvet
   project15_complement:
-    - mindcube
     - vqav2
-    - scienceqa
     - mv_math
-    - mathverse
-    - mathvista
     - mmsi_bench
     - blink
+    - mathvista
     - mmvet
 
 benchmarks:

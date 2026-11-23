@@ -5,7 +5,7 @@
 # 与 scripts/eval/run_target_benchmarks.sh（v1）的区别：
 #   - config: configs/eval/project_vision_opd_v2.yaml（任务名 *_v2）
 #   - 每个 lmms-eval 命令自动带 --include_path eval_tasks/opd_v2
-#   - 四项全 4096 解码预算；判分链 <answer> 标签优先 + 确定性 fallback
+#   - GQA/ViewSpatial 8192、DynaMath/MMMU-Pro 16384；判分链 <answer> 标签优先 + 确定性 fallback
 #   - 只跑 rule-based 四项（gqa/dynamath/viewspatial/mmmu_pro），
 #     不含 remi（replay 口径无变化）与 mmbench（judge 口径不变）
 #   - 输出根目录默认 eval_runs/vision_opd_project_v2，与 v1 结果并行保留

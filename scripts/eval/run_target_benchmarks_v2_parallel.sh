@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Run the four rule-based B6-v2 benchmarks on two eval GPUs in parallel.
-# Shard A: GQA + DynaMath. Shard B: ViewSpatial + MMMU-Pro.
+# Run the two midterm B6-v2 benchmarks on two eval GPUs in parallel.
+# Shard A: GQA. Shard B: MMMU-Pro.
 # The shard outputs are merged into the canonical EVAL_RUN_NAME directory.
 
 set -euo pipefail
@@ -13,7 +13,7 @@ EVAL_ENV="${HW_EVAL_ENV:-${SFT_RL_EVAL_ENV:-}}"
 [ -n "${EVAL_ENV}" ] || { echo "FATAL: set HW_EVAL_ENV or SFT_RL_EVAL_ENV" >&2; exit 1; }
 PY="${EVAL_ENV}/bin/python"
 
-BASE_RUN_NAME="${EVAL_RUN_NAME:-b6_mixed_avg4}"
+BASE_RUN_NAME="${EVAL_RUN_NAME:-b6_midterm7_avg4}"
 PRIMARY_GPU="${EVAL_GPU:-0}"
 SECOND_GPU="${EVAL_V2_SECOND_GPU:-${EVAL_JUDGE_GPU:-1}}"
 PRIMARY_PORT="${EVAL_PORT:-8000}"
@@ -39,7 +39,7 @@ failed=0
 
 (
   export EVAL_RUN_NAME="${SHARD_A_BASE}"
-  export V2_BENCHMARKS="gqa,dynamath"
+  export V2_BENCHMARKS="gqa"
   export EVAL_GPU="${PRIMARY_GPU}"
   export EVAL_PORT="${PRIMARY_PORT}"
   bash "${REPO_ROOT}/scripts/eval/run_target_benchmarks_v2.sh"
@@ -48,7 +48,7 @@ pids+=($!)
 
 (
   export EVAL_RUN_NAME="${SHARD_B_BASE}"
-  export V2_BENCHMARKS="viewspatial,mmmu_pro"
+  export V2_BENCHMARKS="mmmu_pro"
   export EVAL_GPU="${SECOND_GPU}"
   export EVAL_PORT="${SECOND_PORT}"
   bash "${REPO_ROOT}/scripts/eval/run_target_benchmarks_v2.sh"
@@ -71,7 +71,8 @@ PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}" \
   --output-run "${OUT_ROOT}/${MERGED_RUN}" \
   --shard-run "${OUT_ROOT}/${SHARD_A_RUN}" \
   --shard-run "${OUT_ROOT}/${SHARD_B_RUN}" \
-  --config "${REPO_ROOT}/configs/eval/project_vision_opd_v2.yaml"
+  --config "${REPO_ROOT}/configs/eval/project_vision_opd_v2.yaml" \
+  --benchmarks "gqa,mmmu_pro"
 
 echo "== v2 parallel summary =="
 PYTHONPATH="${REPO_ROOT}/src:${PYTHONPATH:-}" \

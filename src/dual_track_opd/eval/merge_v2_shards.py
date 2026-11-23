@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import yaml
 
@@ -33,7 +33,11 @@ def _benchmark_ids(manifest: dict[str, Any]) -> set[str]:
     }
 
 
-def _validate_shards(config: dict[str, Any], manifests: list[dict[str, Any]]) -> None:
+def _validate_shards(
+    config: dict[str, Any],
+    manifests: list[dict[str, Any]],
+    benchmark_ids: Sequence[str],
+) -> None:
     if len(manifests) != 2:
         raise ValueError("B6-v2 parallel merge expects exactly two shard runs")
 
@@ -54,7 +58,9 @@ def _validate_shards(config: dict[str, Any], manifests: list[dict[str, Any]]) ->
     if any(manifest.get("returncode") != 0 for manifest in manifests):
         raise ValueError("cannot merge a shard with a nonzero returncode")
 
-    expected = set(config["benchmarks"])
+    expected = set(benchmark_ids)
+    if not expected or len(expected) != len(benchmark_ids) or not expected <= set(config["benchmarks"]):
+        raise ValueError(f"invalid v2 merge benchmark selection: {list(benchmark_ids)}")
     ids_a = _benchmark_ids(first)
     ids_b = _benchmark_ids(manifests[1])
     if ids_a & ids_b:
@@ -85,6 +91,7 @@ def merge_shards(
     shard_runs: list[Path],
     *,
     config_path: Path,
+    benchmark_ids: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     """Create a canonical run from completed v2 shard directories."""
     output_run = output_run.expanduser().resolve()
@@ -93,13 +100,16 @@ def merge_shards(
     if not isinstance(config, dict) or not isinstance(config.get("benchmarks"), dict):
         raise ValueError(f"invalid v2 config: {config_path}")
 
+    ordered_benchmarks = (
+        tuple(benchmark_ids) if benchmark_ids is not None else V2_BENCHMARK_ORDER
+    )
     manifests = []
     for shard_run in shard_runs:
         manifest_path = shard_run / "run_manifest.json"
         if not manifest_path.is_file():
             raise FileNotFoundError(f"shard manifest not found: {manifest_path}")
         manifests.append(_load_json(manifest_path))
-    _validate_shards(config, manifests)
+    _validate_shards(config, manifests, ordered_benchmarks)
 
     output_run.mkdir(parents=True, exist_ok=True)
     existing_manifest_path = output_run / "run_manifest.json"
@@ -111,12 +121,22 @@ def merge_shards(
             f"refusing to overwrite a non-parallel run: {existing_manifest_path}"
         )
 
+    if existing_manifest is not None:
+        existing_ids = existing_manifest.get("requested_benchmarks")
+        if existing_ids is None:
+            existing_ids = sorted(_benchmark_ids(existing_manifest))
+        if set(existing_ids) != set(ordered_benchmarks) or len(existing_ids) != len(ordered_benchmarks):
+            raise ValueError(
+                "merged benchmark set mismatch: "
+                f"expected={list(ordered_benchmarks)}, prior={existing_ids}. Use a new run name."
+            )
+
     benchmark_to_shard = {
         benchmark_id: shard_runs[index]
         for index, manifest in enumerate(manifests)
         for benchmark_id in _benchmark_ids(manifest)
     }
-    for benchmark_id in V2_BENCHMARK_ORDER:
+    for benchmark_id in ordered_benchmarks:
         shard_run = benchmark_to_shard[benchmark_id]
         _link_benchmark(
             shard_run / "lmms" / benchmark_id,
@@ -130,7 +150,8 @@ def merge_shards(
         if record.get("status") == "completed"
     }
     merged_manifest = dict(manifests[0])
-    merged_manifest["runs"] = [records_by_id[key] for key in V2_BENCHMARK_ORDER]
+    merged_manifest["requested_benchmarks"] = list(ordered_benchmarks)
+    merged_manifest["runs"] = [records_by_id[key] for key in ordered_benchmarks]
     merged_manifest["run_name"] = output_run.name
     merged_manifest["raw_output_path"] = str(output_run)
     merged_manifest["v2_parallel_shards"] = [str(path) for path in shard_runs]
@@ -161,6 +182,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-run", required=True, type=Path)
     parser.add_argument("--shard-run", required=True, action="append", type=Path)
     parser.add_argument("--config", required=True, type=Path)
+    parser.add_argument(
+        "--benchmarks",
+        help="Comma-separated expected benchmark IDs; defaults to the historical four-task v2 set.",
+    )
     return parser
 
 
@@ -170,6 +195,11 @@ def main() -> None:
         args.output_run,
         args.shard_run,
         config_path=args.config,
+        benchmark_ids=(
+            [part for part in args.benchmarks.split(",") if part]
+            if args.benchmarks is not None
+            else None
+        ),
     )
 
 

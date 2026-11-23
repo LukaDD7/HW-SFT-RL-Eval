@@ -1,4 +1,7 @@
+from argparse import Namespace
+import json
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -6,8 +9,10 @@ from dual_track_opd.eval.benchmark_suite import (
     build_commands,
     build_command,
     load_suite,
+    run_suite,
     select_benchmarks,
     validate_checkpoint_identity,
+    validate_resume_benchmarks,
     validate_resume_budgets,
 )
 
@@ -52,11 +57,8 @@ def test_project15_complement_excludes_b6_tasks() -> None:
         for spec in select_benchmarks(suite, "project15_complement")
     }
     assert selected == {
-        "mindcube",
         "vqav2",
-        "scienceqa",
         "mv_math",
-        "mathverse",
         "mathvista",
         "mmsi_bench",
         "blink",
@@ -147,6 +149,7 @@ def test_canonical_generation_budgets() -> None:
     assert budgets["blink"] == 2048
     assert budgets["mmbench"] == 8192
     assert budgets["mmmu_pro"] == 16384
+    assert budgets["mathverse"] == 4096
 
 
 def test_avg4_builds_four_independent_repeat_commands() -> None:
@@ -205,10 +208,13 @@ def test_checkpoint_identity_guard_accepts_matching_ptdpo_path() -> None:
 
 
 @pytest.mark.parametrize("mode", ["auto", "think", "no-think"])
-@pytest.mark.parametrize("benchmark_id", ["gqa", "dynamath", "viewspatial", "mmmu_pro", "remi", "mmbench"])
+@pytest.mark.parametrize(
+    "benchmark_id",
+    ["gqa", "mmmu_pro", "remi", "scienceqa", "mindcube", "mmbench", "mathverse"],
+)
 def test_b6_prompt_modes_preserve_avg4(monkeypatch, mode, benchmark_id) -> None:
     monkeypatch.setenv("SFT_RL_THINK_MODE", mode)
-    suite = load_suite(CONFIG if benchmark_id in {"remi", "mmbench"} else CONFIG_V2)
+    suite = load_suite(CONFIG_V2 if benchmark_id in {"gqa", "mmmu_pro"} else CONFIG)
     spec = suite.benchmarks[benchmark_id]
     commands = build_commands(
         spec, suite=suite, run_dir=Path("/tmp/run"), python="python",
@@ -217,7 +223,15 @@ def test_b6_prompt_modes_preserve_avg4(monkeypatch, mode, benchmark_id) -> None:
         judge_policy="predict" if spec.judge_required else "defer",
     )
     assert len(commands) == 4
-    expected_cap = 16384 if benchmark_id in {"mmmu_pro", "dynamath", "remi"} else 8192
+    expected_cap = {
+        "gqa": 8192,
+        "mmmu_pro": 16384,
+        "remi": 16384,
+        "scienceqa": 1024,
+        "mindcube": 1024,
+        "mmbench": 8192,
+        "mathverse": 4096,
+    }[benchmark_id]
     outputs, caches = [], []
     for repeat_index, command in enumerate(commands):
         assert command[command.index("--seed") + 1] == str(42 + repeat_index)
@@ -294,3 +308,95 @@ def test_checkpoint_identity_guard_rejects_resume_checkpoint_change() -> None:
             served_model_name="Qwen3-VL-8B-PTDPO-R4",
             previous_checkpoint="/models/Vision-OPD-Qwen3.5-4B/global_step_65",
         )
+
+
+def completed_record(benchmark_id: str) -> dict[str, str | int]:
+    return {"benchmark_id": benchmark_id, "status": "completed", "repeat_count": 4}
+
+
+def test_resume_allows_an_incomplete_run_with_the_same_benchmark_set():
+    current = ["gqa", "mmmu_pro"]
+    validate_resume_benchmarks(
+        {
+            "requested_benchmarks": current,
+            "runs": [completed_record("gqa")],
+        },
+        current,
+    )
+    validate_resume_benchmarks(
+        {"runs": [completed_record("gqa")]},
+        current,
+    )
+
+
+@pytest.mark.parametrize(
+    "previous",
+    [
+        {
+            "requested_benchmarks": ["gqa", "dynamath", "viewspatial", "mmmu_pro"],
+            "runs": [completed_record("gqa")],
+        },
+        {
+            "runs": [
+                completed_record("gqa"),
+                completed_record("dynamath"),
+                completed_record("viewspatial"),
+                completed_record("mmmu_pro"),
+            ]
+        },
+        {"runs": [{"benchmark_id": "mathverse", "status": "deferred"}]},
+    ],
+)
+def test_resume_rejects_legacy_or_changed_benchmark_sets(previous):
+    with pytest.raises(ValueError, match="resume benchmark set mismatch"):
+        validate_resume_benchmarks(previous, ["gqa", "mmmu_pro"])
+
+
+def test_resume_rejects_adding_benchmarks_to_a_recorded_selection():
+    with pytest.raises(ValueError, match="resume benchmark set mismatch"):
+        validate_resume_benchmarks(
+            {"requested_benchmarks": ["gqa"], "runs": []},
+            ["gqa", "mmmu_pro"],
+        )
+
+
+def test_run_suite_records_and_enforces_requested_benchmarks(tmp_path, monkeypatch):
+    checkpoint = tmp_path / "checkpoint"
+    checkpoint.mkdir()
+    output = tmp_path / "output"
+    monkeypatch.setattr(
+        "dual_track_opd.eval.benchmark_suite.subprocess.run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 0, stdout="", stderr=""),
+    )
+    monkeypatch.setattr(
+        "dual_track_opd.eval.benchmark_suite._repeat_has_results",
+        lambda **kwargs: True,
+    )
+    args = Namespace(
+        config=str(CONFIG),
+        profile="acceptance_core",
+        benchmarks=["scienceqa,mindcube"],
+        checkpoint=str(checkpoint),
+        think_mode="auto",
+        api_base=None,
+        output_root=str(output),
+        run_name="midterm_trace",
+        python="python",
+        inference_backend="vllm",
+        judge_policy="defer",
+        limit=None,
+        execute=True,
+        keep_going=False,
+        resume_from=None,
+    )
+    assert run_suite(args) == 0
+    manifest_path = output / "midterm_trace" / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["requested_benchmarks"] == ["scienceqa", "mindcube"]
+    assert [record["status"] for record in manifest["runs"]] == ["completed", "completed"]
+
+    args.resume_from = str(output / "midterm_trace")
+    assert run_suite(args) == 0
+    args.benchmarks = ["scienceqa"]
+    with pytest.raises(ValueError, match="resume benchmark set mismatch"):
+        run_suite(args)

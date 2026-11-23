@@ -42,9 +42,9 @@ The evaluation runtime also requires a pinned `lmms-eval` checkout. See
 
 | Protocol | Use case | Entry point |
 |---|---|---|
-| B6-mixed avg@4 | v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol b6-mixed` |
+| Midterm B6-mixed avg@4 | MMMU-Pro, MMBench, ReMI, MathVerse, GQA, ScienceQA, MindCube; four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol b6-mixed` |
 | Project15 avg@4 | 15-task v1/offline suite, four sampled generations | `scripts/eval/run_pinned_eval.sh --protocol project15` |
-| Project15 complement avg@4 | Run only the nine Project15 tasks not covered by B6-mixed; use after a matching B6-mixed run to avoid duplicate generation | `scripts/eval/run_pinned_eval.sh --protocol project15-complement` |
+| Project15 complement avg@4 | Run the six Project15 tasks not covered by midterm B6: VQAv2, MV-MATH, MMSI-Bench, BLINK, MathVista, MMVet | `scripts/eval/run_pinned_eval.sh --protocol project15-complement` |
 | ReMI strict | Full 2,600-row denominator, task-aware extraction | `scripts/sft_rl/remi_reeval.py --mode exact` |
 | MV-MATH strict | Completed-answer gate over judge sidecar | `python -m dual_track_opd.eval.score_mv_math --mode strict` |
 
@@ -52,19 +52,19 @@ Use `scripts/eval/run_pinned_eval.sh` as the only user-facing evaluation
 entrypoint. The underlying v1/v2 runners remain internal implementation
 details.
 
-Both canonical protocols use `repeat_count=4` and `sampling_temperature=1.0`.
+The canonical protocol runners use `repeat_count=4` and `sampling_temperature=1.0`.
 The reported primary value is the mean of four independent repeat metrics. This
 is an engineering avg@4 protocol, not pass@4.
 
 B6-mixed runs the v2 stage on two GPUs by default. It launches two vLLM eval
-servers: GQA+DynaMath on `EVAL_GPU` and ViewSpatial+MMMU-Pro on
+servers: GQA on `EVAL_GPU` and MMMU-Pro on
 `EVAL_JUDGE_GPU`; after both shards finish, their outputs are merged into the
 canonical run directory and the judge stage begins. Set `EVAL_V2_PARALLEL=0`
 to preserve the historical one-server behavior. When think and no-think runs
 share a four-GPU instance, assign each mode two GPUs and distinct port pairs.
 
-`project15-complement` is an explicit compute-saving protocol. It runs the nine
-Project15 tasks that are not in B6-mixed. Use the same checkpoint and protocol
+`project15-complement` is an explicit compute-saving protocol. It runs the six
+Project15 tasks that are not in midterm B6-mixed. Use the same checkpoint and protocol
 generation as the existing B6-mixed run, then combine the two result sets in a
 report. It does not silently import or rewrite an old B6 run; the user must
 select the matching B6 run and keep task-version/scoring labels explicit.
@@ -91,8 +91,10 @@ configuration, with no Think-specific override:
 
 | Benchmarks | `max_new_tokens` |
 |---|---:|
-| MMMU-Pro, DynaMath, ReMI | **16384** |
-| MMBench, ViewSpatial, GQA | **8192** |
+| MMMU-Pro, ReMI | **16384** |
+| MMBench, GQA | **8192** |
+| MathVerse | **4096** |
+| ScienceQA, MindCube | **1024** |
 
 The OpenAI adapter preserves these values in the actual API payload after the
 pinned lmms backend's historical 4096-token clamp, including in `auto` mode.
@@ -114,7 +116,7 @@ Use new run names for the shared budgets; do not resume old single-generation
 or differently budgeted outputs. Manifests record resolved budgets and replay
 rows record generation settings; resume rejects mismatches or missing settings.
 
-Think requests use this exact system instruction on all six benchmarks:
+Think requests use this exact system instruction on all seven benchmarks:
 
 ```text
 Explain your reasoning inside <think>...</think>, then give the final answer inside <answer>...</answer>. Any request in the question for a short or direct response applies to the final answer only. Keep the reasoning proportional to the question; simple questions need only brief reasoning.

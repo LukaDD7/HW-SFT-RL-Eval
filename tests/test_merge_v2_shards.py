@@ -80,3 +80,53 @@ def test_refuses_to_replace_non_parallel_run(tmp_path: Path) -> None:
     (output / "run_manifest.json").write_text("{}", encoding="utf-8")
     with pytest.raises(FileExistsError, match="non-parallel run"):
         merge_shards(output, [shard_a, shard_b], config_path=CONFIG)
+
+
+def test_merges_midterm_b6_subset_without_legacy_tasks(tmp_path: Path) -> None:
+    shard_a = make_shard(tmp_path, "a", ["gqa"])
+    shard_b = make_shard(tmp_path, "b", ["mmmu_pro"])
+    output = tmp_path / "merged"
+
+    merge_shards(
+        output,
+        [shard_a, shard_b],
+        config_path=CONFIG,
+        benchmark_ids=("gqa", "mmmu_pro"),
+    )
+
+    manifest = json.loads((output / "run_manifest.json").read_text(encoding="utf-8"))
+    assert [record["benchmark_id"] for record in manifest["runs"]] == ["gqa", "mmmu_pro"]
+    assert manifest["requested_benchmarks"] == ["gqa", "mmmu_pro"]
+    assert not (output / "lmms" / "dynamath").exists()
+    assert not (output / "lmms" / "viewspatial").exists()
+
+
+def test_midterm_merge_rejects_old_shards_and_merged_outputs(tmp_path: Path) -> None:
+    old_a = make_shard(tmp_path, "old_a", ["gqa", "dynamath"])
+    shard_b = make_shard(tmp_path, "b", ["mmmu_pro"])
+    with pytest.raises(ValueError, match="shard benchmark set mismatch"):
+        merge_shards(
+            tmp_path / "old_shards",
+            [old_a, shard_b],
+            config_path=CONFIG,
+            benchmark_ids=("gqa", "mmmu_pro"),
+        )
+
+    shard_a = make_shard(tmp_path, "a", ["gqa"])
+    output = tmp_path / "merged"
+    output.mkdir()
+    old_manifest = {
+        "v2_parallel_shards": ["old_a", "old_b"],
+        "runs": [
+            {"benchmark_id": benchmark, "status": "completed"}
+            for benchmark in ("gqa", "dynamath", "viewspatial", "mmmu_pro")
+        ],
+    }
+    (output / "run_manifest.json").write_text(json.dumps(old_manifest), encoding="utf-8")
+    with pytest.raises(ValueError, match="merged benchmark set mismatch"):
+        merge_shards(
+            output,
+            [shard_a, shard_b],
+            config_path=CONFIG,
+            benchmark_ids=("gqa", "mmmu_pro"),
+        )

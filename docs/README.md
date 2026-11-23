@@ -3,7 +3,8 @@
 ## Canonical protocols
 
 - [pinned_eval_protocols_20260916.md](pinned_eval_protocols_20260916.md)
-  Single user-facing entrypoint and pinned B6-mixed / Project15 result sets.
+  Single user-facing entrypoint, current seven-task midterm B6, and historical
+  pinned B6 / Project15 result boundaries.
 - [project15_rl_execution_plan_20261014.md](project15_rl_execution_plan_20261014.md)
   Pinned 4-GPU order for VA-OPD step2175 Project15 transfer, ViRL-medium +
   Cauldron-broad RL data construction, and the 50-step GRPO pilot.
@@ -36,5 +37,6 @@
 - [agent-collaboration.md](agent-collaboration.md)
   Required agent workflow and shared skill locations.
 - [midterm_report_202611/](midterm_report_202611/)
-  Midterm review, retraining-provenance, and testing workspace; raw artifacts
-  remain external.
+  Five claimable training-paradigm tasks, seven-task B6 acceptance requirements,
+  independent review/testing records, and the shared report template; raw
+  artifacts remain external.

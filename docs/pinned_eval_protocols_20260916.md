@@ -1,7 +1,8 @@
 # Pinned evaluation protocols — 2026-09-16
 
-This document pins the two canonical result sets and the single user-facing
-evaluation entrypoint.
+This document records the canonical protocols and single user-facing evaluation
+entrypoint, amended for the seven-task 2026-11 midterm B6. Historical result
+files retain their original six-task semantics.
 
 ## Canonical entrypoint
 
@@ -41,38 +42,50 @@ copy-pasted brace cannot silently create another output directory.
 
 ## B6-mixed
 
-B6-mixed is the official six-benchmark comparison protocol:
+For the 2026-11 midterm, B6-mixed contains exactly seven benchmarks:
 
-- v2: GQA, DynaMath, ViewSpatial, MMMMU-Pro
-- v1: ReMI, MMBench
-- Four independent sampled generations per benchmark at temperature 1.0
-- Primary values are avg@4, not pass@1 or pass@4
-- The v2 stage uses two eval GPUs by default: GQA+DynaMath on one server and
-  ViewSpatial+MMMU-Pro on another. Shard outputs are merged into the canonical
-  run; set `EVAL_V2_PARALLEL=0` for the historical single-server path.
+- v2 no-judge: GQA, MMMU-Pro
+- v1 no-judge: ReMI, ScienceQA, MindCube
+- v1 judged: MMBench, MathVerse
+- Four independent sampled generations per benchmark at temperature 1.0, seeds
+  42–45; primary values are avg@4, not pass@1 or pass@4.
+- The v2 stage uses two eval GPUs by default: GQA on one server and MMMU-Pro on
+  another. Set `EVAL_V2_PARALLEL=0` for the single-server path.
+- The new default run name is `b6_midterm7_avg4`. Use a unique run name per
+  checkpoint and prompt mode; never resume an old six-task B6 directory.
 
-Pinned result summary:
+| Benchmark | Task / scorer | Max new tokens |
+| --- | --- | ---: |
+| GQA | `gqa_v2`; normalized exact tag-or-direct | 8192 |
+| MMMU-Pro | `mmmu_pro_standard_v2`; deterministic MCQ tag-first | 16384 |
+| ReMI | strict `remi_reeval.py --mode exact`; full 2,600-row denominator | 16384 |
+| ScienceQA | `scienceqa_img`; deterministic MCQ | 1024 |
+| MindCube | `mindcube_full`; deterministic MCQ with subcategories | 1024 |
+| MMBench | `mmbench_en_dev`; judged choice extractor | 8192 |
+| MathVerse | `mathverse_testmini`; LLM judge | 4096 |
+
+ReMI strict exact is averaged over four replay files and written to
+`remi_avg4.json`. Record all four sample counts and truncation counts/rates.
+MMBench and MathVerse require the judge model/version and judged raw outputs to
+be recorded. All prompt modes share the budgets above.
+
+Historical pinned result summary (legacy six-task protocol only):
 
 ```text
 results/20260916/b6_mixed/summary.json
 ```
 
-Important boundaries:
+That file is not a midterm seven-task result and must not be silently relabeled
+or combined into a seven-task aggregate. Historical generation-budget documents
+and scores remain unchanged. Manifests now record `requested_benchmarks`;
+resume rejects changed selections and legacy outputs containing tasks outside
+the requested set.
 
-- Current generation budgets (updated 2026-09-21): MMMU-Pro/DynaMath/ReMI
-  16384 tokens; GQA/ViewSpatial/MMBench 8192. All prompt modes share these
-  budgets. The v2 tasks retain deterministic `<answer>`-tag-first scoring.
-- These budgets supersede the historical settings used for the pinned results
-  above. Use a new run name; historical scores are not recomputed by this change.
-- ReMI uses strict exact full-denominator scoring over 2,600 rows.
-- ReMI strict exact is averaged over four replay files and written to
-  `remi_avg4.json`.
-- MV-MATH replay, official-compatible judging, and strict completed-answer
-  gating are likewise repeated four times; `mv_math_avg4.json` is the mean of
-  four `strict_weighted_accuracy` values.
-- MMBench uses the v1 judged protocol.
-- Do not compare B6-mixed scores directly with Project15 scores except at the
-  individual task level when the task version and scoring chain are identical.
+The independent v2 runner still supports its historical four tasks, including
+DynaMath and ViewSpatial, when called explicitly for that protocol. Their
+removal from midterm B6 does not remove those benchmark configurations. Do not
+compare B6-mixed scores directly with Project15 scores except at the individual
+task level when the task version and scoring chain are identical.
 
 ## Project15
 
@@ -103,8 +116,8 @@ results/20260916/project15/summary.json
 Important boundaries:
 
 - ReMI and MV-MATH are diagnostics, not native Project15 rows.
-- The six B6 tasks in the canonical v1 config share the current budgets above.
-  Other v1 budgets remain: MindCube/ScienceQA 1024, BLINK 2048, VQAv2 128.
+- B6 v1 tasks retain the budgets above; GQA/MMMU-Pro use the v2 protocol in B6.
+  Other v1 budgets remain: BLINK 2048, VQAv2 128.
   Historical aligned/offline configs retain their archived settings.
 - Project15 is not equivalent to B6-mixed; it is a different task set.
 - Do not average Project15 and B6-mixed scores in the same table.
@@ -115,11 +128,10 @@ Important boundaries:
 ### Project15 complement
 
 When a matching B6-mixed run already exists, `project15-complement` avoids
-regenerating the six overlapping tasks and runs only:
+regenerating the seven overlapping tasks and runs only:
 
 ```text
-MindCube, VQAv2, ScienceQA, MV-MATH, MathVerse, MathVista,
-MMSI-Bench, BLINK, MMVet
+VQAv2, MV-MATH, MMSI-Bench, BLINK, MathVista, MMVet
 ```
 
 Use the same checkpoint and generation protocol as the existing B6 run. Keep

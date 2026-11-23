@@ -17,9 +17,9 @@ Usage:
     bash scripts/eval/run_pinned_eval.sh --protocol project15-complement
 
 Protocols:
-  b6-mixed   v2 GQA/DynaMath/ViewSpatial/MMMU-Pro + v1 ReMI/MMBench
+  b6-mixed   Midterm seven: v2 GQA/MMMU-Pro + v1 ReMI/ScienceQA/MindCube/MMBench/MathVerse
   project15  15-task Project15 v1/offline suite
-  project15-complement  9 Project15 tasks not covered by b6-mixed
+  project15-complement  6 Project15 tasks not covered by the midterm B6
 
 Prompt adapter:
   --think-mode auto|think|no-think
@@ -98,7 +98,7 @@ fi
 export DTOPD_EVAL_ROOT="${DTOPD_EVAL_ROOT:-${DTOPD_ROOT:-${REPO_ROOT}}/eval_runs/vision_opd_project_baseline}"
 case "$protocol" in
   b6-mixed)
-    export EVAL_RUN_NAME="${EVAL_RUN_NAME:-b6_mixed_avg4}"
+    export EVAL_RUN_NAME="${EVAL_RUN_NAME:-b6_midterm7_avg4}"
     ;;
   project15)
     export EVAL_RUN_NAME="${EVAL_RUN_NAME:-project15_avg4}"
@@ -155,12 +155,12 @@ score_remi_avg4() {
 case "$protocol" in
   b6-mixed)
     if [[ "${EVAL_V2_PARALLEL:-1}" == "1" ]]; then
-      bash scripts/eval/run_target_benchmarks_v2_parallel.sh
+      V2_BENCHMARKS=gqa,mmmu_pro bash scripts/eval/run_target_benchmarks_v2_parallel.sh
     else
-      bash scripts/eval/run_target_benchmarks_v2.sh
+      V2_BENCHMARKS=gqa,mmmu_pro bash scripts/eval/run_target_benchmarks_v2.sh
     fi
-    SFT_RL_BENCHMARKS=remi \
-    SFT_RL_JUDGE_BENCHMARKS=mmbench \
+    SFT_RL_BENCHMARKS=remi,scienceqa,mindcube \
+    SFT_RL_JUDGE_BENCHMARKS=mmbench,mathverse \
     SFT_RL_EVAL_CONFIG=configs/eval/project_vision_opd.yaml \
       bash scripts/eval/run_target_benchmarks.sh
     score_remi_avg4
@@ -173,8 +173,8 @@ case "$protocol" in
     score_remi_avg4
     ;;
   project15-complement)
-    SFT_RL_BENCHMARKS=mindcube,vqav2,scienceqa,mv_math,mmsi_bench,blink
-    SFT_RL_JUDGE_BENCHMARKS=mathverse,mathvista,mmvet
+    SFT_RL_BENCHMARKS=vqav2,mv_math,mmsi_bench,blink \
+    SFT_RL_JUDGE_BENCHMARKS=mathvista,mmvet \
     SFT_RL_EVAL_CONFIG=configs/eval/project_vision_opd.yaml \
       bash scripts/eval/run_target_benchmarks.sh
     ;;
