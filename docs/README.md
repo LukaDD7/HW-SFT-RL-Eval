@@ -37,7 +37,6 @@
 - [agent-collaboration.md](agent-collaboration.md)
   Required agent workflow and shared skill locations.
 - [midterm_report_202611/](midterm_report_202611/)
-  Five claimable training-paradigm tasks, training-volume/configuration
-  comparison cohorts, seven-task B6 acceptance requirements, independent
-  review/testing records, and the shared report template; raw artifacts remain
-  external.
+  Five claimable training-paradigm tasks, matched training-volume/configuration
+  contracts, seven-task B6 acceptance requirements, independent review/testing
+  records, and the shared report template; raw artifacts remain external.

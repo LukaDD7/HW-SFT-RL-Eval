@@ -6,7 +6,7 @@
 | --- | --- |
 | Task / concrete arm | T`<N>` / `<arm_id>` |
 | Paradigm and stage sequence | `<resolved notation; do not leave slash semantics ambiguous>` |
-| Comparison cohort / comparability limits | `<training_alignment.md cohort; intentional differences and invalid comparisons>` |
+| Matched comparison pair / comparability limits | `<training_alignment.md pair; intentional differences and invalid comparisons>` |
 | Issue / report PR | `<URL>` / `<URL>` |
 | Owner / independent reviewer | `<name>` / `<name>` |
 | Status | `planned / smoke / running / evaluating / review / completed / blocked / invalid` |
@@ -30,6 +30,7 @@ explicit per-arm result table; do not combine incompatible runs.
 | Training repository commit and dirty patch | `<commit; external patch/diff link>` |
 | HWEval / backend commit or package version | `<commit/version>` |
 | Complete resolved config | `<external immutable link>` |
+| Matched-recipe config diff | `<comparison with training_alignment.md recipe; only declared algorithm/input differences>` |
 | Base model and every reused checkpoint | `<IDs and full revisions>` |
 | Seed(s) | `<values>` |
 | Hardware / world size / wall time | `<GPU type, count, hours>` |
@@ -101,7 +102,7 @@ rows per repeat and use strict exact full-denominator scoring.
 ## Independent review and handoff
 
 - [ ] Owner's data, global-rollout-step, and optimizer-update calculations reconcile with resolved configs and logs.
-- [ ] Reviewer confirmed the comparison cohort and limitations, every parent/final checkpoint, code/backend revision, seed, and reuse decision.
+- [ ] Reviewer confirmed the matched pair, resolved-config equality/intentional differences and limitations, every parent/final checkpoint, code/backend revision, seed, and reuse decision.
 - [ ] All seven full B6 results have four repeats, complete denominators, truncation evidence, and valid scoring.
 - [ ] ReMI is strict exact with 2,600 rows per repeat; judged rows have judge provenance.
 - [ ] Negative/blocked/invalid outcomes and comparability limits are retained.

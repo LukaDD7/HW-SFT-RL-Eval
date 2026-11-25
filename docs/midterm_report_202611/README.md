@@ -48,12 +48,18 @@ is not completion. An owner cannot be the sole reviewer of their own result.
 
 ## Training-volume and configuration alignment
 
-Use the [comparison-cohort contract](training_alignment.md) before allocating
-compute or comparing arms. It separates global rollout steps from optimizer
-updates, records the current T1/T5 and T2/T3 numerical budgets, and identifies
-intentional data/initialization differences and non-controlled cross-cohort
-comparisons. Do not copy one cohort's settings into another or relabel existing
-runs to manufacture comparability.
+Use the [matched training contract](training_alignment.md) and its
+[machine-readable T1/T5 recipe](../../configs/experiment/midterm_grpo_aligned_20261125.json)
+before allocating compute or comparing arms. All four RL arms use 400 global
+steps × 256 prompts × 8 rollouts with the same public configuration; T1/T2 use
+the same Base and 30k mixture, while T3/T5 use the same 15k RL data. T1/T5 run
+the original stack's pure GRPO mode and T2/T3 retain hybrid. The old short
+T1/T5 drafts are superseded, not evidence of a controlled comparison.
+
+Global rollout steps and actual optimizer updates remain separate. Pairwise
+initialization/data differences, upstream SFT/MOPD volume, and unresolved
+runtime/reward/checkpoint blockers must be carried into every conclusion. Do
+not claim completed training or method superiority from the recipe alone.
 
 The PR #18 [RLSD/RLRT reproduction handoff](rlsd_rlrt_reproduction_20261124/)
 provides the T2/T3 hybrid recipe and data-preparation tools. It is not a complete

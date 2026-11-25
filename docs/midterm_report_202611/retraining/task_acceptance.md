@@ -27,10 +27,13 @@ or Git.
 
 ## 2. Verify actual data and training volume
 
-Follow `../training_alignment.md` for the current comparison cohorts, numerical
-budgets, and comparability limits. Keep global rollout steps and actual optimizer
-updates separate; do not treat equal prompt/trajectory totals as equal epochs or
-claim a controlled comparison across incompatible cohorts.
+Follow `../training_alignment.md` for the matched numerical budget, pairwise
+data/initialization requirements, and comparability limits. For T1/T5, use the
+linked aligned recipe rather than the superseded short-run drafts. Compare every
+resolved config against that contract and record any intentional algorithm or
+input difference. Keep global rollout steps and actual optimizer updates
+separate; do not treat equal prompt/trajectory totals as equal epochs, equal
+end-to-end SFT/MOPD compute, or proof of a controlled result.
 
 For each concrete arm and stage, record:
 
