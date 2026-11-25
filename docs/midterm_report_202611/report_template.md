@@ -6,6 +6,7 @@
 | --- | --- |
 | Task / concrete arm | T`<N>` / `<arm_id>` |
 | Paradigm and stage sequence | `<resolved notation; do not leave slash semantics ambiguous>` |
+| Comparison cohort / comparability limits | `<training_alignment.md cohort; intentional differences and invalid comparisons>` |
 | Issue / report PR | `<URL>` / `<URL>` |
 | Owner / independent reviewer | `<name>` / `<name>` |
 | Status | `planned / smoke / running / evaluating / review / completed / blocked / invalid` |
@@ -46,11 +47,11 @@ that every framework defines batch and optimizer steps identically.
 | --- | --- | ---: | ---: | --- | --- | ---: |
 | `<dataset and resolved config>` | `<immutable identity>` | | | | | |
 
-| Stage | Rollouts/prompt | World size | Per-device batch | Grad accumulation | Effective global batch + formula | Expected optimizer steps | Actual steps | Evidence |
-| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- |
+| Stage | Rollouts/prompt (RL only) | Planned/actual global rollout steps | World size | Per-device batch | Grad accumulation | Effective global batch + formula | Expected/actual optimizer updates | Evidence |
+| --- | ---: | --- | ---: | ---: | ---: | --- | --- | --- |
 | `<stage>` | | | | | | | | |
 
-- Batch/step accounting, sampler, `drop_last`, filtering, resume/early-stop effects:
+- Batch/step accounting, sampler, `drop_last`, filtering, resume/early-stop and zero-advantage skip effects:
   `<calculation reconciled with logs>`
 - MOPD-route-v2 used? `<no / yes: stage, revision, rows, mixture>`
 - RL-RSTG-ZVP-train-15k used? `<no / yes: stage, revision, rows, mixture>`
@@ -99,8 +100,8 @@ rows per repeat and use strict exact full-denominator scoring.
 
 ## Independent review and handoff
 
-- [ ] Owner's data and optimizer-step calculation reconciles with resolved configs and logs.
-- [ ] Reviewer confirmed every parent/final checkpoint, code/backend revision, seed, and reuse decision.
+- [ ] Owner's data, global-rollout-step, and optimizer-update calculations reconcile with resolved configs and logs.
+- [ ] Reviewer confirmed the comparison cohort and limitations, every parent/final checkpoint, code/backend revision, seed, and reuse decision.
 - [ ] All seven full B6 results have four repeats, complete denominators, truncation evidence, and valid scoring.
 - [ ] ReMI is strict exact with 2,600 rows per repeat; judged rows have judge provenance.
 - [ ] Negative/blocked/invalid outcomes and comparability limits are retained.

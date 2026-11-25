@@ -46,6 +46,19 @@ filename specified in their task. Required completion evidence includes:
 A launched job, finite loss, generated checkpoint, or zero runner exit code alone
 is not completion. An owner cannot be the sole reviewer of their own result.
 
+## Training-volume and configuration alignment
+
+Use the [comparison-cohort contract](training_alignment.md) before allocating
+compute or comparing arms. It separates global rollout steps from optimizer
+updates, records the current T1/T5 and T2/T3 numerical budgets, and identifies
+intentional data/initialization differences and non-controlled cross-cohort
+comparisons. Do not copy one cohort's settings into another or relabel existing
+runs to manufacture comparability.
+
+The PR #18 [RLSD/RLRT reproduction handoff](rlsd_rlrt_reproduction_20261124/)
+provides the T2/T3 hybrid recipe and data-preparation tools. It is not a complete
+training repository or evidence of completed GPU training.
+
 ## Branch and PR workflow
 
 1. Create a task branch from this integration branch:

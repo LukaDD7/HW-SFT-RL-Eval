@@ -27,6 +27,11 @@ or Git.
 
 ## 2. Verify actual data and training volume
 
+Follow `../training_alignment.md` for the current comparison cohorts, numerical
+budgets, and comparability limits. Keep global rollout steps and actual optimizer
+updates separate; do not treat equal prompt/trajectory totals as equal epochs or
+claim a controlled comparison across incompatible cohorts.
+
 For each concrete arm and stage, record:
 
 - Hugging Face dataset/model ID and full immutable revision, or the equivalent
