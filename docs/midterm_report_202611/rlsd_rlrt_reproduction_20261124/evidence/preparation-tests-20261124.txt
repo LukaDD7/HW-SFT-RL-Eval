@@ -1,0 +1,48 @@
+EXPORTED mopd15k 2/2
+EXPORTED rstg15k 2/2
+{
+  "datasets": {
+    "mopd15k": {
+      "repo_id": "example/mopd15k",
+      "revision": "fixture",
+      "rows": 2
+    },
+    "rstg15k": {
+      "repo_id": "example/rstg15k",
+      "revision": "fixture",
+      "rows": 2
+    }
+  },
+  "record_counts": {
+    "base_mix30k": 4,
+    "mopd_rstg15k": 2
+  },
+  "source_counts": {
+    "base_mix30k": {
+      "the_cauldron": 4
+    },
+    "mopd_rstg15k": {
+      "the_cauldron": 2
+    }
+  },
+  "cross_set_exact_image_question_answer_intersection": 1,
+  "base_unique_image_question_answer_fingerprints": 1,
+  "fingerprint_scope": "Exact image bytes + stripped question + stripped final answer; not semantic deduplication",
+  "deduplicated_training_rows": false,
+  "offline_shuffle": false,
+  "training_shuffle_seed": 1,
+  "published_prompt_used_for_training": false,
+  "verifier": "Original OSS v3 still required; no grading performed",
+  "val": "NOT_CREATED_OR_REMOVED_FROM_TRAIN",
+  "jsonl_sha256": {
+    "base_mix30k.train.jsonl": "9e76c1285277b8cbe0129c926c8e3ca0068a44a46d2966ca9519e5f7df3917c8",
+    "mopd_rstg15k.train.jsonl": "82977e071967c906ee8287188cd61e961cf5f179c45be4051eb9cb1299f2ae30"
+  },
+  "absolute_image_root": "C:\\Users\\reborn\\AppData\\Local\\Temp\\tmpjcouvunj\\out\\images"
+}
+
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.241s
+
+OK

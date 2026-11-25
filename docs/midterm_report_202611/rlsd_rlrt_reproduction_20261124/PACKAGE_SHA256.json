@@ -1,0 +1,170 @@
+{
+  "check_environment.py": {
+    "bytes": 3600,
+    "sha256": "9fccbeb3d9eded90733b2822e3290414727509f10e523cb2f6fb7a839ee816bf"
+  },
+  "collect_original_run.py": {
+    "bytes": 7937,
+    "sha256": "1b627aca96bff860c0eb03326625769968c0539ba0f85ab70174b7279cd08eeb"
+  },
+  "configs/experiment_recipe.json": {
+    "bytes": 4000,
+    "sha256": "df8af9b1a1d117b20c7b75021522a7e838dc7603c31ee069de6cc8084578fa24"
+  },
+  "environment/reference-pip-freeze.txt": {
+    "bytes": 4736,
+    "sha256": "2ed583b4e6df467f787a4d4353fde97339a46fd1319cea9b47dc020f3e7b930d"
+  },
+  "environment/reference-repository-requirements.txt": {
+    "bytes": 394,
+    "sha256": "fc62c6a428ddb4b335382ffd7df2e77840b2d024b2725b31980dbce18f134087"
+  },
+  "environment/requirements-cuda.txt": {
+    "bytes": 725,
+    "sha256": "14a8220be15a6caaf508726bdab82ce906689684c254a59d4290883de41f13bb"
+  },
+  "evidence/delivery_audit_20261121.json": {
+    "bytes": 485,
+    "sha256": "af6e426e09f7b391dba7614ccf7dea5b172305c663a66ae022f9b464218358aa"
+  },
+  "evidence/HISTORICAL_BASE_CONFIG_NOT_MOPD.yaml": {
+    "bytes": 8635,
+    "sha256": "6a7250448a13794955fe99d0662d8f04a1db699c5824ecbd23beacd696af126e"
+  },
+  "evidence/HISTORICAL_BASE_PREFLIGHT_NOT_MOPD.json": {
+    "bytes": 10581,
+    "sha256": "d52b692f1eccd36b938db708056dbc688e289c95bdd6fd41f54414e4ceb33506"
+  },
+  "evidence/MOPD-route-v2-train-15k_api.json": {
+    "bytes": 3814,
+    "sha256": "8d1d03a355740ce97de72972398b90f526abf5591e0b3e2fdf846cada3e39570"
+  },
+  "evidence/MOPD-route-v2-train-15k_first_row_metadata.json": {
+    "bytes": 1335,
+    "sha256": "f0858f9738b08da6e28427bcbb3f3dec63d301048afde21e7cf08b3c1a0320b6"
+  },
+  "evidence/MOPD-route-v2-train-15k_manifest.json": {
+    "bytes": 4277,
+    "sha256": "b43894bfdc20909b76f1d6f55dc43a37513a34283644f16983fea08e968cedc5"
+  },
+  "evidence/MOPD-route-v2-train-15k_README.md": {
+    "bytes": 1848,
+    "sha256": "18c606a3d8d723aef693757470e92a327719b0831dc84cd1303f4ea60e4d880b"
+  },
+  "evidence/MOPD-route-v2-train-15k_viewer_info.json": {
+    "bytes": 1343,
+    "sha256": "a0903f6c388d8df7469bc37f3afa414946b40a7013e48a4881c5dbf6fade8f97"
+  },
+  "evidence/preparation-tests-20261124.txt": {
+    "bytes": 1434,
+    "sha256": "6e491ebfdf0abc8c8a3f594111407b55d5b0c199cc51fc4cdcc3864df1700fd7"
+  },
+  "evidence/reference_code_sha256.json": {
+    "bytes": 1383,
+    "sha256": "973e562c2a30dfe2c966ec592ebd9d6b84ff94cf2c16c41bea0b6014361b0fc7"
+  },
+  "evidence/reference_cpu_tests.txt": {
+    "bytes": 180,
+    "sha256": "4a4b9b683bbfd6c9ec1153ccb3e568792a31372e12a811a266bdb8e8c4698db2"
+  },
+  "evidence/RL-RSTG-ZVP-train-15k_api.json": {
+    "bytes": 3790,
+    "sha256": "d94348e6a39230ab7105e9b2343d4555de727aa8e8fcbce4fba6d43e6a751fbc"
+  },
+  "evidence/RL-RSTG-ZVP-train-15k_first_row_metadata.json": {
+    "bytes": 1399,
+    "sha256": "8b85dbe5424b6e8a57a0a0bc312a6242f9d36eae9bfd42cc113a2e7875cbdb2b"
+  },
+  "evidence/RL-RSTG-ZVP-train-15k_manifest.json": {
+    "bytes": 4283,
+    "sha256": "6af706f6308ca76be6352b3f632eae881ce22bf24144d119815309c2c2a4d825"
+  },
+  "evidence/RL-RSTG-ZVP-train-15k_README.md": {
+    "bytes": 1880,
+    "sha256": "f00c4107d075e0587f2c853f692c9df517adde81c9a41064d99281a95622d259"
+  },
+  "evidence/RL-RSTG-ZVP-train-15k_viewer_info.json": {
+    "bytes": 1341,
+    "sha256": "85175d40e3a8ee2ef65265ee10cff952fdfdac5031f40b2e6e948d858551162d"
+  },
+  "evidence/update_audit_20261124.json": {
+    "bytes": 1444,
+    "sha256": "1a8828bb412d26a0fd768a1c9acc0deb9d948dbeaa47f8533b8fc31cc14f2ee7"
+  },
+  "evidence/verified_remote_provenance.json": {
+    "bytes": 12364,
+    "sha256": "54cb07d337dfddf9348f47cdb3e7a82c62e2bf469459d97e76f4c676025ecdc6"
+  },
+  "prepare_hf_data.py": {
+    "bytes": 8027,
+    "sha256": "7b128afab6aef8662b9f4500241a8222031ca39733ad6b2fbdce7e3e3a26d4d8"
+  },
+  "README_先读.md": {
+    "bytes": 2655,
+    "sha256": "e2081f7d75c1cec7653e58c95f522e3b220357cf69f7c5e9f9e5d99e0059ede2"
+  },
+  "reference_code/examples/visual_rl/format_prompt/teacher_hint_self_distill.jinja": {
+    "bytes": 459,
+    "sha256": "d4f41e281178043db1d5e9547db815f9a413ec01d9ecbf48e4c5bc9911c345d5"
+  },
+  "reference_code/examples/visual_rl/format_prompt/unified.jinja": {
+    "bytes": 9274,
+    "sha256": "42393b26003d0db3bcb69ed0ffe9ddf3d1a4f7a1a2df1727b011199d9f1e18d3"
+  },
+  "reference_code/README_HYBRID.md": {
+    "bytes": 13530,
+    "sha256": "e63d4d0aa31da370dea468d0db22b3b710557819b73e11f3172e5722fa6422b4"
+  },
+  "reference_code/tests/test_hybrid_groups.py": {
+    "bytes": 1704,
+    "sha256": "e0d4ea215a8911f360bc048f4471f933779969e62762a08426271e9c193354b5"
+  },
+  "reference_code/tests/test_rlsd_rlrt_weights.py": {
+    "bytes": 19594,
+    "sha256": "6f40c4a2e3d1c5c775eb91db922b38a8f45940aa0046cfa1b62e0c88a5d56c45"
+  },
+  "reference_code/verl/trainer/core_algos.py": {
+    "bytes": 21057,
+    "sha256": "6ceafc31738f423910b1cb99ecda4e1a023a08068b32b6eb843c24c67f7980b2"
+  },
+  "reference_code/verl/trainer/opsd_config.py": {
+    "bytes": 25128,
+    "sha256": "b7a9316e8b960ceb00e0f30601b79a6e174452616bf4a3588503a06c26fe8dcb"
+  },
+  "reference_code/verl/trainer/opsd_trainer.py": {
+    "bytes": 124657,
+    "sha256": "ec0614f71349a83b5024fd2a12c190beb0cd750855ac89f08f6537d53a13bb54"
+  },
+  "reference_code/verl/trainer/ray_trainer.py": {
+    "bytes": 42600,
+    "sha256": "15f9ee04fcf69f75e7df76ef4021df8fad6925a395c20f4914d6cc5878b9a7f4"
+  },
+  "reference_code/verl/utils/hybrid_groups.py": {
+    "bytes": 1987,
+    "sha256": "d8e70a1697d7c4ebf70b6f325b140de3ffa706ce1b96af75af4e77772fcafa8a"
+  },
+  "reference_code/verl/utils/rlsd_rlrt.py": {
+    "bytes": 14819,
+    "sha256": "325547f3b65c85c27a715e3116f4c5a755194c1a06e1e94c447bae31a0656ced"
+  },
+  "reference_code/verl/workers/actor/dp_opsd_actor.py": {
+    "bytes": 67616,
+    "sha256": "abb029c060d561daec5b1a32d6b85acddd81998e25ae6688bad8c2494365cf1f"
+  },
+  "reference_code/verl/workers/fsdp_workers.py": {
+    "bytes": 41449,
+    "sha256": "b0b6356eb3cf11603a529743b4d272ee04566cb110b36c65c8315ed8a99936c7"
+  },
+  "RLSD_RLRT_方法与复现说明.md": {
+    "bytes": 42452,
+    "sha256": "6b8365617db24601a04db57d1f91c172df345b925eabb1c27478ea3f486111be"
+  },
+  "tests/test_preparation.py": {
+    "bytes": 6559,
+    "sha256": "e3cf5a43d510ac0c5f586fc7497fb9846c9714a8598f3d6ef45d7d5b6ec708bf"
+  },
+  "环境与数据准备.md": {
+    "bytes": 13971,
+    "sha256": "313542c7ed86f1fe87b282e288dcd2b283f960d7f560a2e38b116d50a8ecfa52"
+  }
+}

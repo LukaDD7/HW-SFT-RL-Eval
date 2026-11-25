@@ -1,0 +1,133 @@
+{
+  "stage": "MOPD",
+  "version": "mopd_route_v2_20261020",
+  "source_train_parquet_sha256": "2ed31e31527921568af215628311250bd61fa094a9a8bb98e1e5721c49762fc2",
+  "rows": 15000,
+  "source_counts": {
+    "the_cauldron": 9514,
+    "mmfinereason": 5486
+  },
+  "image_hashes_checked": 15000,
+  "shards": [
+    {
+      "path": "data/train-00000-of-00020.parquet",
+      "rows": 750,
+      "bytes": 101520873,
+      "sha256": "bf22dabae6e5121d735880e3447200017e543c9e588377d8a85696322afe6edd"
+    },
+    {
+      "path": "data/train-00001-of-00020.parquet",
+      "rows": 750,
+      "bytes": 105529249,
+      "sha256": "2d0d2c145b2161585593bde89424c2da7efe93473df506dac73c40154157dcfb"
+    },
+    {
+      "path": "data/train-00002-of-00020.parquet",
+      "rows": 750,
+      "bytes": 112068868,
+      "sha256": "940400912de7b7673cfd6b7513aee0a49ffae7b2a3dfa1d8f748674700d0a116"
+    },
+    {
+      "path": "data/train-00003-of-00020.parquet",
+      "rows": 750,
+      "bytes": 109802439,
+      "sha256": "6b2c0fcfedbea966d496fd5d022b20a674942ed6634a723456ae0b02f7f42cd0"
+    },
+    {
+      "path": "data/train-00004-of-00020.parquet",
+      "rows": 750,
+      "bytes": 105985684,
+      "sha256": "2d9f28e72324b4807d23fe5071be92450cf46c20025ec6a7b2d3957947f754bc"
+    },
+    {
+      "path": "data/train-00005-of-00020.parquet",
+      "rows": 750,
+      "bytes": 102054786,
+      "sha256": "36ab983a52c949becd1048f8d700d2c15e4947af59d5e0f16b3ba4ceb1dbd4d6"
+    },
+    {
+      "path": "data/train-00006-of-00020.parquet",
+      "rows": 750,
+      "bytes": 107497647,
+      "sha256": "c2acacf42d45edf16dd42f98f6e9f448246d68e2bfa1d71bfc71613f4570baa4"
+    },
+    {
+      "path": "data/train-00007-of-00020.parquet",
+      "rows": 750,
+      "bytes": 127244007,
+      "sha256": "b1956da6bc5bd6ad980b5eb8477e6b952d40ed14b5bc92d1dbf7c8f97c7364fe"
+    },
+    {
+      "path": "data/train-00008-of-00020.parquet",
+      "rows": 750,
+      "bytes": 126900508,
+      "sha256": "6289080a913de27ec5a9fea05a15fa18201fd2340ab97683bebb41a5c5fa4990"
+    },
+    {
+      "path": "data/train-00009-of-00020.parquet",
+      "rows": 750,
+      "bytes": 95165313,
+      "sha256": "4ede97100a91ed7176d9b356448f482d4487d4cb48259eed393b3997a9da5789"
+    },
+    {
+      "path": "data/train-00010-of-00020.parquet",
+      "rows": 750,
+      "bytes": 114906686,
+      "sha256": "cb76eaff07b7155868016405b04e33370147f9d0aca25d1beef99ecf1942b089"
+    },
+    {
+      "path": "data/train-00011-of-00020.parquet",
+      "rows": 750,
+      "bytes": 107047625,
+      "sha256": "7cf4f89d93a3afd5a6d2e839fd759f7bcaf5e6af56cbb8bf2c28fb8a4a32a790"
+    },
+    {
+      "path": "data/train-00012-of-00020.parquet",
+      "rows": 750,
+      "bytes": 100355182,
+      "sha256": "cc36885fe69baabd5599d3e693074c70a252800ce7035e19f1478a55190b785d"
+    },
+    {
+      "path": "data/train-00013-of-00020.parquet",
+      "rows": 750,
+      "bytes": 110066968,
+      "sha256": "d3df6e0aa5ea378ff4233962b5efb68da3c455de7cf0b96c2b7ed0071701ff2c"
+    },
+    {
+      "path": "data/train-00014-of-00020.parquet",
+      "rows": 750,
+      "bytes": 102504597,
+      "sha256": "eb571e56a665b15503731841f9bae0c22a6cbad5b1e35bf961e1042101aca1f3"
+    },
+    {
+      "path": "data/train-00015-of-00020.parquet",
+      "rows": 750,
+      "bytes": 107764496,
+      "sha256": "b528eb2211504f32b991d117a2f2b3a7aec8e5388bdec9816d4cf15c3d0a40ae"
+    },
+    {
+      "path": "data/train-00016-of-00020.parquet",
+      "rows": 750,
+      "bytes": 95669762,
+      "sha256": "8818edaf3152460000c362cc13d48beccf791bcd224915c90f5dcb3de56592fd"
+    },
+    {
+      "path": "data/train-00017-of-00020.parquet",
+      "rows": 750,
+      "bytes": 94014682,
+      "sha256": "a7a842b1c7911c693c6a421ea6119fb4662780f0cdc9a6654976a1fb195f8b26"
+    },
+    {
+      "path": "data/train-00018-of-00020.parquet",
+      "rows": 750,
+      "bytes": 104930458,
+      "sha256": "80bbc136c1ac29fd30934518f105a1664e48cebcf1c088b1d51bdcf1238427b9"
+    },
+    {
+      "path": "data/train-00019-of-00020.parquet",
+      "rows": 750,
+      "bytes": 114495778,
+      "sha256": "2a77f948a9bf0bb7dc4338a6de9244625d029787109bef5a10b43e4b117db82e"
+    }
+  ]
+}

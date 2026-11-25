@@ -1,0 +1,28 @@
+{
+  "stage": "RL",
+  "sample_id": "the_cauldron:visual7w:train-00003-of-00009-7305011660423598.parquet:row00001464:turn1:visual7w:c9c02f1fb8d164cde97f4353",
+  "dataset": "the_cauldron",
+  "source": "Visual7W",
+  "subset": "visual7w",
+  "domain": "natural_vqa",
+  "subtask": "natural_vqa",
+  "teacher_id": "teacher_opsd",
+  "question": "<image>\nQuestion: what is in the distance?\nChoices:\nA. A bus.\nB. A train.\nC. A car.\nD. A motorcycle.",
+  "ground_truth": "C",
+  "answer_type": "mcq",
+  "reward_type": "choice",
+  "rule_solution_json": "{\"answer_type\":\"mcq\",\"metadata\":{\"capability\":\"general_visual\",\"label_evidence\":\"source_proxy\",\"reference_scope\":\"local_single_reference\",\"source\":\"Visual7W\"},\"options\":[\"A bus.\",\"A train.\",\"A car.\",\"A motorcycle.\"],\"references\":[\"C\"],\"relative_tolerance\":null,\"tolerance\":null}",
+  "prompt": [
+    {
+      "role": "system",
+      "content": "Examine the question carefully and think step by step. Put your reasoning in <think>...</think> and your final answer in <answer>...</answer>. Follow the answer format requested in the question.\n"
+    },
+    {
+      "role": "user",
+      "content": "<image>\nQuestion: what is in the distance?\nChoices:\nA. A bus.\nB. A train.\nC. A car.\nD. A motorcycle."
+    }
+  ],
+  "enable_thinking": false,
+  "min_pixels": null,
+  "max_pixels": 1048576
+}

@@ -1,0 +1,15 @@
+{
+  "verl/utils/rlsd_rlrt.py": "325547f3b65c85c27a715e3116f4c5a755194c1a06e1e94c447bae31a0656ced",
+  "verl/utils/hybrid_groups.py": "d8e70a1697d7c4ebf70b6f325b140de3ffa706ce1b96af75af4e77772fcafa8a",
+  "verl/workers/actor/dp_opsd_actor.py": "abb029c060d561daec5b1a32d6b85acddd81998e25ae6688bad8c2494365cf1f",
+  "verl/trainer/core_algos.py": "6ceafc31738f423910b1cb99ecda4e1a023a08068b32b6eb843c24c67f7980b2",
+  "verl/trainer/opsd_trainer.py": "ec0614f71349a83b5024fd2a12c190beb0cd750855ac89f08f6537d53a13bb54",
+  "verl/trainer/ray_trainer.py": "15f9ee04fcf69f75e7df76ef4021df8fad6925a395c20f4914d6cc5878b9a7f4",
+  "verl/trainer/opsd_config.py": "b7a9316e8b960ceb00e0f30601b79a6e174452616bf4a3588503a06c26fe8dcb",
+  "verl/workers/fsdp_workers.py": "b0b6356eb3cf11603a529743b4d272ee04566cb110b36c65c8315ed8a99936c7",
+  "examples/visual_rl/format_prompt/unified.jinja": "42393b26003d0db3bcb69ed0ffe9ddf3d1a4f7a1a2df1727b011199d9f1e18d3",
+  "examples/visual_rl/format_prompt/teacher_hint_self_distill.jinja": "d4f41e281178043db1d5e9547db815f9a413ec01d9ecbf48e4c5bc9911c345d5",
+  "tests/test_rlsd_rlrt_weights.py": "6f40c4a2e3d1c5c775eb91db922b38a8f45940aa0046cfa1b62e0c88a5d56c45",
+  "tests/test_hybrid_groups.py": "e0d4ea215a8911f360bc048f4471f933779969e62762a08426271e9c193354b5",
+  "README_HYBRID.md": "e63d4d0aa31da370dea468d0db22b3b710557819b73e11f3172e5722fa6422b4"
+}

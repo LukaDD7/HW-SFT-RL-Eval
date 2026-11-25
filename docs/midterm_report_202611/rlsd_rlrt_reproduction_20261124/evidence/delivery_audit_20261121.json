@@ -1,0 +1,12 @@
+{
+  "documentation_code_consistency": "PASS for common hybrid formula and inherited core recipe",
+  "mopd_provenance_identity": "PASS from actual step200 export source",
+  "historical_mopd_resolved_config": "NOT_RETRIEVED",
+  "rstg_dataset_and_oss_source": "NOT_INCLUDED",
+  "reference_cpu_tests": 32,
+  "collector_self_check": "PASS",
+  "new_gpu_training_started": false,
+  "cloud_upload_or_git_commit": false,
+  "main_document_characters": 19798,
+  "reference_files": 13
+}

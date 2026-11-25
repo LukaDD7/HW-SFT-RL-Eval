@@ -1,0 +1,118 @@
+{
+  "_id": "6b012b908befe012193871fc",
+  "id": "lzy-vlm-lab-opd/MOPD-route-v2-train-15k",
+  "author": "lzy-vlm-lab-opd",
+  "sha": "6374961a4945f5ee7462520ecd54bcc93ee9d0bc",
+  "lastModified": "2026-11-21T06:05:02.000Z",
+  "private": false,
+  "gated": false,
+  "disabled": false,
+  "tags": [
+    "task_categories:visual-question-answering",
+    "size_categories:10K<n<100K",
+    "format:parquet",
+    "modality:image",
+    "modality:text",
+    "library:datasets",
+    "library:dask",
+    "library:polars",
+    "library:mlcroissant",
+    "region:us"
+  ],
+  "description": "\n\t\n\t\t\n\t\n\t\n\t\tMOPD route-v2 · 训练题目\n\t\n\nMOPD 蒸馏阶段。此训练集用于训练后续 RL 所用的 route-v2 MOPD step351 起点。\n本仓库收录该阶段实际使用的 15,000 条训练题，保留原始行序。每题包含原图、原始 system/user 消息、含选项的题面（如有）、标准答案、判分规则、题目来源和教师路由标签。图片以原始文件字节嵌入 Parquet。仓库中的答案来自训练数据标注。\n\n\t\n\t\t\n来源\n训练题数\n\n\n\t\t\nMMFineReason\n5,486\n\n\nthe_cauldron\n9,514\n\n\n\t\n\nquestion 是原始 user 消息，prompt 包含完整训练对话输入。题目可以通过 sample_id 追踪，图像可以通过 image_sha256 核验。ground_truth 是训练记录中的答案字符串，rule_solution_json 保留该题的结构化判分说明。teacher_id 表示数据记录中的路由标签。原始训练 Parquet 的 SHA-256 和发布分片的校验值见 manifest.json。… See the full description on the dataset page: https://huggingface.co/datasets/lzy-vlm-lab-opd/MOPD-route-v2-train-15k.",
+  "downloads": 58,
+  "likes": 0,
+  "cardData": {
+    "pretty_name": "MOPD route-v2 training questions (15k)",
+    "task_categories": [
+      "visual-question-answering"
+    ],
+    "size_categories": [
+      "10K<n<100K"
+    ],
+    "configs": [
+      {
+        "config_name": "default",
+        "data_files": [
+          {
+            "split": "train",
+            "path": "data/train-*.parquet"
+          }
+        ]
+      }
+    ]
+  },
+  "siblings": [
+    {
+      "rfilename": ".gitattributes"
+    },
+    {
+      "rfilename": "README.md"
+    },
+    {
+      "rfilename": "data/train-00000-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00001-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00002-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00003-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00004-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00005-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00006-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00007-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00008-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00009-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00010-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00011-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00012-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00013-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00014-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00015-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00016-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00017-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00018-of-00020.parquet"
+    },
+    {
+      "rfilename": "data/train-00019-of-00020.parquet"
+    },
+    {
+      "rfilename": "manifest.json"
+    }
+  ],
+  "createdAt": "2026-11-21T05:26:40.000Z",
+  "usedStorage": 2145525608
+}

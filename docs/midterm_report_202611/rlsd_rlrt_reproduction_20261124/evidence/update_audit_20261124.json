@@ -1,0 +1,35 @@
+{
+  "version": "2026-11-24",
+  "user_confirmed_base_data": "Both 15k full concatenation, no downsampling",
+  "new_data_revisions_verified_via_hf_api": {
+    "mopd15k": {
+      "repo_id": "lzy-vlm-lab-opd/MOPD-route-v2-train-15k",
+      "revision": "6374961a4945f5ee7462520ecd54bcc93ee9d0bc",
+      "rows": 15000
+    },
+    "rstg15k": {
+      "repo_id": "lzy-vlm-lab-opd/RL-RSTG-ZVP-train-15k",
+      "revision": "df005b52aead28acf57b05a1f30487a220d398bb",
+      "rows": 15000
+    }
+  },
+  "new_data_cards_manifest_schema_and_first_rows": "READ_AND_SAVED",
+  "historical_h200_common_parameters_compared": 64,
+  "common_parameter_differences": [],
+  "reference_code_files_unchanged": 13,
+  "reference_cpu_tests": "Historical 32 passes retained; not rerun on a new H200",
+  "new_preparation_tests": {
+    "count": 5,
+    "status": "PASS",
+    "scope": "Offline real metadata + tiny synthetic parquet/image fixtures; no full remote image export"
+  },
+  "new_full_hf_data_export": "NOT_RUN",
+  "new_cuda_installation_or_gpu_training": "NOT_RUN",
+  "original_mopd_resolved_config": "NOT_RETRIEVED",
+  "original_oss_v3_source": "NOT_INCLUDED",
+  "original_validation_set": "NOT_INCLUDED",
+  "cloud_upload_or_git_commit": false,
+  "old_package_preserved": true,
+  "data_card_version_note": "HF RL dataset has OSS v5 provenance; requested training verifier remains historical OSS v3",
+  "document_characters": 24604
+}

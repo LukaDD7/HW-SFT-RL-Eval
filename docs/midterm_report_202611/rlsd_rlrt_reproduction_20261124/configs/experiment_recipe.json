@@ -1,0 +1,115 @@
+{
+  "version": "2026-11-24",
+  "datasets": {
+    "mopd15k": {
+      "repo_id": "lzy-vlm-lab-opd/MOPD-route-v2-train-15k",
+      "revision": "6374961a4945f5ee7462520ecd54bcc93ee9d0bc",
+      "rows": 15000
+    },
+    "rstg15k": {
+      "repo_id": "lzy-vlm-lab-opd/RL-RSTG-ZVP-train-15k",
+      "revision": "df005b52aead28acf57b05a1f30487a220d398bb",
+      "rows": 15000
+    }
+  },
+  "experiments": {
+    "base_mix30k": {
+      "model": "Qwen/Qwen3-VL-8B-Instruct",
+      "model_revision": "RECORD_ACTUAL_DOWNLOADED_REVISION",
+      "datasets": [
+        "mopd15k",
+        "rstg15k"
+      ],
+      "rows_before_filter": 30000
+    },
+    "mopd_rstg15k": {
+      "model": "lzy-vlm-lab-opd/qwen3-vl-8b-iso-mopd-route-v2-step351",
+      "model_revision": "f9582f3594ba0a47e513a50b658204e7c322fbbb",
+      "datasets": [
+        "rstg15k"
+      ],
+      "rows_before_filter": 15000
+    }
+  },
+  "data_policy": {
+    "concatenate_all_rows": true,
+    "deduplicate": false,
+    "downsample": false,
+    "shuffle_in_original_dataloader": true,
+    "seed": 1,
+    "val": "ORIGINAL_INDEPENDENT_VALIDATION_ASSET_REQUIRED",
+    "published_prompts_are_provenance_only": true
+  },
+  "common": {
+    "reward_identity": "rstg_oss_verifier_v3",
+    "reward_source_status": "ORIGINAL_SOURCE_AND_DEPENDENCIES_REQUIRED",
+    "algorithm.adv_estimator": "grpo",
+    "algorithm.disable_kl": true,
+    "algorithm.use_kl_loss": false,
+    "data.rollout_batch_size": 256,
+    "data.mini_rollout_batch_size": 256,
+    "worker.rollout.n": 8,
+    "worker.rollout.temperature": 1.0,
+    "worker.rollout.top_p": 1.0,
+    "worker.rollout.top_k": -1,
+    "worker.rollout.seed": 1,
+    "data.max_prompt_length": 4096,
+    "data.max_response_length": 4096,
+    "data.image_min_pixels": 262144,
+    "data.image_max_pixels": 1048576,
+    "worker.actor.global_batch_size": 256,
+    "worker.actor.optim.lr": 1e-06,
+    "worker.actor.optim.betas": [
+      0.9,
+      0.999
+    ],
+    "worker.actor.optim.weight_decay": 0.01,
+    "worker.actor.optim.lr_scheduler_type": "constant",
+    "worker.actor.clip_ratio_low": 0.2,
+    "worker.actor.clip_ratio_high": 0.28,
+    "worker.actor.clip_ratio_dual": 3.0,
+    "worker.actor.ppo_epochs": 1,
+    "worker.actor.max_grad_norm": 1.0,
+    "worker.actor.model.freeze_vision_tower": false,
+    "worker.actor.padding_free": true,
+    "worker.actor.dynamic_batching": true,
+    "worker.actor.max_token_len_per_gpu": 8192,
+    "worker.ref.max_token_len_per_gpu": 8192,
+    "worker.actor.use_torch_compile": true,
+    "worker.rollout.tensor_parallel_size": 1,
+    "worker.rollout.gpu_memory_utilization": 0.6,
+    "worker.rollout.max_num_batched_tokens": 32768,
+    "worker.rollout.enforce_eager": false,
+    "opsd.enable_grpo_opsd_simple": true,
+    "opsd.grpo_opsd_mode": "hybrid",
+    "opsd.binary_reward_groups": true,
+    "opsd.freeze_teacher_model": true,
+    "opsd.teacher_context_mode": "hint",
+    "opsd.use_gt_as_hint": true,
+    "opsd.rlsd_lambda": 0.5,
+    "opsd.rlsd_lambda_warmup_steps": 0,
+    "opsd.rlsd_lambda_decay_steps": 200,
+    "opsd.rlsd_teacher_sync_interval": 10,
+    "opsd.rlsd_positive_reweight_clip_range": 0.5,
+    "opsd.rlsd_negative_reweight_clip_range": 0.2,
+    "opsd.rlsd_reweight_clip_range": 0.2,
+    "opsd.rlsd_thought_only": false,
+    "opsd.rlsd_negative_only": false,
+    "opsd.eapo_negative_kappa": 0.0,
+    "opsd.rise_enabled": false,
+    "opsd.dcsd_enabled": false,
+    "opsd.enable_sdpo": false,
+    "opsd.self_distill_negative_off_policy": false,
+    "trainer.nnodes": 1,
+    "trainer.n_gpus_per_node": 8,
+    "trainer.max_steps": 400,
+    "trainer.total_epochs": 3,
+    "trainer.save_freq": 50,
+    "trainer.save_limit": -1,
+    "trainer.val_freq": 50,
+    "trainer.val_before_train": false,
+    "trainer.checkpoint_require_complete": true,
+    "trainer.save_model_only": false
+  },
+  "config_status": "RECIPE_ONLY_NOT_COMPLETE_RUNTIME_CONFIG"
+}

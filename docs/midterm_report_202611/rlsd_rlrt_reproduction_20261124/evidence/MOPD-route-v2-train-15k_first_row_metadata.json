@@ -1,0 +1,28 @@
+{
+  "stage": "MOPD",
+  "sample_id": "aokvqa:c184f492e9fb1d56be880c99",
+  "dataset": "the_cauldron",
+  "source": "A-OKVQA",
+  "subset": "aokvqa",
+  "domain": "teacher_opsd",
+  "subtask": "broad_visual",
+  "teacher_id": "teacher_opsd",
+  "question": "<image>\nHow many little giraffes are traveling with this small group?\nChoices:\nA. Five\nB. seven\nC. three\nD. two",
+  "ground_truth": "D",
+  "answer_type": "mcq",
+  "reward_type": "choice",
+  "rule_solution_json": "{\"answer_type\": \"mcq\", \"metadata\": {\"capability\": \"counting\", \"label_evidence\": \"question_rule\", \"reference_scope\": \"local_single_reference\", \"source\": \"A-OKVQA\"}, \"options\": [\"Five\", \"seven\", \"three\", \"two\"], \"references\": [\"D\"], \"relative_tolerance\": null, \"tolerance\": null}",
+  "prompt": [
+    {
+      "role": "system",
+      "content": "Examine the question carefully and think step by step. Put your reasoning in <think>...</think> and your final answer in <answer>...</answer>. Follow the answer format requested in the question.\n"
+    },
+    {
+      "role": "user",
+      "content": "<image>\nHow many little giraffes are traveling with this small group?\nChoices:\nA. Five\nB. seven\nC. three\nD. two"
+    }
+  ],
+  "enable_thinking": false,
+  "min_pixels": 262144,
+  "max_pixels": 1048576
+}
